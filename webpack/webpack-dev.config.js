@@ -9,15 +9,17 @@ module.exports = {
     APP_DIR + '/ohhell.jsx'
   ],
   output: {
-  	filename: '[name].js',
-  	path: BUILD_DIR + '/public',
-  	publicPath: '/public'
+  	filename: 'ohhell.js',
+  	path: BUILD_DIR,
+  	publicPath: '/public/'
   },
   module: {
-    loaders: [{
-    	test: /\.jsx$/,
-    	exclude: /node_modules/,
-    	loader: 'babel-loader'
-    }]
+    loaders: [
+      {
+      	test: /\.jsx$/,
+      	exclude: /node_modules/,
+      	loader: 'babel-loader'
+      }
+    ]
   }
 }
