@@ -1,7 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 
-alert("Help")
 class MainMenu extends React.Component {
   render() {
     return (

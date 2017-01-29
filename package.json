@@ -4,7 +4,7 @@
   "description": "Scorekeeping app for the Zazzle games lunch crew",
   "main": "index.js",
   "scripts": {
-    "dev": "webpack-dev-server --config webpack/webpack-dev.config.js --content-base public/ --watch",
+    "dev": "webpack-dev-server --config webpack/webpack-dev.config.js --content-base public/ --watch --hot",
     "watch": "babel --watch src -d public --source-maps inline --copy-files",
     "build": "babel src -d public --source-maps inline --copy-files",
     "test": "echo \"Error: no test specified\" && exit 1"

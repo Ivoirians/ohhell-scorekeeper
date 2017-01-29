@@ -9,9 +9,9 @@ module.exports = {
     APP_DIR + '/ohhell.jsx'
   ],
   output: {
-  	filename: 'ohhell.js',
+  	filename: '/ohhell.js',
   	path: BUILD_DIR,
-  	publicPath: '/public/'
+    publicPath: '/scripts/'
   },
   module: {
     loaders: [
