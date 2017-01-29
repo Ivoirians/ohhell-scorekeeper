@@ -14,3 +14,5 @@ class MainMenu extends React.Component {
     );
   }
 }
+
+ReactDOM.render(<MainMenu />, document.getElementById('root'));
