@@ -1,5 +1,5 @@
 import React from 'react'
-
+import ReactDOM from 'react-dom'
 class MainMenu extends React.Component {
         render() {
           return (

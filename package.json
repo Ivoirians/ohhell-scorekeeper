@@ -4,7 +4,7 @@
   "description": "Scorekeeping app for the Zazzle games lunch crew",
   "main": "index.js",
   "scripts": {
-    "cd": "cd",
+    "dev": "webpack-dev-server --config ./webpack/webpack-dev.config.js --watch --colors",
     "watch": "babel --watch src -d public --source-maps inline --copy-files",
     "build": "babel src -d public --source-maps inline --copy-files",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -21,6 +21,7 @@
   },
   "devDependencies": {
     "babel-cli": "^6.22.2",
+    "babel-loader": "^6.2.10",
     "babel-preset-es2016": "^6.22.0",
     "babel-preset-latest": "^6.22.0",
     "babel-preset-react": "^6.22.0",
