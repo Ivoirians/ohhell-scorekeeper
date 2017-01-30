@@ -5,8 +5,9 @@
   "main": "index.js",
   "scripts": {
     "dev": "webpack-dev-server --config webpack/webpack-dev.config.js --content-base public/ --watch --hot",
+    "build": "webpack --config webpack/webpack-dev.config.js",    
     "watch": "babel --watch src -d public --source-maps inline --copy-files",
-    "build": "babel src -d public --source-maps inline --copy-files",
+    "build-babel": "babel src -d public --source-maps inline --copy-files",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Kevin Shen",
