@@ -13,25 +13,32 @@ class App extends React.Component {
     super(props);
     this.state = {currentPage: PageEnum.MAIN_MENU};
   }
+
+  changePage(newPage) {
+    this.setState({
+      currentPage: newPage
+    });
+  }
+
   render () {
     var partial;
     console.log(this + " " + this.state + " " + this.state.currentPage);
     if (this.state.currentPage === PageEnum.MAIN_MENU)
     {
-      partial = <MainMenu />;
+      partial = <MainMenu changePage={this.changePage.bind(this)} />;
     } 
     else if (this.state.currentPage === PageEnum.STATISTICS)
     {
-      partial = <Statistics />;
+      partial = <Statistics changePage={this.changePage.bind(this)} />;
     }
     else if (this.state.currentPage === PageEnum.NEW_GAME)
     {
-      partial = <NewGame />
+      partial = <NewGame changePage={this.changePage.bind(this)} />
     }
     else 
     {
       //default page
-      partial = <MainMenu />;
+      partial = <MainMenu changePage={this.changePage.bind(this)} />;
     }
     return (
       <div>
@@ -68,11 +75,11 @@ class MainMenu extends React.Component {
   };
 
   createNewGame(event) {
-    this.setState({currentPage : PageEnum.NEW_GAME});
+    this.props.changePage(PageEnum.NEW_GAME);
   }
 
   viewStatistics(event) {
-    this.setState({currentPage : PageEnum.STATISTICS});
+    this.props.changePage(PageEnum.STATISTICS);
   }
 
   render() {
