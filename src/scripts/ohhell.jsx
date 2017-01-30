@@ -1,25 +1,32 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 
+var PageEnum = {
+  MAIN_MENU: 1,
+  NEW_GAME: 2,
+  STATISTICS: 3
+}
 
 
 class App extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {currentPage: PageEnum.MAIN_MENU};
   }
   render () {
     var partial;
-    if (this.state.currentPage === 'main-menu')
+    console.log(this + " " + this.state + " " + this.state.currentPage);
+    if (this.state.currentPage === PageEnum.MAIN_MENU)
     {
       partial = <MainMenu />;
     } 
-    else if (this.state.currentPage === 'statistics')
+    else if (this.state.currentPage === PageEnum.STATISTICS)
     {
       partial = <Statistics />;
     }
-    else if (this.state.currentPage === 'newGame')
+    else if (this.state.currentPage === PageEnum.NEW_GAME)
     {
+      partial = <NewGame />
     }
     else 
     {
@@ -58,26 +65,29 @@ class MainMenu extends React.Component {
 
   constructor(props) {
     super(props);
-    this.changeState = this.changeState.bind(this);
   };
 
+  createNewGame(event) {
+    this.setState({currentPage : PageEnum.NEW_GAME});
+  }
 
-  changeState(state) {;
-    this.currentPage = state;
-    //ReactDOM.render(<App />, document.getElementById('root'));
-  };
+  viewStatistics(event) {
+    this.setState({currentPage : PageEnum.STATISTICS});
+  }
 
   render() {
+    console.log("Main Menu: " + this.state);
     return (
       <div className="main-menu">
         <h1>Main Menu</h1>
         <ul>
-          <button onClick={this.changeState('main-menu')}> New Game </button>
-          <button onClick={this.changeState('statistics')}> Statistics </button>
+          <button onClick={this.createNewGame.bind(this)}> New Game </button>
+          <button onClick={this.viewStatistics.bind(this)}> Statistics </button>
         </ul>
       </div>
     );
   }
 }
+
 
 ReactDOM.render(<App />, document.getElementById('root'));
