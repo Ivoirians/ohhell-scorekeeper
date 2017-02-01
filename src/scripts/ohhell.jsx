@@ -14,16 +14,13 @@ firebase.initializeApp(config);
 var database = firebase.database();
 
 
-
-
-
-
-
-
 var PageEnum = {
   MAIN_MENU: 1,
-  NEW_GAME: 2,
-  STATISTICS: 3
+  CREATE_GAME: 2,
+  ROUND_BIDS: 3,
+  ROUND_TRICKS: 4,
+  WIN_SCREEN: 5,
+  STATISTICS: 6
 }
 
 
@@ -39,89 +36,34 @@ class App extends React.Component {
     });
   }
 
-  returnToMain() {
-    this.changePage(PageEnum.MAIN_MENU)
-  }
-
   render () {
     var partial;
-    if (this.state.currentPage === PageEnum.MAIN_MENU)
-    {
-      partial = <MainMenu changePage={this.changePage.bind(this)} />;
-    } 
-    else if (this.state.currentPage === PageEnum.STATISTICS)
-    {
-      partial = <Statistics returnToMain={this.returnToMain.bind(this)} />;
-    }
-    else if (this.state.currentPage === PageEnum.NEW_GAME)
-    {
-      partial = <Game returnToMain={this.returnToMain.bind(this)} />
-    }
-    else 
-    {
-      //default page
-      partial = <MainMenu changePage={this.changePage.bind(this)} />;
+    switch(this.state.currentPage) {
+      case PageEnum.Main_MENU:
+        partial = <MainMenu changePage={this.changePage.bind(this)} />;
+        break;
+      case PageEnum.CREATE_GAME:
+        partial = <CreateGame changePage={this.changePage.bind(this)} />;
+        break;
+      case PageEnum.ROUND_BIDS:
+        partial = <RoundBids changePage={this.changePage.bind(this)} />;
+        break;
+      case PageEnum.ROUND_TRICKS:
+        partial = <RoundTricks changePage={this.changePage.bind(this)} />;
+        break;
+      case PageEnum.WIN_SCREEN:
+        partial = <WinScreen changePage={this.changePage.bind(this)} />;
+        break;
+      case PageEnum.STATISTICS:
+        partial = <Statistics changePage={this.changePage.bind(this)} />;
+        break;
+      default:
+        partial = <MainMenu changePage={this.changePage.bind(this)} />;
+        break;
     }
     return (
       <div>
         {partial}
-      </div>
-    );
-  }
-}
-
-class CreateGame extends React.Component {
-
-}
-
-class Game extends React.Component {
-
-  createNewGame(players, scorekeeper, dealer) {
-    var gameMetaData = {
-      dtmCreated: new Date(),
-      players: players,
-      scorekeeper: scorekeeper,
-      dealer: dealer
-    }
-    this.state.currentGameKey = database.ref().child('games').push().key;
-
-    var updates = {};
-    updates['/games/' + this.state.currentGameKey] = gameMetaData;
-    for (var p in players){
-      updates['/user-games/' + p + "/" + this.state.currentGameKey] = gameMetaData; 
-    }
-
-    database.ref().update(updates);
-  }
-
-  constructor(props) {
-    super(props);
-    this.state = {scorekeeper: '', headerText: 'New Game'};
-  };
-
-
-
-  render() {
-    return (
-      <div className="new-game">
-        <h1>{this.state.headerText}</h1>
-        <form>
-          Scorekeeper: <input type="text" value={this.state.value}></input>
-        </form>
-        <button onClick={this.props.returnToMain}> Return to Main Menu </button>
-      </div>
-    );
-  }
-}
-
-
-
-class Statistics extends React.Component {
-  render() {
-    return (
-      <div className="statistics">
-        <h1> Statistics </h1>
-        <button onClick={this.props.returnToMain}> Return to Main Menu </button>
       </div>
     );
   }
@@ -134,7 +76,7 @@ class MainMenu extends React.Component {
   };
 
   goToNewGame(event) {
-    this.props.changePage(PageEnum.NEW_GAME);
+    this.props.changePage(PageEnum.CREATE_GAME);
   }
 
   goToStatistics(event) {
@@ -153,6 +95,107 @@ class MainMenu extends React.Component {
     );
   }
 }
+
+class CreateGame extends React.Component {
+
+  returnToMain() {
+    this.props.changePage(PageEnum.MAIN_MENU)
+  }
+
+  createNewGame(players, scorekeeper, dealer, date) {
+    var gameMetaData = {
+      dateCreated: date,
+      players: players.map((player) => (/*some kind of toString?*/player)),
+      scorekeeper: scorekeeper,
+      dealer: dealer
+    }
+    this.state.currentGameKey = database.ref().child('games').push().key;
+
+    var updates = {};
+    updates['/games/' + this.state.currentGameKey] = gameMetaData;
+    for (var p in players){
+      updates['/user-games/' + p.playerName + "/" + this.state.currentGameKey] = gameMetaData; 
+    }
+
+    database.ref().update(updates);
+  }
+
+  constructor(props) {
+    super(props);
+    this.state = {scorekeeper: '', headerText: 'New Game', players: [], n:0};
+  };
+
+
+  addPlayer(playerNumber, playerName) {
+    //check for duplicates, if people are going to be malicious--necessary?
+    this.state.players[playerNumber] = {playerName: playerName, playerNumber:playerNumber};
+    this.setState({n: 1});
+
+  }
+
+  render() {
+    console.log("Rendering form");
+    var playerRows = this.state.players.map((player) =>
+      <li key={player.playerNumber}>
+        {player.playerName}
+      </li>
+    );
+    return (
+      <div className="new-game">
+        <h1>{this.state.headerText}</h1>
+         {playerRows}
+        <h2>Players:</h2>
+        <form>
+          <AddPlayerRow playerNumber={1} addPlayer={this.addPlayer.bind(this)} />
+        </form>
+        <button onClick={this.returnToMain.bind(this)}> Return to Main Menu </button>
+      </div>
+    );
+  }
+}
+
+class AddPlayerRow extends React.Component {
+
+  constructor(props) {
+    super(props);
+    this.state = {scorekeeper: false, dealer: false, changed: false, playerName: "Player Name"};
+  };
+
+  handlePlayerChange(e) {
+    this.props.addPlayer(this.props.playerNumber, e.target.value);
+    this.setState(
+    {
+      playerName: e.target.value
+    })
+  }
+
+  render() {
+    return (
+      <div className = "player-row">
+        <input type="text" value={this.state.playerName} onChange={this.handlePlayerChange.bind(this)} />
+      </div>
+    );
+  }
+}
+
+
+
+class Statistics extends React.Component {
+
+  returnToMain() {
+    this.props.changePage(PageEnum.MAIN_MENU)
+  }
+
+  render() {
+    return (
+      <div className="statistics">
+        <h1> Statistics </h1>
+        <button onClick={this.returnToMain.bind(this)}> Return to Main Menu </button>
+      </div>
+    );
+  }
+}
+
 
 
 ReactDOM.render(<App />, document.getElementById('root'));
