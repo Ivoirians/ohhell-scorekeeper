@@ -8,7 +8,7 @@ Scorekeeping app for the Zazzle games lunch crew. Latest deployments currently l
 4. Run "firebase login" - Sets up deployment of this project.
 
 #Development
-1. Modify src/scripts/ohhell.jsx - 100% of the app logic lives here. Should be split out into multiple files eventually, in src/scripts.
+1. Modify src/scripts - Changes to index.html or .css files currently go to the files in public/, but all of the React .jsx files live here and will be webpacked.
 2. Run "npm run dev" - This will build the app in memory and serve it using webpack-dev-server. Changes to src/scripts/ will propagate automatically, so you can change the file, refresh your browser, and see the changes immediately.
 
 #Deployment
