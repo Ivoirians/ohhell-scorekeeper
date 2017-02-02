@@ -38,10 +38,8 @@ class App extends React.Component {
 
   getHeaderText() {
     var headerText;
-    console.log(this.state.currentPage == PageEnum.MAIN_MENU);
     switch(this.state.currentPage) {
       case PageEnum.MAIN_MENU:
-        console.log("Header TEXT");
         headerText = "Main Menu";
         break;
       case PageEnum.CREATE_GAME:
@@ -162,25 +160,34 @@ class CreateGame extends React.Component {
   addPlayer(playerNumber, playerName) {
     //check for duplicates, if people are going to be malicious--necessary?
     this.state.players[playerNumber] = {playerName: playerName, playerNumber:playerNumber};
-    this.setState({n: 1});
+    if (playerNumber == this.state.numPlayers)
+      this.setState({n: this.state.numPlayers+1});
+  }
 
+  logStateDebug() {
+    console.log(JSON.stringify(this.state));
   }
 
   render() {
     var playerRows = this.state.players.map((player) =>
-      <li key={player.playerNumber}>
-        {player.playerName}
-      </li>
+      <div key={player.playerNumber}>
+        <AddPlayerRow playerNumber={player.playerNumber} addPlayer={this.addPlayer.bind(this)} playerName={player.playerName} />
+      </div>
+    );
+    playerRows.push(
+      <div key={this.state.numPlayers}>
+          <AddPlayerRow playerNumber={this.state.numPlayers} addPlayer={this.addPlayer.bind(this)} />
+      </div>
     );
     return (
       <div className="new-game">
-         {playerRows}
         <h2>Players:</h2>
         <form>
-          <AddPlayerRow playerNumber={1} addPlayer={this.addPlayer.bind(this)} />
+          {playerRows}
         </form>
         <button onClick={this.goToRoundBids.bind(this)}> Start Round {this.props.roundNumber} </button>
         <button onClick={this.goToMainMenu.bind(this)}> Return to Main Menu </button>
+        <button onClick={this.logStateDebug.bind(this)}> Debug </button>
       </div>
     );
   }
@@ -190,21 +197,21 @@ class AddPlayerRow extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {scorekeeper: false, dealer: false, changed: false, playerName: "Player Name"};
+    this.state = {scorekeeper: false, dealer: false, changed: false, playerName: this.props.playerName};
   };
 
   handlePlayerChange(e) {
     this.props.addPlayer(this.props.playerNumber, e.target.value);
-    this.setState(
+    /*this.setState(
     {
       playerName: e.target.value
-    })
+    })*/
   }
 
   render() {
     return (
       <div className = "player-row">
-        <input type="text" value={this.state.playerName} onChange={this.handlePlayerChange.bind(this)} />
+        <input type="text" placeholder="Player Name" value={this.state.playerName} onChange={this.handlePlayerChange.bind(this)} />
       </div>
     );
   }
