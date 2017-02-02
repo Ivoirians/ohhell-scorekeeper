@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import * as firebase from 'firebase';
+import {database} from './firebaseInterface.jsx'
 import {PageEnum} from './pageEnum.jsx';
 
 

@@ -3,23 +3,21 @@ import ReactDOM from 'react-dom';
 import {database} from './firebaseInterface.jsx'
 import {PageEnum} from './pageEnum.jsx';
 
-class RoundBids extends React.Component {
+export default class Statistics extends React.Component {
   
   constructor(props) {
     super(props);
   }
 
-  goToRoundTricks() {
-    this.props.changePage(PageEnum.ROUND_TRICKS);
+  returnToMain() {
+    this.props.changePage(PageEnum.MAIN_MENU)
   }
 
   render() {
     return (
-      <div>
-        <button onClick={this.goToRoundTricks.bind(this)}> Finalize Bids </button>
+      <div className="statistics">
+        <button onClick={this.returnToMain.bind(this)}> Return to Main Menu </button>
       </div>
     );
   }
 }
-
-export default RoundBids;
