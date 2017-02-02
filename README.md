@@ -1,6 +1,15 @@
 #Oh Hell Scorekeeper
-Scorekeeping app for the Zazzle games lunch crew
+Scorekeeping app for the Zazzle games lunch crew. Latest deployments currently live at ohhellscorekeeper.firebaseapp.com.
 
-#Setup
-1. npm install
-2. npm run dev
+#First-Time Setup
+1. Install npm
+2. Run "npm run setup" - This will check for existing installations of firebase, firebase-tools, webpack, and webpack-dev-server, and if they don't exist, install them globally. I think firebase might be unnecessary, since firebase-tools is the CLI, but was not certain what was necessary. And without these packages installed globally, I was unable to run the other npm scripts on Windows.
+3. Run "npm install" - Does this need to happen every time?
+4. Run "firebase login" - Sets up deployment of this project.
+
+#Development
+1. Modify src/scripts/ohhell.jsx - 100% of the app logic lives here. Should be split out into multiple files eventually, in src/scripts.
+2. Run "npm run dev" - This will build the app in memory and serve it using webpack-dev-server. Changes to src/scripts/ will propagate automatically, so you can change the file, refresh your browser, and see the changes immediately.
+
+#Deployment
+1. Run "npm run deploy" - Builds with webpack, then calls firebase deploy.

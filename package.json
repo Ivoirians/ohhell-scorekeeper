@@ -4,10 +4,9 @@
   "description": "Scorekeeping app for the Zazzle games lunch crew",
   "main": "index.js",
   "scripts": {
+    "setup": "(npm list firebase -g || npm install firebase -g) && (npm list firebase-tools -g || npm install firebase-tools -g) && (npm list webpack-dev-server -g || npm install webpack-dev-server -g) && (npm list webpack -g || npm install webpack -g)",
     "dev": "webpack-dev-server --config webpack/webpack-dev.config.js --content-base public/ --watch --hot",
-    "build": "webpack --config webpack/webpack-dev.config.js",    
-    "watch": "babel --watch src -d public --source-maps inline --copy-files",
-    "build-babel": "babel src -d public --source-maps inline --copy-files",
+    "deploy": "webpack --config webpack/webpack-dev.config.js && firebase deploy",    
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Kevin Shen",
