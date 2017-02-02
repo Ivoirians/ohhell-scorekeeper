@@ -3,6 +3,10 @@ h1 {
   font-size: 40pt;
 }
 
+.player-row-scorekeeper {
+	background-color: blue;
+}
+
 input[type=text]{
   -webkit-appearance: none; -moz-appearance: none;
   display: block;

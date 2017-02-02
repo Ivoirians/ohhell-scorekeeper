@@ -36,10 +36,10 @@ export default class CreateGame extends React.Component {
     this.state = {scorekeeper: '', headerText: 'New Game', players: [], numPlayers:0};
   };
 
-  addPlayer(playerNumber, playerName) {
+  updatePlayer(player) {
     //check for duplicates, if people are going to be malicious--necessary?
-    this.state.players[playerNumber] = {playerName: playerName, playerNumber:playerNumber};
-    if (playerNumber == this.state.numPlayers)
+    this.state.players[player.playerNumber] = player;
+    if (player.playerNumber == this.state.numPlayers)
       this.setState({numPlayers: this.state.numPlayers+1});
     this.forceUpdate();
   }
@@ -51,12 +51,12 @@ export default class CreateGame extends React.Component {
   render() {
     var playerRows = this.state.players.map((player) =>
       <div key={player.playerNumber}>
-        <AddPlayerRow playerNumber={player.playerNumber} addPlayer={this.addPlayer.bind(this)} playerName={player.playerName} />
+        <AddPlayerRow playerNumber={player.playerNumber} updatePlayer={this.updatePlayer.bind(this)} playerName={player.playerName} />
       </div>
     );
     playerRows.push(
       <div key={this.state.numPlayers}>
-          <AddPlayerRow playerNumber={this.state.numPlayers} addPlayer={this.addPlayer.bind(this)} />
+          <AddPlayerRow playerNumber={this.state.numPlayers} updatePlayer={this.updatePlayer.bind(this)} />
       </div>
     );
     return (
@@ -77,21 +77,48 @@ class AddPlayerRow extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {scorekeeper: false, dealer: false, changed: false, playerName: this.props.playerName};
+    this.state = {scorekeeper: false, dealer: false, playerName: this.props.playerName};
   };
 
-  handlePlayerChange(e) {
-    this.props.addPlayer(this.props.playerNumber, e.target.value);
+  handlePlayerNameChange(event) {
+    this.setState({playerName: event.target.value})
+    this.updateParent();
     /*this.setState(
     {
       playerName: e.target.value
     })*/
   }
 
+  handlePlayerScorekeeperChange(event) {
+    this.setState({scorekeeper: event.target.checked})
+    this.updateParent();
+  }
+
+  updateParent() {
+    this.props.updatePlayer({
+      playerNumber: this.props.playerNumber,
+      playerName: this.state.playerName,
+      scorekeeper: this.state.scorekeeper,
+      dealer: this.state.dealer
+    });
+  }
+
+  getClassName() {
+    if (this.state.dealer) {
+      return "player-row-dealer";
+    }
+    else if (this.state.scorekeeper) {
+      return "player-row-scorekeeper";
+    }
+    else {
+      return "player-row";
+    }
+  }
+
   render() {
     return (
-      <div className = "player-row">
-        <input type="text" placeholder="Player Name" value={this.state.playerName} onChange={this.handlePlayerChange.bind(this)} />
+      <div className = {this.getClassName()}>
+        <input type="text" placeholder="Player Name" onChange={this.handlePlayerNameChange.bind(this)} /> <input type="checkbox" value={this.state.scorekeeper} onChange={this.handlePlayerScorekeeperChange.bind(this)} />
       </div>
     );
   }
