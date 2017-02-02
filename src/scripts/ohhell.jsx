@@ -154,14 +154,15 @@ class CreateGame extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {scorekeeper: '', headerText: 'New Game', players: [], n:0};
+    this.state = {scorekeeper: '', headerText: 'New Game', players: [], numPlayers:0};
   };
 
   addPlayer(playerNumber, playerName) {
     //check for duplicates, if people are going to be malicious--necessary?
     this.state.players[playerNumber] = {playerName: playerName, playerNumber:playerNumber};
     if (playerNumber == this.state.numPlayers)
-      this.setState({n: this.state.numPlayers+1});
+      this.setState({numPlayers: this.state.numPlayers+1});
+    this.forceUpdate();
   }
 
   logStateDebug() {
