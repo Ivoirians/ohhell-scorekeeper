@@ -6,10 +6,10 @@ var APP_DIR = path.resolve(__dirname, '../src/scripts');
 
 module.exports = {
   entry: [
-    APP_DIR + '/ohhell.jsx'
+    APP_DIR + '/ohHell.jsx'
   ],
   output: {
-  	filename: '/ohhell.js',
+  	filename: '/ohHell.js',
   	path: BUILD_DIR,
     publicPath: '/scripts/'
   },

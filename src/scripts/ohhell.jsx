@@ -1,6 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import * as firebase from 'firebase';
+import RoundBids from './roundBids.jsx';
+import RoundTricks from './roundTricks.jsx';
+import {PageEnum} from './pageEnum.jsx';
 
 var config = {
   apiKey: "AIzaSyChWYU04cxASlH_NL32nL7IOTs6YnnN_RI",
@@ -13,17 +16,9 @@ firebase.initializeApp(config);
 
 var database = firebase.database();
 
-var PageEnum = {
-  MAIN_MENU: 1,
-  CREATE_GAME: 2,
-  ROUND_BIDS: 3,
-  ROUND_TRICKS: 4,
-  WIN_SCREEN: 5,
-  STATISTICS: 6
-}
-
 class App extends React.Component {
   constructor(props) {
+    console.log("Creating constructor for app");
     super(props);
     this.state = {
       currentPage: PageEnum.MAIN_MENU
@@ -66,6 +61,7 @@ class App extends React.Component {
 
   render () {
     var partial;
+    console.log(this.state.currentPage);
     switch(this.state.currentPage) {
       case PageEnum.Main_MENU:
         partial = <MainMenu changePage={this.changePage.bind(this)} />;
@@ -213,49 +209,6 @@ class AddPlayerRow extends React.Component {
     return (
       <div className = "player-row">
         <input type="text" placeholder="Player Name" value={this.state.playerName} onChange={this.handlePlayerChange.bind(this)} />
-      </div>
-    );
-  }
-}
-
-class RoundBids extends React.Component {
-  
-  constructor(props) {
-    super(props);
-  }
-
-  goToRoundTricks() {
-    this.props.changePage(PageEnum.ROUND_TRICKS);
-  }
-
-  render() {
-    return (
-      <div>
-        <button onClick={this.goToRoundTricks.bind(this)}> Finalize Bids </button>
-      </div>
-    );
-  }
-}
-
-class RoundTricks extends React.Component {
-  
-  constructor(props) {
-    super(props);
-  }
-
-  goToRoundBids() {
-    this.props.changePage(PageEnum.ROUND_BIDS);
-  }
-
-  goToWinScreen() {
-    this.props.changePage(PageEnum.WIN_SCREEN);
-  }
-
-  render() {
-    return (
-      <div>
-        <button onClick={this.goToRoundBids.bind(this)}> End Round </button>
-        <button onClick={this.goToWinScreen.bind(this)}> End Game </button>
       </div>
     );
   }
