@@ -12,13 +12,25 @@ class OhHell extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      currentPage: PageEnum.MAIN_MENU
+      currentPage: PageEnum.MAIN_MENU,
+      roundNumber: 1
     };
   }
 
   changePage(newPage) {
     this.setState({
       currentPage: newPage
+    });
+  }
+
+  updateGameState(players, roundNumber, gameState) {
+    this.setState({
+      currentPlayers: players,
+      roundNumber: roundNumber,
+      gameState: gameState
+    },
+    function() {
+      console.log("State updated: " + JSON.stringify(this.state));
     });
   }
 
@@ -57,13 +69,22 @@ class OhHell extends React.Component {
         partial = <MainMenu changePage={this.changePage.bind(this)} />;
         break;
       case PageEnum.CREATE_GAME:
-        partial = <CreateGame changePage={this.changePage.bind(this)} />;
+        partial = <CreateGame changePage={this.changePage.bind(this)}
+                    updateGameState={this.updateGameState.bind(this)} />;
         break;
       case PageEnum.ROUND_BIDS:
-        partial = <RoundBids roundNumber={1} changePage={this.changePage.bind(this)} />;
+        partial = <RoundBids changePage={this.changePage.bind(this)}
+                    gameState={this.state.gameState}
+                    players={this.state.currentPlayers}
+                    roundNumber={this.state.roundNumber}
+                    updateGameState={this.updateGameState.bind(this)} />;
         break;
       case PageEnum.ROUND_TRICKS:
-        partial = <RoundTricks changePage={this.changePage.bind(this)} />;
+        partial = <RoundTricks changePage={this.changePage.bind(this)}
+                    gameState={this.state.gameState}
+                    players={this.state.currentPlayers}
+                    roundNumber={this.state.roundNumber}
+                    updateGameState={this.updateGameState.bind(this)} />;
         break;
       case PageEnum.WIN_SCREEN:
         partial = <WinScreen changePage={this.changePage.bind(this)} />;

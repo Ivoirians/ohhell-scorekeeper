@@ -10,7 +10,22 @@ export default class CreateGame extends React.Component {
   }
 
   goToRoundBids() {
+    this.props.updateGameState(this.state.players, 1, this.state.gameState);
     this.props.changePage(PageEnum.ROUND_BIDS);
+  }
+
+  //creates a gameState object out of the current set of players
+  //then changes page to bids
+  createGameState() {
+    this.setState(
+      { gameState : this.state.players.map((player) =>
+                    ({currentScores: [0]})
+                    ) 
+      },
+      function() {
+        this.goToRoundBids();
+      }
+    );
   }
 
   createNewGame(players, scorekeeper, dealer, date) {
@@ -51,7 +66,10 @@ export default class CreateGame extends React.Component {
   render() {
     var playerRows = this.state.players.map((player) =>
       <div key={player.playerNumber}>
-        <AddPlayerRow playerNumber={player.playerNumber} updatePlayer={this.updatePlayer.bind(this)} playerName={player.playerName} />
+        <AddPlayerRow
+          playerNumber={player.playerNumber}
+          updatePlayer={this.updatePlayer.bind(this)}
+          playerName={player.playerName} />
       </div>
     );
     playerRows.push(
@@ -65,7 +83,7 @@ export default class CreateGame extends React.Component {
         <form>
           {playerRows}
         </form>
-        <button onClick={this.goToRoundBids.bind(this)}> Start Round {this.props.roundNumber} </button>
+        <button onClick={this.createGameState.bind(this)}> Start Round {this.props.roundNumber} </button>
         <button onClick={this.goToMainMenu.bind(this)}> Return to Main Menu </button>
         <button onClick={this.logStateDebug.bind(this)}> Debug </button>
       </div>
@@ -81,8 +99,8 @@ class AddPlayerRow extends React.Component {
   };
 
   handlePlayerNameChange(event) {
-    this.setState({playerName: event.target.value})
-    this.updateParent();
+    this.setState({playerName: event.target.value},
+      this.updateParent)
     /*this.setState(
     {
       playerName: e.target.value
@@ -90,8 +108,8 @@ class AddPlayerRow extends React.Component {
   }
 
   handlePlayerScorekeeperChange(event) {
-    this.setState({scorekeeper: event.target.checked})
-    this.updateParent();
+    this.setState({scorekeeper: event.target.checked},
+      this.updateParent)
   }
 
   updateParent() {

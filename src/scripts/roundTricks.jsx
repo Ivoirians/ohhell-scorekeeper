@@ -8,6 +8,8 @@ class RoundTricks extends React.Component {
   
   constructor(props) {
     super(props);
+    this.state= { players: this.props.players,
+                  gameState: this.props.gameState};
   }
 
   goToRoundBids() {
@@ -18,10 +20,16 @@ class RoundTricks extends React.Component {
     this.props.changePage(PageEnum.WIN_SCREEN);
   }
 
+  endRound() {
+    this.props.updateGameState(this.state.players, this.props.roundNumber + 1, this.state.gameState);
+    this.goToRoundBids();
+  }
+
   render() {
     return (
       <div>
-        <button onClick={this.goToRoundBids.bind(this)}> End Round </button>
+        <h2> Round: {this.props.roundNumber} </h2>
+        <button onClick={this.endRound.bind(this)}> End Round </button>
         <button onClick={this.goToWinScreen.bind(this)}> End Game </button>
       </div>
     );
