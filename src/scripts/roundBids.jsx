@@ -12,11 +12,16 @@ export default class RoundBids extends React.Component {
   }
 
   goToRoundTricks() {
+    this.props.updateGameState(this.state.players, this.props.roundNumber, this.state.gameState);
     this.props.changePage(PageEnum.ROUND_TRICKS);
   }
 
   updateBid(playerName, newBid) {
-    console.log(playerName + " " + newBid);
+    this.state.gameState[playerName] = newBid;
+  }
+
+  logStateDebug() {
+    console.log(JSON.stringify(this.state));
   }
 
   render() {
@@ -24,7 +29,7 @@ export default class RoundBids extends React.Component {
       <div key={player.playerNumber}>
         <PendingBid
           playerName={player.playerName}
-          currentScore={this.state.gameState[player.playerNumber].currentScore}
+          currentScore={this.state.gameState[player.playerName].currentScore}
           updateBid={this.updateBid.bind(this)} />
       </div>
     ));
@@ -33,6 +38,7 @@ export default class RoundBids extends React.Component {
         <h2> Round: {this.props.roundNumber} </h2>
         {pendingBids}
         <button onClick={this.goToRoundTricks.bind(this)}> Finalize Bids </button>
+        <button onClick={this.logStateDebug.bind(this)}> Debug </button>
       </div>
     );
   }
@@ -60,7 +66,7 @@ class PendingBid extends React.Component {
   render() {
     return (
       <div>
-        <h3> {this.state.playerName} </h3> <input type="number" min="0" max={this.state.maxBid} onChange={this.notifyChangedBid.bind(this)} />
+        <h3> {this.state.playerName} </h3> <input type="number" min="0" max={this.state.maxBid} value={this.state.currentBid} onChange={this.notifyChangedBid.bind(this)} />
       </div>
     );
   }

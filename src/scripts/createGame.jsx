@@ -10,22 +10,23 @@ export default class CreateGame extends React.Component {
   }
 
   goToRoundBids() {
-    this.props.updateGameState(this.state.players, 1, this.state.gameState);
+    this.props.updateGameState(this.state.players, 1, this.getNewGameState());
     this.props.changePage(PageEnum.ROUND_BIDS);
   }
 
   //creates a gameState object out of the current set of players
   //then changes page to bids
-  createGameState() {
-    this.setState(
-      { gameState : this.state.players.map((player) =>
-                    ({currentScores: [0]})
-                    ) 
-      },
-      function() {
-        this.goToRoundBids();
-      }
-    );
+  getNewGameState() {
+    var gameState = new Object();
+    for (var playerIndex in this.state.players) {
+      var player = this.state.players[playerIndex];
+      gameState[player.playerName] = ({
+        currentScores: [0],
+        bids: [0],
+        takes: [0]
+      });
+    }
+    return gameState;
   }
 
   createNewGame(players, scorekeeper, dealer, date) {
@@ -83,7 +84,7 @@ export default class CreateGame extends React.Component {
         <form>
           {playerRows}
         </form>
-        <button onClick={this.createGameState.bind(this)}> Start Round {this.props.roundNumber} </button>
+        <button onClick={this.goToRoundBids.bind(this)}> Start Round {this.props.roundNumber} </button>
         <button onClick={this.goToMainMenu.bind(this)}> Return to Main Menu </button>
         <button onClick={this.logStateDebug.bind(this)}> Debug </button>
       </div>
