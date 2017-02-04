@@ -30,7 +30,7 @@ class OhHell extends React.Component {
       gameState: gameState
     },
     function() {
-      console.log("State updated: " + JSON.stringify(this.state));
+      //console.log("State updated: " + JSON.stringify(this.state));
     });
   }
 

@@ -29,13 +29,19 @@ export default class RoundTricks extends React.Component {
     this.goToRoundBids();
   }
 
+  updateBid(playerName, newBid) {
+    this.state.gameState[playerName].takes[this.props.roundNumber-1] = newBid;
+  }
+
   render() {
     var takeTrickButtons = this.props.players.map((player) => (
       <div key={player.playerNumber}>
         <RecordTricks
+          updateBid={this.updateBid.bind(this)}
           playerName={player.playerName}
           currentScore={this.state.gameState[player.playerName].scores[this.props.roundNumber-1]}
-          currentBids={this.state.gameState[player.playerName].bids[this.props.roundNumber-1]} />
+          currentBid={this.state.gameState[player.playerName].bids[this.props.roundNumber-1]}
+          currentTake={this.state.gameState[player.playerName].takes[this.props.roundNumber-1]} />
       </div>
     ));
     return (
@@ -51,9 +57,30 @@ export default class RoundTricks extends React.Component {
 }
 
 class RecordTricks extends React.Component {
+  
+  constructor(props) {
+    super(props);
+    this.state= {currentTake: this.props.currentTake};
+  }
+
+  increaseTake(event) {
+    this.setState( {currentTake: this.state.currentTake += 1 });
+    this.props.updateBid(this.props.playerName, this.state.currentTake)
+  }
+
+  decreaseTake(event) {
+    this.setState( {currentTake: this.state.currentTake -= 1 });
+    this.props.updateBid(this.props.playerName, this.state.currentTake)
+  }
+
   render() {
+    console.log(this.state);
     return (
-      <div> <h3> {this.props.playerName} : {this.props.currentScore} </h3> </div>
+      <div>
+        <h3> {this.props.playerName} : {this.props.currentScore}. Take/Bid: {this.state.currentTake}/{this.props.currentBid} </h3>
+        <button onClick={this.increaseTake.bind(this)}>+</button>
+        <button onClick={this.decreaseTake.bind(this)}>-</button>
+      </div>
     )
   }
 }
