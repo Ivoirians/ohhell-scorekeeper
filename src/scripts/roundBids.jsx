@@ -17,7 +17,7 @@ export default class RoundBids extends React.Component {
   }
 
   updateBid(playerName, newBid) {
-    this.state.gameState[playerName] = newBid;
+    this.state.gameState[playerName].bids[this.props.roundNumber - 1] = parseInt(newBid);
   }
 
   logStateDebug() {
@@ -29,7 +29,7 @@ export default class RoundBids extends React.Component {
       <div key={player.playerNumber}>
         <PendingBid
           playerName={player.playerName}
-          currentScore={this.state.gameState[player.playerName].currentScore}
+          currentScore={this.state.gameState[player.playerName].scores[this.props.roundNumber-1]}
           updateBid={this.updateBid.bind(this)} />
       </div>
     ));
@@ -50,7 +50,6 @@ class PendingBid extends React.Component {
     this.state = {
       playerName: this.props.playerName,
       currentBid: 0,
-      currentScore: this.props.currentScore,
       maxBid: 10
     }
   }
@@ -66,7 +65,7 @@ class PendingBid extends React.Component {
   render() {
     return (
       <div>
-        <h3> {this.state.playerName} </h3> <input type="number" min="0" max={this.state.maxBid} value={this.state.currentBid} onChange={this.notifyChangedBid.bind(this)} />
+        <h3> {this.state.playerName}: Current Score: {this.props.currentScore} </h3> <input type="number" min="0" max={this.state.maxBid} value={this.state.currentBid} onChange={this.notifyChangedBid.bind(this)} />
       </div>
     );
   }

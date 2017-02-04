@@ -21,9 +21,9 @@ export default class CreateGame extends React.Component {
     for (var playerIndex in this.state.players) {
       var player = this.state.players[playerIndex];
       gameState[player.playerName] = ({
-        currentScores: [0],
-        bids: [0],
-        takes: [0]
+        scores: Array(10).join('0').split('').map(parseFloat),
+        bids: Array(10).join('0').split('').map(parseFloat),
+        takes: Array(10).join('0').split('').map(parseFloat)
       });
     }
     return gameState;
