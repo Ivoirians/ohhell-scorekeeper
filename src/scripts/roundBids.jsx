@@ -29,7 +29,7 @@ export default class RoundBids extends React.Component {
       <div key={player.playerNumber}>
         <PendingBid
           playerName={player.playerName}
-          currentScore={this.state.gameState[player.playerName].scores[this.props.roundNumber-1]}
+          currentScore={this.state.gameState[player.playerName].scores[this.props.roundNumber-2]}
           updateBid={this.updateBid.bind(this)} />
       </div>
     ));
@@ -50,6 +50,7 @@ class PendingBid extends React.Component {
     this.state = {
       playerName: this.props.playerName,
       currentBid: 0,
+      currentScore: (this.props.currentScore) ? this.props.currentScore : 0,
       maxBid: 10
     }
   }

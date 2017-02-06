@@ -34,6 +34,12 @@ class OhHell extends React.Component {
     });
   }
 
+  setCurrentGameKey(key) {
+    this.setState( {
+      currentGameKey: key
+    })
+  }
+
   getHeaderText() {
     var headerText;
     switch(this.state.currentPage) {
@@ -70,7 +76,8 @@ class OhHell extends React.Component {
         break;
       case PageEnum.CREATE_GAME:
         partial = <CreateGame changePage={this.changePage.bind(this)}
-                    updateGameState={this.updateGameState.bind(this)} />;
+                    updateGameState={this.updateGameState.bind(this)}
+                    setCurrentGameKey={this.setCurrentGameKey.bind(this)} />;
         break;
       case PageEnum.ROUND_BIDS:
         partial = <RoundBids changePage={this.changePage.bind(this)}

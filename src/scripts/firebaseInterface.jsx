@@ -9,5 +9,5 @@ var config = {
 };
 firebase.initializeApp(config);
 
-var database = firebase.database();
+export var database = firebase.database();
 

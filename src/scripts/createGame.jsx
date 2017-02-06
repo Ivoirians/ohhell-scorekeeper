@@ -10,6 +10,8 @@ export default class CreateGame extends React.Component {
   }
 
   goToRoundBids() {
+    this.createGameKey();
+    this.props.setCurrentGameKey();
     this.props.updateGameState(this.state.players, 1, this.getNewGameState());
     this.props.changePage(PageEnum.ROUND_BIDS);
   }
@@ -29,22 +31,21 @@ export default class CreateGame extends React.Component {
     return gameState;
   }
 
-  createNewGame(players, scorekeeper, dealer, date) {
+  createGameKey() {
     var gameMetaData = {
-      dateCreated: date,
-      players: players.map((player) => (/*some kind of toString?*/player)),
-      scorekeeper: scorekeeper,
-      dealer: dealer
+      dateCreated: new Date(),
+      players: this.state.players.map((player) => (/*some kind of toString?*/player))
     }
-    this.state.currentGameKey = database.ref().child('games').push().key;
+    var newKey = database.ref().child('games').push().key;
 
     var updates = {};
-    updates['/games/' + this.state.currentGameKey] = gameMetaData;
-    for (var p in players){
-      updates['/user-games/' + p.playerName + "/" + this.state.currentGameKey] = gameMetaData; 
+    updates['/games/' + newKey] = gameMetaData;
+    for (var p in this.state.players){
+      var playerName = this.state.players[p].playerName;
+      updates['/user-games/' + playerName + "/" + newKey] = gameMetaData; 
     }
-
     database.ref().update(updates);
+    this.setState({currentGameKey: newKey});
   }
 
   constructor(props) {
