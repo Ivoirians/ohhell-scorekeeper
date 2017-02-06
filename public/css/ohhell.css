@@ -7,23 +7,24 @@ body {
 }
 
 button {
-  margin: 5px;
-  border: 2px black solid;
+  margin: 5pt;
+  border: 2pt black solid;
   color: #ffffff;
-  font-size: 20px;
+  font-size: 40pt;
   background: #3498db;
-  padding: 10px 20px 10px 20px;
+  padding: 10pt 20pt 10pt 20pt;
   text-decoration: none;
 }
 
 button:hover {
   background: #3cb0fd;
   text-decoration: none;
+  font-size: 40pt;
 }
 
 h1 {
   text-align: center;
-  font-size: 40pt;
+  font-size: 60pt;
 }
 
 .player-row-scorekeeper {
@@ -33,8 +34,17 @@ h1 {
 input[type=text]{
   -webkit-appearance: none; -moz-appearance: none;
   display: block;
-  margin: 0;
-  width: 100%; height: 40px;
-  line-height: 40px; font-size: 17px;
-  border: 1px solid #bbb;
+  margin: 10pt;
+  width: 80%; height: 40pt;
+  line-height: 40pt; font-size: 30pt;
+  border: 1pt solid #bbb;
+}
+
+input[type=number]{
+  -webkit-appearance: none; -moz-appearance: none;
+  display: block;
+  margin: 10pt;
+  width: 20%; height: 40pt;
+  line-height: 40pt; font-size: 30pt;
+  border: 1pt solid #bbb;
 }
