@@ -12,12 +12,23 @@ export default class RoundBids extends React.Component {
   }
 
   goToRoundTricks() {
-    this.props.updateGameState(this.state.players, this.props.roundNumber, this.state.gameState);
+    this.updateFirebase();
+    this.props.updateGameState(this.state.players, this.state.gameState);
     this.props.changePage(PageEnum.ROUND_TRICKS);
   }
 
   updateBid(playerName, newBid) {
-    this.state.gameState[playerName].bids[this.props.roundNumber - 1] = parseInt(newBid);
+    this.state.gameState[playerName].bids[this.state.gameState.roundNumber - 1] = parseInt(newBid);
+  }
+
+  updateFirebase() {
+    var updates = {};
+    updates['/games/' + this.props.currentGameKey + '/state'] = this.state.gameState;
+    for (var p in this.state.players){
+      var playerName = this.state.players[p].playerName;
+      updates['/user-games/' + playerName + "/" + this.props.currentGameKey + '/state'] = this.state.gameState; 
+    }
+    database.ref().update(updates);
   }
 
   logStateDebug() {
@@ -29,13 +40,13 @@ export default class RoundBids extends React.Component {
       <div key={player.playerNumber}>
         <PendingBid
           playerName={player.playerName}
-          currentScore={this.state.gameState[player.playerName].scores[this.props.roundNumber-2]}
+          currentScore={this.state.gameState[player.playerName].scores[this.state.gameState.roundNumber-2]}
           updateBid={this.updateBid.bind(this)} />
       </div>
     ));
     return (
       <div>
-        <h2> Round: {this.props.roundNumber} </h2>
+        <h2> Round: {this.state.gameState.roundNumber} </h2>
         {pendingBids}
         <button onClick={this.goToRoundTricks.bind(this)}> Finalize Bids </button>
         <button onClick={this.logStateDebug.bind(this)}> Debug </button>
@@ -66,7 +77,7 @@ class PendingBid extends React.Component {
   render() {
     return (
       <div>
-        <h3> {this.state.playerName}: Current Score: {this.props.currentScore} </h3> <input type="number" min="0" max={this.state.maxBid} value={this.state.currentBid} onChange={this.notifyChangedBid.bind(this)} />
+        <h3> {this.state.playerName}: Current Score: {this.state.currentScore} </h3> <input type="number" min="0" max={this.state.maxBid} value={this.state.currentBid} onChange={this.notifyChangedBid.bind(this)} />
       </div>
     );
   }

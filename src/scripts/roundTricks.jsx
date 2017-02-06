@@ -14,15 +14,17 @@ export default class RoundTricks extends React.Component {
   }
 
   goToRoundBids() {
+    this.updateFirebase();
     this.props.changePage(PageEnum.ROUND_BIDS);
   }
 
   goToWinScreen() {
+    this.updateFirebase();
     this.props.changePage(PageEnum.WIN_SCREEN);
   }
 
   updateTake(playerName, newBid) {
-    this.state.gameState[playerName].takes[this.props.roundNumber - 1] = parseInt(newBid);
+    this.state.gameState[playerName].takes[this.state.gameState.roundNumber - 1] = parseInt(newBid);
   }
 
   logStateDebug() {
@@ -34,18 +36,25 @@ export default class RoundTricks extends React.Component {
     //the only score guaranteed to match the gameState (which may have changed) is the latest one
     for (var playerNumber in this.props.players) {
       var game = this.state.gameState[this.props.players[playerNumber].playerName];
-      game.scores[this.props.roundNumber-1] = getCurrentScore(game.bids, game.takes, this.props.roundNumber);
+      game.scores[this.state.gameState.roundNumber-1] = getCurrentScore(game.bids, game.takes, this.state.gameState.roundNumber);
     }
   }
 
   endRound() {
     this.computeRoundScores();
-    this.props.updateGameState(this.state.players, this.props.roundNumber + 1, this.state.gameState);
+    this.state.gameState.roundNumber += 1;
+    this.props.updateGameState(this.state.players, this.state.gameState);
     this.goToRoundBids();
   }
 
   updateFirebase() {
-    
+    var updates = {};
+    updates['/games/' + this.props.currentGameKey + '/state'] = this.state.gameState;
+    for (var p in this.state.players){
+      var playerName = this.state.players[p].playerName;
+      updates['/user-games/' + playerName + "/" + this.props.currentGameKey + '/state'] = this.state.gameState; 
+    }
+    database.ref().update(updates);
   }
 
   render() {
@@ -54,14 +63,14 @@ export default class RoundTricks extends React.Component {
         <RecordTricks
           updateTake={this.updateTake.bind(this)}
           playerName={player.playerName}
-          currentScore={this.state.gameState[player.playerName].scores[this.props.roundNumber-2]}
-          currentBid={this.state.gameState[player.playerName].bids[this.props.roundNumber-1]}
-          currentTake={this.state.gameState[player.playerName].takes[this.props.roundNumber-1]} />
+          currentScore={this.state.gameState[player.playerName].scores[this.state.gameState.roundNumber-2]}
+          currentBid={this.state.gameState[player.playerName].bids[this.state.gameState.roundNumber-1]}
+          currentTake={this.state.gameState[player.playerName].takes[this.state.gameState.roundNumber-1]} />
       </div>
     ));
     return (
       <div>
-        <h2> Round: {this.props.roundNumber} </h2>
+        <h2> Round: {this.state.gameState.roundNumber} </h2>
         {takeTrickButtons}
         <button onClick={this.endRound.bind(this)}> End Round </button>
         <button onClick={this.goToWinScreen.bind(this)}> End Game </button>
@@ -91,7 +100,7 @@ class RecordTricks extends React.Component {
   render() {
     return (
       <div>
-        <h3> {this.props.playerName} : {this.props.currentScore}. Take/Bid: {this.state.currentTake}/{this.props.currentBid} </h3>
+        <h3> {this.props.playerName} : {this.props.currentScore ? this.props.currentScore : 0}. Take/Bid: {this.state.currentTake}/{this.props.currentBid} </h3>
         <button onClick={this.increaseTake.bind(this)}>+</button>
         <button onClick={this.decreaseTake.bind(this)}>-</button>
       </div>

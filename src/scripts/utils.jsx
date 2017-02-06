@@ -21,3 +21,7 @@ export function getRoundScore(bid, take, roundNumber) {
 		return take;
 	}
 }
+
+export function getNumberOfRounds(numPlayers) {
+	return parseInt((52-1)/numPlayers);
+;}

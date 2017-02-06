@@ -13,7 +13,6 @@ class OhHell extends React.Component {
     super(props);
     this.state = {
       currentPage: PageEnum.MAIN_MENU,
-      roundNumber: 1
     };
   }
 
@@ -23,10 +22,9 @@ class OhHell extends React.Component {
     });
   }
 
-  updateGameState(players, roundNumber, gameState) {
+  updateGameState(players, gameState) {
     this.setState({
       currentPlayers: players,
-      roundNumber: roundNumber,
       gameState: gameState
     },
     function() {
@@ -83,21 +81,23 @@ class OhHell extends React.Component {
         partial = <RoundBids changePage={this.changePage.bind(this)}
                     gameState={this.state.gameState}
                     players={this.state.currentPlayers}
-                    roundNumber={this.state.roundNumber}
-                    updateGameState={this.updateGameState.bind(this)} />;
+                    updateGameState={this.updateGameState.bind(this)}
+                    currentGameKey={this.state.currentGameKey} />;
         break;
       case PageEnum.ROUND_TRICKS:
         partial = <RoundTricks changePage={this.changePage.bind(this)}
                     gameState={this.state.gameState}
                     players={this.state.currentPlayers}
-                    roundNumber={this.state.roundNumber}
-                    updateGameState={this.updateGameState.bind(this)} />;
+                    updateGameState={this.updateGameState.bind(this)}
+                    currentGameKey={this.state.currentGameKey} />;
         break;
       case PageEnum.WIN_SCREEN:
-        partial = <WinScreen changePage={this.changePage.bind(this)} />;
+        partial = <WinScreen  changePage={this.changePage.bind(this)}
+                              currentGameKey={this.state.currentGameKey} />;
         break;
       case PageEnum.STATISTICS:
-        partial = <Statistics changePage={this.changePage.bind(this)} />;
+        partial = <Statistics   changePage={this.changePage.bind(this)}
+                                currentGameKey={this.state.currentGameKey} />;
         break;
       default:
         partial = <MainMenu changePage={this.changePage.bind(this)} />;

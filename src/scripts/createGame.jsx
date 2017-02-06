@@ -2,36 +2,48 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import {database} from './firebaseInterface.jsx'
 import {PageEnum} from './pageEnum.jsx';
+import {getNumberOfRounds} from './utils.jsx';
 
 export default class CreateGame extends React.Component {
+
+  constructor(props) {
+    super(props);
+    this.state = {scorekeeper: '', headerText: 'New Game', players: [], numPlayers:0};
+  };
 
   goToMainMenu() {
     this.props.changePage(PageEnum.MAIN_MENU);
   }
 
   goToRoundBids() {
-    this.createGameKey();
-    this.props.setCurrentGameKey();
-    this.props.updateGameState(this.state.players, 1, this.getNewGameState());
+    //todo: check for duplicate player names
+    if (this.state.players.length == 0) {
+      console.log("Error: no players.")
+      this.setState({errorMessage: "No players."});
+      return;
+    }
+    this.createGameKeyAndUpdateFirebase();
+    this.props.updateGameState(this.state.players, this.getNewGameState());
     this.props.changePage(PageEnum.ROUND_BIDS);
   }
 
   //creates a gameState object out of the current set of players
   //then changes page to bids
   getNewGameState() {
-    var gameState = new Object();
+    var gameState = {roundNumber: 1};
+    var numRounds = getNumberOfRounds(this.state.players.length);
     for (var playerIndex in this.state.players) {
       var player = this.state.players[playerIndex];
       gameState[player.playerName] = ({
-        scores: Array(10).join('0').split('').map(parseFloat),
-        bids: Array(10).join('0').split('').map(parseFloat),
-        takes: Array(10).join('0').split('').map(parseFloat)
+        scores: Array(numRounds + 1).join('0').split('').map(parseFloat),
+        bids: Array(numRounds + 1).join('0').split('').map(parseFloat),
+        takes: Array(numRounds + 1).join('0').split('').map(parseFloat)
       });
     }
     return gameState;
   }
 
-  createGameKey() {
+  createGameKeyAndUpdateFirebase() {
     var gameMetaData = {
       dateCreated: new Date(),
       players: this.state.players.map((player) => (/*some kind of toString?*/player))
@@ -45,13 +57,9 @@ export default class CreateGame extends React.Component {
       updates['/user-games/' + playerName + "/" + newKey] = gameMetaData; 
     }
     database.ref().update(updates);
+    this.props.setCurrentGameKey(newKey);
     this.setState({currentGameKey: newKey});
   }
-
-  constructor(props) {
-    super(props);
-    this.state = {scorekeeper: '', headerText: 'New Game', players: [], numPlayers:0};
-  };
 
   updatePlayer(player) {
     //check for duplicates, if people are going to be malicious--necessary?
@@ -79,12 +87,22 @@ export default class CreateGame extends React.Component {
           <AddPlayerRow playerNumber={this.state.numPlayers} updatePlayer={this.updatePlayer.bind(this)} />
       </div>
     );
+
+    var errorMessage = "";
+    if (this.state.errorMessage) {
+      errorMessage = (
+          <div className="error-message">
+            {this.state.errorMessage}
+          </div>
+        );
+    }
     return (
       <div className="new-game">
         <h2>Players:</h2>
         <form>
           {playerRows}
         </form>
+        {errorMessage}
         <button onClick={this.goToRoundBids.bind(this)}> Start Round {this.props.roundNumber} </button>
         <button onClick={this.goToMainMenu.bind(this)}> Return to Main Menu </button>
         <button onClick={this.logStateDebug.bind(this)}> Debug </button>
