@@ -48,14 +48,18 @@ class LatestGames extends React.Component {
   componentWillMount() {
     var latestGames = [];
     var dbRef = database.ref("games").orderByChild("dateCreated").limitToLast(3);
-    dbRef.once("value", function(data) {
-      var game = data.val();
-      game.key = Object.keys(game)[0];
-      latestGames.push(game);
+    dbRef.on("value", function(data) {
+      var games = data.val();
+      for (var key in games) {
+        var game = games[key];
+        game.key = key;
+        latestGames.push(game);
+      }
       this.setState({
         latestGames: latestGames
       });
     }.bind(this));
+
   }
 
   resume(gameWithKey) {

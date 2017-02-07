@@ -39,7 +39,7 @@ export class GameSummary extends React.Component {
   }
 
   render() {
-    var game = this.props.gameWithKey[this.props.gameWithKey.key];
+    var game = this.props.gameWithKey;
     return (
       <div className="game-summary" key={game.dateCreated}>
         <h3> Date: {game.dateCreated} </h3>

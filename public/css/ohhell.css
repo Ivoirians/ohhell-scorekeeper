@@ -65,6 +65,6 @@ input[type=number]{
   border: 1pt solid #000;
 }
 
-.resume-game {
+.resume-game, .resume-game:hover {
   font-size: 20pt;
 }
