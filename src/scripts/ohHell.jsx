@@ -69,8 +69,10 @@ class OhHell extends React.Component {
   render () {
     var partial;
     switch(this.state.currentPage) {
-      case PageEnum.Main_MENU:
-        partial = <MainMenu changePage={this.changePage.bind(this)} />;
+      case PageEnum.MAIN_MENU:
+        partial = <MainMenu changePage={this.changePage.bind(this)}
+                            updateGameState={this.updateGameState.bind(this)}
+                            setCurrentGameKey={this.setCurrentGameKey.bind(this)} />;
         break;
       case PageEnum.CREATE_GAME:
         partial = <CreateGame changePage={this.changePage.bind(this)}
@@ -100,7 +102,9 @@ class OhHell extends React.Component {
                                 currentGameKey={this.state.currentGameKey} />;
         break;
       default:
-        partial = <MainMenu changePage={this.changePage.bind(this)} />;
+        partial = <MainMenu changePage={this.changePage.bind(this)}
+                            updateGameState={this.updateGameState.bind(this)}
+                            setCurrentGameKey={this.setCurrentGameKey.bind(this)} />;
         break;
     }
     return (

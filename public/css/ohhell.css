@@ -1,5 +1,6 @@
 * {
   font-family: 'Titillium Web', sans-serif;
+  text-align: center;
 }
 
 body {
@@ -27,13 +28,13 @@ h1 {
   font-size: 60pt;
 }
 
-.player-row-scorekeeper {
-	background-color: blue;
+h3 {
+  text-align: center;
+  font-size: 16pt;
 }
 
 input[type=text]{
   -webkit-appearance: none; -moz-appearance: none;
-  display: block;
   margin: 10pt;
   width: 80%; height: 40pt;
   line-height: 40pt; font-size: 30pt;
@@ -42,9 +43,28 @@ input[type=text]{
 
 input[type=number]{
   -webkit-appearance: none; -moz-appearance: none;
-  display: block;
+  display: inline;
   margin: 10pt;
   width: 20%; height: 40pt;
   line-height: 40pt; font-size: 30pt;
   border: 1pt solid #bbb;
+}
+
+.player-row-scorekeeper {
+  background-color: blue;
+}
+
+.latest-games {
+  font-size:20pt;
+  border: 1pt solid #000;
+  width: 20%;
+  margin: 0 auto;
+}
+
+.game-summary {
+  border: 1pt solid #000;
+}
+
+.resume-game {
+  font-size: 20pt;
 }
