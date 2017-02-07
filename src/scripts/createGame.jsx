@@ -137,7 +137,9 @@ class AddPlayerRow extends React.Component {
       playerNumber: this.props.playerNumber,
       playerName: this.state.playerName,
       scorekeeper: this.state.scorekeeper,
-      dealer: this.state.dealer
+      dealer: this.state.dealer,
+      currentScore: 0,
+      isPerfect: true
     });
   }
 

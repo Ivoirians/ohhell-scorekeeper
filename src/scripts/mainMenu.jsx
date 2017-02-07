@@ -19,8 +19,7 @@ export default class MainMenu extends React.Component {
   }
 
   loadGame(gameWithKey) {
-    var game = gameWithKey[gameWithKey.key];
-    this.props.updateGameState(game.players, game.state);
+    this.props.updateGameState(gameWithKey.players, gameWithKey.state);
     this.props.setCurrentGameKey(gameWithKey.key);
     this.props.changePage(PageEnum.ROUND_BIDS);
   }
@@ -48,7 +47,7 @@ class LatestGames extends React.Component {
   componentWillMount() {
     var latestGames = [];
     var dbRef = database.ref("games").orderByChild("dateCreated").limitToLast(3);
-    dbRef.on("value", function(data) {
+    dbRef.once("value", function(data) {
       var games = data.val();
       for (var key in games) {
         var game = games[key];
@@ -56,7 +55,7 @@ class LatestGames extends React.Component {
         latestGames.push(game);
       }
       this.setState({
-        latestGames: latestGames
+        latestGames: latestGames.reverse()
       });
     }.bind(this));
 

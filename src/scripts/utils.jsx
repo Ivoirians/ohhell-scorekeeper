@@ -29,6 +29,69 @@ export function getNumberOfRounds(numPlayers) {
   return parseInt((52-1)/numPlayers);
 }
 
+export function getWinnersAndMessage(players, gameState) {
+
+  var winReason = "Error. No winner.";
+  var winners = [];
+
+  var highScorers = [];
+  var fortyTwoers = [];
+  var highScore = 0;
+  for (var player in players) {
+    if (player.currentScore == 42) {
+      fortyTwoers.push(player);
+    }
+    if (player.currentScore > highScore) {
+      highScorers = [player];
+    }
+    else if (player.currentScore == highScore) {
+      highScorers.push(player);
+    }
+  }
+  if (fortyTwoers.length > 0) {
+    //high scorer
+    winners=highScorers;
+    if (highScorers.length == 1) {
+      winReason = winners[0].playerName + " got the highest score : " + highScore;
+    }
+    else {
+      winReason = winners.map((w) => w.playerName).join("/") + " tied for the highest score : " + highScore;
+    }
+  }
+  else {
+    //forty two'd
+    if (highScorers.length > 0) {
+      perfects = [];
+      for (player in highScorers) {
+        if (player.isPerfect) {
+          perfects.push(player);
+        }
+      }
+      if (perfects.length > 0) {
+        //winner
+        winners = perfects;
+        if (perfects.length > 1) {
+          winReason = "Someone got 42, but " + perfects.map((p) => p.playerName).join("/") + " got perfect high scores of " + highScore;
+        }
+        else {
+          winReason = "Someone got 42, but " + perfects[0].playerName + " got a perfect high score of " + highScore;
+        }
+      }
+    }
+    else {
+      winners = fortyTwoers;
+      if (fortyTwoers.length > 1) {
+        winReason = winners.map((w) => w.playerName).join("/") + " all got 42!";
+      }
+      else if (fortyTwoers.length == 1) {
+        winReason = winners[0].playerName + " got 42!";
+      }
+    }
+  }
+
+  return [winners, winReason];
+}
+
 export class GameSummary extends React.Component {
   constructor(props) {
     super(props);

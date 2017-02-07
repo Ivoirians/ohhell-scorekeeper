@@ -95,7 +95,9 @@ class OhHell extends React.Component {
         break;
       case PageEnum.WIN_SCREEN:
         partial = <WinScreen  changePage={this.changePage.bind(this)}
-                              currentGameKey={this.state.currentGameKey} />;
+                              currentGameKey={this.state.currentGameKey}
+                              gameState={this.state.gameState}
+                              players={this.state.currentPlayers} />;
         break;
       case PageEnum.STATISTICS:
         partial = <Statistics   changePage={this.changePage.bind(this)}
