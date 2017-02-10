@@ -30,25 +30,27 @@ export function getNumberOfRounds(numPlayers) {
 }
 
 export function getWinnersAndMessage(players, gameState) {
-
   var winReason = "Error. No winner.";
   var winners = [];
 
   var highScorers = [];
   var fortyTwoers = [];
   var highScore = 0;
-  for (var player in players) {
+  console.log(players);
+  for (var playerIndex in players) {
+    var player = players[playerIndex];
     if (player.currentScore == 42) {
       fortyTwoers.push(player);
     }
     if (player.currentScore > highScore) {
       highScorers = [player];
+      highScore = player.currentScore;
     }
     else if (player.currentScore == highScore) {
       highScorers.push(player);
     }
   }
-  if (fortyTwoers.length > 0) {
+  if (fortyTwoers.length == 0) {
     //high scorer
     winners=highScorers;
     if (highScorers.length == 1) {
@@ -61,7 +63,7 @@ export function getWinnersAndMessage(players, gameState) {
   else {
     //forty two'd
     if (highScorers.length > 0) {
-      perfects = [];
+      var perfects = [];
       for (player in highScorers) {
         if (player.isPerfect) {
           perfects.push(player);
@@ -107,7 +109,7 @@ export class GameSummary extends React.Component {
       <div className="game-summary" key={game.dateCreated}>
         <h3> Date: {game.dateCreated} </h3>
         <h3> Players: {game.players.map((p) => p.playerName).join(", ")} </h3>
-        <h3> Round: {game.state.roundNumber} </h3>
+        <h3> Round: {game.state ? game.state.roundNumber : "N/A"} </h3>
         <button className="resume-game" onClick={this.resumeGame.bind(this)}> Resume </button>
       </div>
     );

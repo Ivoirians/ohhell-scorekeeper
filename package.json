@@ -6,7 +6,8 @@
   "scripts": {
     "setup": "(npm list firebase -g || npm install firebase -g) && (npm list firebase-tools -g || npm install firebase-tools -g) && (npm list webpack-dev-server -g || npm install webpack-dev-server -g) && (npm list webpack -g || npm install webpack -g)",
     "dev": "webpack-dev-server --config webpack/webpack-dev.config.js --content-base public/ --watch --hot",
-    "deploy": "webpack --config webpack/webpack-dev.config.js && firebase deploy",
+    "build": "webpack --config webpack/webpack-prod.config.js --optimize-minimize --define process.env.NODE_ENV='production'",
+    "deploy": "npm run build && firebase deploy",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Kevin Shen",
@@ -17,6 +18,7 @@
   },
   "dependencies": {
     "enum": "^2.4.0",
+    "firebase": "^3.6.9",
     "react": "^15.4.2",
     "react-dom": "^15.4.2"
   },

@@ -50,7 +50,9 @@ export default class RoundTricks extends React.Component {
   }
 
   endGame() {
+    this.computeRoundScores();
     this.state.gameState.inProgress = false;
+    this.props.updateGameState(this.state.players, this.state.gameState);
     this.goToWinScreen();
   }
 
@@ -86,7 +88,7 @@ export default class RoundTricks extends React.Component {
         <h2> Round: {this.state.gameState.roundNumber} </h2>
         {takeTrickButtons}
         {nextRound}
-        <button onClick={this.goToWinScreen.bind(this)}> End Game </button>
+        <button onClick={this.endGame.bind(this)}> End Game </button>
         <button onClick={this.logStateDebug.bind(this)}> Debug </button>
       </div>
     );
@@ -101,19 +103,21 @@ class RecordTricks extends React.Component {
   }
 
   increaseTake(event) {
-    this.setState( {currentTake: this.state.currentTake += 1 });
+    if (this.state.currentTake < 10)
+      this.setState( {currentTake: this.state.currentTake += 1 });
     this.props.updateTake(this.props.playerName, this.state.currentTake)
   }
 
   decreaseTake(event) {
-    this.setState( {currentTake: this.state.currentTake -= 1 });
+    if (this.state.currentTake > 0)
+      this.setState( {currentTake: this.state.currentTake -= 1 });
     this.props.updateTake(this.props.playerName, this.state.currentTake)
   }
 
   render() {
     return (
       <div>
-        <h3> {this.props.playerName} : {this.props.currentScore ? this.props.currentScore : 0}. Take/Bid: {this.state.currentTake}/{this.props.currentBid} </h3>
+        <h3 className="score"> {this.props.playerName} : {this.props.currentScore ? this.props.currentScore : 0}. Take/Bid: {this.state.currentTake}/{this.props.currentBid} </h3>
         <button onClick={this.increaseTake.bind(this)}>+</button>
         <button onClick={this.decreaseTake.bind(this)}>-</button>
       </div>

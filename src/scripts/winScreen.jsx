@@ -24,7 +24,7 @@ export default class WinScreen extends React.Component {
   render() {
     return (
       <div>
-        {this.getWinMessage.bind(this)()}
+        {this.getWinMessage.bind(this)()[1]}
         <button onClick={this.goToMainMenu.bind(this)}> Back to Main Menu </button>
         <button onClick={this.goToStatistics.bind(this)}> Statistics </button>
       </div>

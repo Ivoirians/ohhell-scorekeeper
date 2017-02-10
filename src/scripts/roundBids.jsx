@@ -41,7 +41,8 @@ export default class RoundBids extends React.Component {
         <PendingBid
           playerName={player.playerName}
           currentScore={this.state.gameState[player.playerName].scores[this.state.gameState.roundNumber-2]}
-          updateBid={this.updateBid.bind(this)} />
+          updateBid={this.updateBid.bind(this)}
+          maxBid={10} />
       </div>
     ));
     return (
@@ -62,24 +63,32 @@ class PendingBid extends React.Component {
       playerName: this.props.playerName,
       currentBid: 0,
       currentScore: (this.props.currentScore) ? this.props.currentScore : 0,
-      maxBid: 10
+      maxBid: this.props.maxBid
     }
   }
 
-  notifyChangedBid(event) {
-    this.setState({currentBid: event.target.value},
-      function() {
-        this.props.updateBid(this.state.playerName, this.state.currentBid);
-      }
-    );
+  increaseBid(event) {
+    if (this.state.currentBid < this.props.maxBid)
+      this.setState( {currentBid: this.state.currentBid += 1 });
+    this.props.updateBid(this.props.playerName, this.state.currentBid)
+  }
+
+  decreaseBid(event) {
+    if (this.state.currentBid > 0)
+      this.setState( {currentBid: this.state.currentBid -= 1 });
+    this.props.updateBid(this.props.playerName, this.state.currentBid)
   }
 
   render() {
     return (
       <div>
-        <h3> {this.state.playerName}: Current Score: {this.state.currentScore} </h3> <input type="number" min="0" max={this.state.maxBid} value={this.state.currentBid} onChange={this.notifyChangedBid.bind(this)} />
+        <h3 className="score"> {this.state.playerName}: Current Score: {this.state.currentScore} </h3>
+        <h1> {this.state.currentBid} </h1>
+
+        <button onClick={this.increaseBid.bind(this)}>+</button>
+        <button onClick={this.decreaseBid.bind(this)}>-</button>
       </div>
-    );
+    )
   }
 
 }
