@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import {database} from './firebaseInterface.jsx'
 import {PageEnum} from './pageEnum.jsx';
-import {getCurrentScore, getNumberOfRounds} from './utils.jsx';
+import {getCurrentScore, getNumberOfRounds, equalArray} from './utils.jsx';
 
 
 export default class RoundTricks extends React.Component {
@@ -39,6 +39,7 @@ export default class RoundTricks extends React.Component {
       var score = getCurrentScore(game.bids, game.takes, this.state.gameState.roundNumber);
       game.scores[this.state.gameState.roundNumber-1] = score;
       this.state.players[playerNumber].currentScore = score;
+      this.state.players[playerNumber].isPerfect = this.state.players[playerNumber].isPerfect && (equalArray(game.bids, game.takes));
     }
   }
 
@@ -59,9 +60,11 @@ export default class RoundTricks extends React.Component {
   updateFirebase() {
     var updates = {};
     updates['/games/' + this.props.currentGameKey + '/state'] = this.state.gameState;
+    updates['/games/' + this.props.currentGameKey + '/players'] = this.state.players;
     for (var p in this.state.players){
       var playerName = this.state.players[p].playerName;
-      updates['/user-games/' + playerName + "/" + this.props.currentGameKey + '/state'] = this.state.gameState; 
+      updates['/user-games/' + playerName + "/" + this.props.currentGameKey + '/state'] = this.state.gameState;
+      updates['/user-games/' + playerName + "/" + this.props.currentGameKey + '/players'] = this.state.players; 
     }
     database.ref().update(updates);
   }
@@ -69,6 +72,7 @@ export default class RoundTricks extends React.Component {
   render() {
     var takeTrickButtons = this.props.players.map((player) => (
       <div key={player.playerNumber}>
+        <hr />
         <RecordTricks
           updateTake={this.updateTake.bind(this)}
           playerName={player.playerName}
