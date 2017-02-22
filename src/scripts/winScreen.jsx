@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {PageEnum} from './pageEnum.jsx';
-import {getWinnersAndMessage} from './utils.jsx';
+import {getWinnersAndMessage, Scoreboard} from './utils.jsx';
 
 export default class WinScreen extends React.Component {
   

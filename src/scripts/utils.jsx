@@ -141,14 +141,12 @@ export class Scoreboard extends React.Component {
     var game = this.props.gameState;
     var scores = this.props.players.map((p) => (
       <div key={p.playerName}>
-        {p.playerName} + ": " + {p.currentScore}
+        {p.playerName} : {p.currentScore}
       </div>
     ))
     return (
       <div className="scoreboard">
-        <h3> Players: {game.players.map((p) => p.playerName).join(", ")} </h3>
-        <h3> Round: {game.state ? game.state.roundNumber : "N/A"} </h3>
-        <button className="resume-game" onClick={this.resumeGame.bind(this)}> Resume </button>
+        {scores}
       </div>
     );
   }

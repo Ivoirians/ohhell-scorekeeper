@@ -39,7 +39,7 @@ export default class RoundTricks extends React.Component {
       var score = getCurrentScore(game.bids, game.takes, this.state.gameState.roundNumber);
       game.scores[this.state.gameState.roundNumber-1] = score;
       this.state.players[playerNumber].currentScore = score;
-      this.state.players[playerNumber].isPerfect = this.state.players[playerNumber].isPerfect && (equalArray(game.bids, game.takes));
+      this.state.players[playerNumber].isPerfect = (equalArray(game.bids, game.takes));
     }
   }
 

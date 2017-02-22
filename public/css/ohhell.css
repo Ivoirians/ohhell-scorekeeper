@@ -73,3 +73,11 @@ input[type=number]{
 .score {
   font-size: 50pt;
 }
+
+.winReason {
+  font-size: 40pt;
+}
+
+.scoreboard {
+  font-size: 32pt;
+}
