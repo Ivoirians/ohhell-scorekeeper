@@ -28,26 +28,26 @@ Scorekeeping app for the Zazzle games lunch crew. Latest deployments currently l
 ##Game State
 The current schema for a game looks like this (definitely subject to change/see additions)
 
-Player:
-*currentScore (int)
-*dealer (bool)
-*isPerfect (bool)
-*joinedRound (int)
-*playerName (string)
-*playerNumber (int)
-*scorekeeper (bool)
+####Player:
+* currentScore (int)
+* dealer (bool)
+* isPerfect (bool)
+* joinedRound (int)
+* playerName (string)
+* playerNumber (int)
+* scorekeeper (bool)
 
-GameState:
-*inProgress (bool)
-*roundNumber (int)
-*playerNames
-**bids (list)
-**scores (list)
-**takes (list)
+####GameState:
+* inProgress (bool)
+* roundNumber (int)
+* playerNames
+ * bids (list)
+ * scores (list)
+ * takes (list)
 
-Game:
-*dateCreated (string, ISO8601)
-*Players
-*GameState
+####Game:
+* dateCreated (string, ISO8601)
+* Players
+* GameState
 
 So, in particular, a game is structured as a list of players, each of which has a list of bids and takes. This is contrasted with having a list of rounds, and a map of bids and takes for each player. The pro is, score computations and per-player statistics should be easier to manage. The con is, per round computations are a bit more complex, and it would fit unintuitively in a relational database.
