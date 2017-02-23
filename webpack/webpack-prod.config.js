@@ -9,25 +9,18 @@ module.exports = {
     APP_DIR + '/ohHell.jsx'
   ],
   output: {
-  	filename: '/ohHell.js',
-  	path: BUILD_DIR,
-    publicPath: '/scripts/'
+    filename: 'ohHell.js',
+    path: BUILD_DIR,
+    publicPath: "/scripts/"
   },
   module: {
-    rules: [
-      {
-      	test: /\.jsx$/,
-        use: [
-          {
-            exclude: /node_modules/,
-            loader: 'babel-loader',
-            options: {
-              presets: ['latest', 'react']
-            }
-          }
-        ]
+    rules: [{
+      test: /\.jsx$/,
+      loader: 'babel-loader',
+      options: {
+        presets: ['latest', 'react']
       }
-    ]
+    }]
   },
   plugins:[
     new webpack.DefinePlugin({

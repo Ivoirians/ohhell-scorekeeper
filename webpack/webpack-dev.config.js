@@ -9,20 +9,17 @@ module.exports = {
     APP_DIR + '/ohHell.jsx'
   ],
   output: {
-  	filename: '/ohHell.js',
-  	path: BUILD_DIR,
-    publicPath: '/scripts/'
+    filename: 'ohHell.js',
+    path: BUILD_DIR,
+    publicPath: "/scripts/"
   },
   module: {
-    loaders: [
-      {
-      	test: /\.jsx$/,
-      	exclude: /node_modules/,
-      	loader: 'babel-loader',
-        query: {
-          presets: ['latest', 'react']
-        }
+    rules: [{
+      test: /\.jsx$/,
+      loader: 'babel-loader',
+      options: {
+        presets: ['latest', 'react']
       }
-    ]
+    }]
   }
-}
+};
