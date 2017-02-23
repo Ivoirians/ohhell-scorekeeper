@@ -17,8 +17,10 @@ Scorekeeping app for the Zazzle games lunch crew. Latest deployments currently l
 ##To Do
 * Authentication: or anyone with the URL can write garbage to the database
 * Track dealer, scorekeeper, and take order
-* Enforce rules
+* Enforce rules (e.g. bids can't add to round number)
 * UI Work: Make it look not ugly
 * Latest games: Resume in-progress games
 * Statistics 
-
+* Add player from Bids page
+* Reorder players
+* Allow adding players without typing (e.g. clicking on preset names)

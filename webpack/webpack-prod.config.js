@@ -14,14 +14,18 @@ module.exports = {
     publicPath: '/scripts/'
   },
   module: {
-    loaders: [
+    rules: [
       {
       	test: /\.jsx$/,
-      	exclude: /node_modules/,
-      	loader: 'babel-loader',
-        query: {
-          presets: ['latest', 'react']
-        }
+        use: [
+          {
+            exclude: /node_modules/,
+            loader: 'babel-loader',
+            options: {
+              presets: ['latest', 'react']
+            }
+          }
+        ]
       }
     ]
   },
