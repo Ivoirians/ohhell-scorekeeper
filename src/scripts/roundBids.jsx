@@ -21,6 +21,31 @@ export default class RoundBids extends React.Component {
     this.state.gameState[playerName].bids[this.state.gameState.roundNumber - 1] = parseInt(newBid);
   }
 
+
+  /*** Untested function for adding a new player from this bid page. */
+  addPlayer(playerName, score) {
+    var newPlayer =
+    {
+      playerNumber: this.state.players.length + 1,
+      playerName: playerName,
+      scorekeeper: false,
+      dealer: false,
+      currentScore: score,
+      isPerfect: false, //judgment call here, late joiners aren't perfect,
+      joinedRound: this.state.gameState.roundNumber
+    };
+    this.state.players.push(newPlayer);
+    var newGameState = 
+    {
+      scores: Array(numRounds + 1).join('0').split('').map(parseFloat),
+      bids: Array(numRounds + 1).join('0').split('').map(parseFloat),
+      takes: Array(numRounds + 1).join('0').split('').map(parseFloat)
+    };
+    newGameState[scores][this.state.gameState.roundNumber - 2] = score;
+    this.state.gameState.push(newGameState);
+    this.forceUpdate();
+  }
+
   updateFirebase() {
     var updates = {};
     updates['/games/' + this.props.currentGameKey + '/state'] = this.state.gameState;
@@ -37,6 +62,17 @@ export default class RoundBids extends React.Component {
     console.log(JSON.stringify(this.state));
   }
 
+  /***
+    Idea: Display a PendingBid component for every player.
+
+    Right now, each PendingBid component is given an updateBid function which allows it to
+    modify the player's current bid. Once the finalize button is hit, everything is sent off
+    to Firebase.
+
+    If we wanted to include intermediate bids, the updateFirebase() function would just need to be called
+    inside the updateBid function. I would tweak it a little to not send the entire state and just the single
+    bid being updated, in that case.
+  */
   render() {
     var pendingBids = this.props.players.map((player) => (
       <div key={player.playerNumber}>
@@ -50,6 +86,8 @@ export default class RoundBids extends React.Component {
           isPerfect={player.isPerfect} />
       </div>
     ));
+    var errorMessage = "";
+
     return (
       <div>
         <h2> Round: {this.state.gameState.roundNumber} </h2>
@@ -98,5 +136,4 @@ class PendingBid extends React.Component {
       </div>
     )
   }
-
 }

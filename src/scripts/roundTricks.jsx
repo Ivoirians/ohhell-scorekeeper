@@ -69,6 +69,11 @@ export default class RoundTricks extends React.Component {
     database.ref().update(updates);
   }
 
+  /***
+    Almost the same logic as the bid page. Have each one RecordTrick component per player
+    be responsible for updating the number of tricks they've taken. Once the round ends,
+    do some processing to compute scores, then send it to Firebase.
+  */ 
   render() {
     var takeTrickButtons = this.props.players.map((player) => (
       <div key={player.playerNumber}>

@@ -62,8 +62,11 @@ export default class CreateGame extends React.Component {
   }
 
   updatePlayer(player) {
-    //check for duplicates, if people are going to be malicious--necessary?
+    //TODO: check for duplicates, if people are going to be malicious--necessary?
     this.state.players[player.playerNumber] = player;
+
+    //increase player count so another row appears
+    //if this is the "newest" player
     if (player.playerNumber == this.state.numPlayers)
       this.setState({numPlayers: this.state.numPlayers+1});
     this.forceUpdate();
@@ -73,6 +76,11 @@ export default class CreateGame extends React.Component {
     console.log(JSON.stringify(this.state));
   }
 
+  /***
+    Idea: Keep track of a count of players.
+    Display that many AddPlayerRow components, which update the players state.
+    If the last row is modified, increase the count.
+  */
   render() {
     var playerRows = this.state.players.map((player) =>
       <div key={player.playerNumber}>
@@ -139,7 +147,8 @@ class AddPlayerRow extends React.Component {
       scorekeeper: this.state.scorekeeper,
       dealer: this.state.dealer,
       currentScore: 0,
-      isPerfect: true
+      isPerfect: true,
+      joinedRound: 1
     });
   }
 

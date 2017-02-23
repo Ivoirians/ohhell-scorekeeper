@@ -8,6 +8,23 @@ import Statistics from './statistics.jsx';
 import WinScreen from './winScreen.jsx';
 import {PageEnum} from './pageEnum.jsx';
 
+
+
+/***
+  This component exists as a container for all of the other components,
+  allowing the multi-page app to swap out its pages.
+
+  Because I didn't decide to use Redux, state transition functions need to
+  be passed to child components. Leading to a lot of silly looking props
+  and functions that really shouldn't be necessary.
+
+  Most pages are passed a list of players and a gameState object, make changes
+  to them, and pass them back to this component to be forwarded on to the next
+  page.
+
+  Hopefully this is straightforward enough if new pages need to be added,
+  or the existing flow of logic needs to be changed.
+*/
 class OhHell extends React.Component {
   constructor(props) {
     super(props);
@@ -66,6 +83,12 @@ class OhHell extends React.Component {
     return headerText;
   }
 
+
+  /***
+  Each subpage needs to be passed everything it needs to function.
+    changePage - function which triggers this container component to transition to a new page
+    updateGameState - function to change the player and gameState, to be passed to the next page
+  */
   render () {
     var partial;
     switch(this.state.currentPage) {

@@ -39,6 +39,15 @@ export function equalArray(arr1, arr2) {
   return true;
 }
 
+/***
+  Good luck testing this function.
+
+  It's not even finished, as it doesn't check if a player 42s only on the last round,
+  or that a perfect score wasn't all 0s.
+
+  Testing this is pretty rough until I come up with a way to generate gameStates without
+  going through the motions.
+*/
 export function getWinnersAndMessage(players, gameState) {
   var winReason = "Error. No winner.";
   var winners = [];

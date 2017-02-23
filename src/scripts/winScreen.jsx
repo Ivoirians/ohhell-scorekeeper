@@ -3,6 +3,9 @@ import ReactDOM from 'react-dom';
 import {PageEnum} from './pageEnum.jsx';
 import {getWinnersAndMessage, Scoreboard} from './utils.jsx';
 
+/***
+  React is nice in that some classes are 100% straightforward.
+*/
 export default class WinScreen extends React.Component {
   
   constructor(props) {
