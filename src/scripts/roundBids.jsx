@@ -128,11 +128,11 @@ class PendingBid extends React.Component {
       perfectMark = "*";
     return (
       <div>
-        <h3 className="score"> {this.state.playerName}: Current Score: {this.state.currentScore} {perfectMark} </h3>
-        <h1> {this.state.currentBid} </h1>
-
-        <button onClick={this.increaseBid.bind(this)}>+</button>
+        <h3 className="score"> {this.state.playerName}: {this.state.currentScore} {perfectMark} </h3>
+        
         <button onClick={this.decreaseBid.bind(this)}>-</button>
+        <span className="currentBid"> {this.state.currentBid} </span>
+        <button onClick={this.increaseBid.bind(this)}>+</button>
       </div>
     )
   }

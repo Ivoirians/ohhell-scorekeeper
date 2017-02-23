@@ -29,6 +29,11 @@ h1 {
   font-size: 60pt;
 }
 
+h2 {
+  text-align: center;
+  font-size: 40pt;
+}
+
 h3 {
   text-align: center;
   font-size: 16pt;
@@ -80,4 +85,12 @@ input[type=number]{
 
 .scoreboard {
   font-size: 32pt;
+}
+
+.currentBid {
+  font-size: 40pt;
+}
+
+.currentTrick {
+  font-size: 40pt;
 }

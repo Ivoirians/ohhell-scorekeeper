@@ -126,9 +126,10 @@ class RecordTricks extends React.Component {
   render() {
     return (
       <div>
-        <h3 className="score"> {this.props.playerName} : {this.props.currentScore ? this.props.currentScore : 0}. Take/Bid: {this.state.currentTake}/{this.props.currentBid} </h3>
-        <button onClick={this.increaseTake.bind(this)}>+</button>
+      <h3 className="currentTrick"> {this.props.playerName} : {this.props.currentScore ? this.props.currentScore : 0} </ h3>
         <button onClick={this.decreaseTake.bind(this)}>-</button>
+         <span className="currentTrick">{this.state.currentTake}/{this.props.currentBid} </span>
+        <button onClick={this.increaseTake.bind(this)}>+</button>
       </div>
     )
   }
