@@ -30,7 +30,6 @@ The current schema for a game looks like this (definitely subject to change/see 
 
 Player:
 *currentScore (int)
-*dealer (bool)
 *isPerfect (bool)
 *joinedRound (int)
 *playerName (string)

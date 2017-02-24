@@ -83,7 +83,8 @@ export default class RoundBids extends React.Component {
           currentBid={this.state.gameState[player.playerName].bids[this.state.gameState.roundNumber-1]}
           updateBid={this.updateBid.bind(this)}
           maxBid={10}
-          isPerfect={player.isPerfect} />
+          isPerfect={player.isPerfect}
+          isDealer={(this.state.gameState.roundNumber -1) % this.props.players.length == player.playerNumber} />
       </div>
     ));
     var errorMessage = "";
@@ -126,9 +127,13 @@ class PendingBid extends React.Component {
     var perfectMark = "";
     if (this.props.isPerfect)
       perfectMark = "*";
+
+    var className = "pending-bid";
+    if (this.props.isDealer)
+      className = "pending-bid-dealer";
     return (
       <div>
-        <h3 className="score"> {this.state.playerName}: {this.state.currentScore} {perfectMark} </h3>
+        <h3 className={className}> {this.state.playerName}: {this.state.currentScore} {perfectMark} </h3>
         
         <button onClick={this.decreaseBid.bind(this)}>-</button>
         <span className="currentBid"> {this.state.currentBid} </span>

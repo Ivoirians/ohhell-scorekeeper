@@ -75,8 +75,13 @@ input[type=number]{
   font-size: 20pt;
 }
 
-.score {
+.pending-bid {
   font-size: 50pt;
+}
+
+.pending-bid-dealer {
+  font-size: 50pt;
+  background-color: gold;
 }
 
 .winReason {

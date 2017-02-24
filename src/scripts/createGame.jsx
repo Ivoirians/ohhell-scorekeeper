@@ -123,7 +123,7 @@ class AddPlayerRow extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {scorekeeper: false, dealer: false, playerName: this.props.playerName};
+    this.state = {scorekeeper: false, playerName: this.props.playerName};
   };
 
   handlePlayerNameChange(event) {
@@ -145,7 +145,6 @@ class AddPlayerRow extends React.Component {
       playerNumber: this.props.playerNumber,
       playerName: this.state.playerName,
       scorekeeper: this.state.scorekeeper,
-      dealer: this.state.dealer,
       currentScore: 0,
       isPerfect: true,
       joinedRound: 1
@@ -153,10 +152,7 @@ class AddPlayerRow extends React.Component {
   }
 
   getClassName() {
-    if (this.state.dealer) {
-      return "player-row-dealer";
-    }
-    else if (this.state.scorekeeper) {
+    if (this.state.scorekeeper) {
       return "player-row-scorekeeper";
     }
     else {
