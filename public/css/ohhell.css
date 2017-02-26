@@ -84,6 +84,12 @@ input[type=number]{
   background-color: gold;
 }
 
+.current-bidder {
+  display: inline-block;
+  padding: 10px;
+  border: 4px solid black;
+}
+
 .winReason {
   font-size: 40pt;
 }

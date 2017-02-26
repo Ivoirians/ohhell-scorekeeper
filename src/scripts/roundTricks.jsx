@@ -25,6 +25,7 @@ export default class RoundTricks extends React.Component {
 
   updateTake(playerName, newBid) {
     this.state.gameState[playerName].takes[this.state.gameState.roundNumber - 1] = parseInt(newBid);
+    this.forceUpdate();
   }
 
   logStateDebug() {
@@ -75,28 +76,28 @@ export default class RoundTricks extends React.Component {
     do some processing to compute scores, then send it to Firebase.
   */ 
   render() {
-    var takeTrickButtons = this.props.players.map((player) => (
+    var gameState = this.state.gameState;
+    var players = this.state.players; 
+    var takeTrickButtons = players.map((player) => (
       <div key={player.playerNumber}>
         <hr />
         <RecordTricks
           updateTake={this.updateTake.bind(this)}
           playerName={player.playerName}
-          currentScore={this.state.gameState[player.playerName].scores[this.state.gameState.roundNumber-2]}
-          currentBid={this.state.gameState[player.playerName].bids[this.state.gameState.roundNumber-1]}
-          currentTake={this.state.gameState[player.playerName].takes[this.state.gameState.roundNumber-1]} />
+          currentScore={gameState[player.playerName].scores[gameState.roundNumber-2]}
+          currentBid={gameState[player.playerName].bids[gameState.roundNumber-1]}
+          currentTake={gameState[player.playerName].takes[gameState.roundNumber-1]} />
       </div>
     ));
 
-    var nextRound = "";
-    if (this.state.gameState.roundNumber != getNumberOfRounds(this.props.players.length)) {
-      nextRound = (<button onClick={this.endRound.bind(this)}> End Round </button>);
-    }
+   var canEndRound = gameState.roundNumber != getNumberOfRounds(this.props.players.length)
+      && players.map(p => gameState[p.playerName].takes[gameState.roundNumber-1]).reduce((a,b)=>a+b, 0) === gameState.roundNumber; 
 
     return (
       <div>
-        <h2> Round: {this.state.gameState.roundNumber} </h2>
+        <h2> Round: {gameState.roundNumber} </h2>
         {takeTrickButtons}
-        {nextRound}
+        { canEndRound && <button onClick={this.endRound.bind(this)}> End Round </button> }
         <button onClick={this.endGame.bind(this)}> End Game </button>
         <button onClick={this.logStateDebug.bind(this)}> Debug </button>
       </div>
