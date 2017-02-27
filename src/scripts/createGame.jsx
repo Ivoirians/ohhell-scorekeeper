@@ -8,7 +8,12 @@ export default class CreateGame extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {scorekeeper: '', headerText: 'New Game', players: [], numPlayers:0};
+    this.state = {scorekeeper: '',
+                  headerText: 'New Game',
+                  players: [],
+                  numPlayers: 0,
+                  isDebug: false
+                };
   };
 
   goToMainMenu() {
@@ -27,6 +32,10 @@ export default class CreateGame extends React.Component {
     this.props.changePage(PageEnum.ROUND_BIDS);
   }
 
+  handleIsDebug(event) {
+    this.setState({isDebug: event.target.checked});
+  }
+
   //creates a gameState object out of the current set of players
   //then changes page to bids
   getNewGameState() {
@@ -35,6 +44,7 @@ export default class CreateGame extends React.Component {
     for (var playerIndex in this.state.players) {
       var player = this.state.players[playerIndex];
       gameState[player.playerName] = ({
+        isDebug: this.state.isDebug,
         scores: Array(numRounds + 1).join('0').split('').map(parseFloat),
         bids: Array(numRounds + 1).join('-').split(''),
         takes: Array(numRounds + 1).join('0').split('').map(parseFloat)
@@ -48,17 +58,21 @@ export default class CreateGame extends React.Component {
       dateCreated: new Date(),
       players: this.state.players.map((player) => (/*some kind of toString?*/player))
     }
-    var newKey = database.ref().child('games').push().key;
+    var newKey = "test-game";
+    if (!this.state.isDebug) {
+      newKey = database.ref().child('games').push().key;
 
-    var updates = {};
-    updates['/games/' + newKey] = gameMetaData;
-    for (var p in this.state.players){
-      var playerName = this.state.players[p].playerName;
-      updates['/user-games/' + playerName + "/" + newKey] = gameMetaData; 
+      var updates = {};
+      updates['/games/' + newKey] = gameMetaData;
+      for (var p in this.state.players){
+        var playerName = this.state.players[p].playerName;
+        updates['/user-games/' + playerName + "/" + newKey] = gameMetaData; 
+      }
+      database.ref().update(updates);
     }
-    database.ref().update(updates);
     this.props.setCurrentGameKey(newKey);
     this.setState({currentGameKey: newKey});
+    
   }
 
   updatePlayer(player) {
@@ -109,6 +123,7 @@ export default class CreateGame extends React.Component {
         <h2>Players:</h2>
         <form>
           {playerRows}
+          Debug: <input type="checkbox" onChange={this.handleIsDebug.bind(this)} label="Debug"></input>
         </form>
         {errorMessage}
         <button onClick={this.goToRoundBids.bind(this)}> Start Round {this.props.roundNumber} </button>
