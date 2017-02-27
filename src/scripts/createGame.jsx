@@ -39,12 +39,14 @@ export default class CreateGame extends React.Component {
   //creates a gameState object out of the current set of players
   //then changes page to bids
   getNewGameState() {
-    var gameState = {roundNumber: 1, inProgress: true};
+    var gameState = { roundNumber: 1,
+                      inProgress: true,
+                      isDebug: this.state.isDebug
+                    };
     var numRounds = getNumberOfRounds(this.state.players.length);
     for (var playerIndex in this.state.players) {
       var player = this.state.players[playerIndex];
       gameState[player.playerName] = ({
-        isDebug: this.state.isDebug,
         scores: Array(numRounds + 1).join('0').split('').map(parseFloat),
         bids: Array(numRounds + 1).join('-').split(''),
         takes: Array(numRounds + 1).join('0').split('').map(parseFloat)
@@ -59,7 +61,9 @@ export default class CreateGame extends React.Component {
       players: this.state.players.map((player) => (/*some kind of toString?*/player))
     }
     var newKey = "test-game";
+    console.log(this.state.isDebug);
     if (!this.state.isDebug) {
+      console.log("NO");
       newKey = database.ref().child('games').push().key;
 
       var updates = {};

@@ -53,6 +53,7 @@ export default class RoundBids extends React.Component {
   }
 
   updateFirebase() {
+    console.log(this.state.gameState.isDebug);
     if (!this.state.gameState.isDebug)
     {
       var updates = {};
