@@ -37,7 +37,7 @@ export default class Statistics extends React.Component {
 
   render() {
     var games = this.state.allGames.map((gameWithKey) => 
-      <GameSummary key={gameWithKey.key} gameWithKey={gameWithKey} resume={null} showDelete={true}/>
+      <GameSummary key={gameWithKey.key} gameWithKey={gameWithKey} resume={null} showDelete={false}/>
       )
     return (
       <div className="statistics">
