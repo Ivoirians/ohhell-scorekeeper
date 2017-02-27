@@ -56,7 +56,6 @@ export function getWinnersAndMessage(players, gameState) {
   var highScorers = [];
   var fortyTwoers = [];
   var highScore = 0;
-  console.log(players);
   for (var playerIndex in players) {
     var player = players[playerIndex];
     if (player.currentScore == 42) {
@@ -143,13 +142,25 @@ export class GameSummary extends React.Component {
     this.setState({isDeleted: true});
   }
 
+  getStatus(game) {
+    if (!game)
+      return "Error";
+    else if (game.inProgress)
+      return "In Progress";
+    else 
+    {
+      var winners = getWinnersAndMessage(game.players, game.state);
+      return winners[1];
+    }
+  } 
+
   render() {
     if (this.state.isDeleted)
       return null;
     var game = this.props.gameWithKey;
 
     var resumeButton = "";
-    if (this.props.resume)
+    if (this.props.resume && game.state.inProgress)
       resumeButton = (<button className="resume-game" onClick={this.resumeGame.bind(this)}> Resume </button>);
 
     var deleteButton = "";
@@ -158,11 +169,14 @@ export class GameSummary extends React.Component {
       deleteButton = (<button className="delete-game" onClick={this.deleteGame.bind(this)}> Delete </button>)
     }
 
+    var status = this.getStatus(game);
+
     return (
       <div className="game-summary" key={game.dateCreated}>
         <h3> Date: {game.dateCreated} </h3>
         <h3> Players: {game.players.map((p) => p.playerName).join(", ")} </h3>
         <h3> Round: {game.state ? game.state.roundNumber : "N/A"} </h3>
+        <h3> {status} </h3>
         {resumeButton}
         {deleteButton}
       </div>
