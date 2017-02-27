@@ -8,6 +8,13 @@ body {
     background-color: #F1F1F1;
 }
 
+#footer {
+  color:#DDDDDD;
+  font-color:#DDDDDD;
+  font-size: 10pt;
+  margin-top: 30pt;
+}
+
 button {
   margin: 5pt;
   border: 2pt black solid;

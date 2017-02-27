@@ -133,9 +133,14 @@ class OhHell extends React.Component {
         break;
     }
     return (
-      <div id="app-container">
-        <h1 id="primary-header">{this.getHeaderText.bind(this)()}</h1>
-        {partial}
+      <div>
+        <div id="app-container">
+          <h1 id="primary-header">{this.getHeaderText.bind(this)()}</h1>
+          {partial}
+        </div>
+        <div id="footer">
+          Version 0.0.1
+        </div>
       </div>
     );
   }
