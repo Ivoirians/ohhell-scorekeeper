@@ -94,6 +94,21 @@ input[type=number]{
   background-color: red;
 }
 
+.add-player-button, .add-player-button:hover {
+  font-size: 16pt;
+  float: left;
+  margin: auto 5px;
+}
+
+.player-buttons {
+  margin:auto;
+  clear:both;
+}
+
+.player-rows {
+  clear:both;
+}
+
 .pending-bid {
   font-size: 50pt;
 }
