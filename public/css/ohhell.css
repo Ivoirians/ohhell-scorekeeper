@@ -75,6 +75,18 @@ input[type=number]{
   font-size: 20pt;
 }
 
+.delete-game, .delete-game:hover {
+  font-size: 20pt;
+  color: black;
+  font-color: black;
+  background-color: yellow;
+}
+.delete-game:hover {
+  font-color: white;
+  color: white;
+  background-color: red;
+}
+
 .pending-bid {
   font-size: 50pt;
 }

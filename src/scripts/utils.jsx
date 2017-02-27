@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import {database} from './firebaseInterface.jsx'
 
 export function getCurrentScore(bids, takes, rounds) {
   var i = 0;
@@ -122,20 +123,48 @@ export function getWinnersAndMessage(players, gameState) {
 export class GameSummary extends React.Component {
   constructor(props) {
     super(props);
+    this.state = {isDeleted: false}
   }
 
   resumeGame() {
     this.props.resume(this.props.gameWithKey);
   }
 
+  deleteGame() {
+    //delete the user-games for each player first, then the game
+    var gameKey = this.props.gameWithKey.key;
+    var updates = {};
+    for (var player of this.props.gameWithKey.players)
+    {
+      updates['/user-games/' + player.playerName + "/" + gameKey] = null; 
+    }
+    updates['/games/' + gameKey] = null;
+    database.ref().update(updates);
+    this.setState({isDeleted: true});
+  }
+
   render() {
+    if (this.state.isDeleted)
+      return null;
     var game = this.props.gameWithKey;
+
+    var resumeButton = "";
+    if (this.props.resume)
+      resumeButton = (<button className="resume-game" onClick={this.resumeGame.bind(this)}> Resume </button>);
+
+    var deleteButton = "";
+    if (this.props.showDelete)
+    {
+      deleteButton = (<button className="delete-game" onClick={this.deleteGame.bind(this)}> Delete </button>)
+    }
+
     return (
       <div className="game-summary" key={game.dateCreated}>
         <h3> Date: {game.dateCreated} </h3>
         <h3> Players: {game.players.map((p) => p.playerName).join(", ")} </h3>
         <h3> Round: {game.state ? game.state.roundNumber : "N/A"} </h3>
-        <button className="resume-game" onClick={this.resumeGame.bind(this)}> Resume </button>
+        {resumeButton}
+        {deleteButton}
       </div>
     );
   }
