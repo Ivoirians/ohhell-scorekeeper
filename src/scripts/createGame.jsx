@@ -81,12 +81,12 @@ export default class CreateGame extends React.Component {
       newKey = database.ref().child('games').push().key;
 
       var updates = {};
-      updates['/games/' + newKey] = gameMetaData;
+      updates[`/games/${newKey}`] = gameMetaData;
       for (var p in this.state.players){
         var playerName = this.state.players[p].playerName;
-        updates['/user-games/' + playerName + "/" + newKey] = gameMetaData;
-        //this is the update that should be a transaction
-        updates['/players/' + playerName + "/count"] = this.state.allPlayers[playerName] + 1;
+        updates[`/user-games/${playerName}/${newKey}`] = gameMetaData;
+        //increment
+        database.ref(`/players/${playerName}/count`).transaction(x => (x || 0) + 1);
       }
       database.ref().update(updates);
     }

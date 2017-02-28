@@ -73,10 +73,10 @@ export function getWinnersAndMessage(players, gameState) {
     //high scorer
     winners=highScorers;
     if (highScorers.length == 1) {
-      winReason = winners[0].playerName + " got the highest score : " + highScore;
+      winReason = `${winners[0].playerName} got the highest score: ${highScore}`;
     }
     else {
-      winReason = winners.map((w) => w.playerName).join("/") + " tied for the highest score : " + highScore;
+      winReason = `${winners.map((w) => w.playerName).join("/")} tied for the highest score: ${highScore}`;
     }
   }
   else {
@@ -92,19 +92,19 @@ export function getWinnersAndMessage(players, gameState) {
         //winner
         winners = perfects;
         if (perfects.length > 1) {
-          winReason = fortyTwoers.map((w) => w.playerName).join("/") + " got 42, but " + perfects.map((p) => p.playerName).join("/") + " got perfect high scores of " + highScore;
+          winReason = `${fortyTwoers.map((w) => w.playerName).join("/")} got 42, but ${perfects.map((p) => p.playerName).join("/")} got perfect high scores of ${highScore}`;
         }
         else {
-          winReason = fortyTwoers.map((w) => w.playerName).join("/") + " got 42, but " + perfects[0].playerName + " got a perfect high score of " + highScore;
+          winReason = `${fortyTwoers.map((w) => w.playerName).join("/")} got 42, but ${perfects[0].playerName} got a perfect high score of ${highScore}`;
         }
       }
       else {
         winners = fortyTwoers;
         if (fortyTwoers.length > 1) {
-          winReason = winners.map((w) => w.playerName).join("/") + " all got 42!";
+          winReason = `${winners.map((w) => w.playerName).join("/")} all got 42!`;
         }
         else if (fortyTwoers.length == 1) {
-          winReason = winners[0].playerName + " got 42!";
+          winReason = `${winners[0].playerName} got 42!`;
         }
         else {
           console.log(fortyTwoers.length);
@@ -135,9 +135,11 @@ export class GameSummary extends React.Component {
     var updates = {};
     for (var player of this.props.gameWithKey.players)
     {
-      updates['/user-games/' + player.playerName + "/" + gameKey] = null; 
+      updates[`/user-games/${player.playerName}/${gameKey}`] = null; 
+      //transaction decrement
+      database.ref(`/players/${player.playerName}/count`).transaction(x => x > 1 ? x - 1 : null);
     }
-    updates['/games/' + gameKey] = null;
+    updates[`/games/${gameKey}`] = null;
     database.ref().update(updates);
     this.setState({isDeleted: true});
   }
