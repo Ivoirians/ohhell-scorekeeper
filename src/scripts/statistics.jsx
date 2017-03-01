@@ -8,38 +8,75 @@ import {GameSummary, getWinnersAndMessage} from './utils.jsx';
 var StatsTab = new Enum([
   "NONE",
   "GAMES",
-  "WINNERS",
+  "PLAYERS",
 ]);
 
-class GameWinners extends React.Component {
+class GamePlayers extends React.Component {
   constructor(props) {
     super(props);
   }
 
   componentWillMount() {
     const {allGames} = this.props;
-    let winners = allGames.reduce(
-        (winners, game) => {
-          getWinnersAndMessage(game.players, game.state)[0].forEach(winner => winners[winner.playerName] = (winners[winner.playerName] || 0)+1);
-          return winners;
-        },
-        {}
-    );
+    let players = {};
+    allGames
+      .filter(game => !game.state.inProgress)
+      .forEach(game => {
+        //winners
+        getWinnersAndMessage(game.players, game.state)[0].forEach(winner => {
+          players[winner.playerName] = players[winner.playerName] || {};
+          players[winner.playerName].winCount = (players[winner.playerName].winCount || 0) + 1;
+        });
+        //the rest
+        game.players.forEach(player => {
+          const name = player.playerName;
+          players[name] = players[name] || {};
+          players[name].gameCount = (players[name].gameCount || 0) + 1;
+          players[name].roundCount = (players[name].roundCount || 0) + game.state.roundNumber;
+          players[name].totalScore = (players[name].totalScore || 0) + player.currentScore;
+        });
+    });
 
     this.setState({
-      winners: Object.keys(winners).map(name => { return {name: name, count: winners[name]} }).sort((a,b)=>b.count-a.count)
+      players: Object.keys(players).map(name => Object.assign(players[name], {name: name})),
+      sortOrder: 'wins'
     });
   }
 
   render() {
-    const winners = this.state.winners.map(winner => 
-      <h3 key={winner.name}>
-        <div>{winner.name}: {winner.count}</div>
-      </h3>);
+    const {players, sortOrder} = this.state;
+
+    switch(sortOrder){
+      case 'name': players.sort((a,b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0); break;
+      case 'wins': players.sort((a,b) => b.winCount - a.winCount); break;
+      case 'winpct': players.sort((a,b) => b.winCount / b.gameCount - a.winCount / a.gameCount); break;
+      case 'pointave': players.sort((a,b) => b.totalScore / b.roundCount - a.totalScore / a.roundCount); break;
+      case 'games': players.sort((a,b) => b.gameCount - a.gameCount); break;
+    }
+
+    const playersStats = this.state.players.map(player => 
+      <tr key={player.name}>
+        <td>{player.name}</td>
+        <td>{player.winCount}</td>
+        <td>{Math.round(100 * player.winCount / player.gameCount)}</td>        
+        <td>{Math.round(100 * player.totalScore / player.roundCount) / 100}</td>
+        <td>{player.gameCount}</td>        
+      </tr>);
     return (
-      <div className="GameWinners">
-        {winners}
-      </div>
+      <table className="GameWinners">
+        <thead>
+          <tr>
+            <th onClick={()=>this.setState({sortOrder: 'name'})}>Name {sortOrder == 'name' && '*'}</th>
+            <th onClick={()=>this.setState({sortOrder: 'wins'})}>Wins {sortOrder == 'wins' && '*'}</th>
+            <th onClick={()=>this.setState({sortOrder: 'winpct'})}>Win % {sortOrder == 'winpct' && '*'}</th>
+            <th onClick={()=>this.setState({sortOrder: 'pointave'})}>Point Ave {sortOrder == 'pointave' && '*'}</th>             
+            <th onClick={()=>this.setState({sortOrder: 'games'})}>Games {sortOrder == 'games' && '*'}</th>
+          </tr>
+        </thead>
+        <tbody>
+        {playersStats}
+        </tbody>
+      </table>
     );
   }
 }
@@ -87,15 +124,15 @@ export default class Statistics extends React.Component {
     var games = currentTab === StatsTab.GAMES && this.state.allGames.map((gameWithKey) => 
       <GameSummary key={gameWithKey.key} gameWithKey={gameWithKey} resume={null} showDelete={false}/>
     );
-    var winners = currentTab === StatsTab.WINNERS && <GameWinners allGames={allGames}/>;
+    var players = currentTab === StatsTab.PLAYERS && <GamePlayers allGames={allGames}/>;
 
     return (
       <div className="statistics">
         <button onClick={this.changeTab.bind(this, StatsTab.GAMES)}> Games </button>
-        <button onClick={this.changeTab.bind(this, StatsTab.WINNERS)}> Winners </button>
+        <button onClick={this.changeTab.bind(this, StatsTab.PLAYERS)}> Players </button>
         <button onClick={this.returnToMain.bind(this)}> Main Menu </button>
         {games}
-        {winners}
+        {players}
       </div>
     );
   }

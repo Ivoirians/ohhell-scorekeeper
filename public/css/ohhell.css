@@ -46,6 +46,23 @@ h3 {
   font-size: 16pt;
 }
 
+table {
+  width: 100%;
+  font-size: 20pt;
+  border: 1px solid black;
+}
+th {
+    width: 1%;
+    text-align: center;
+    border: 1px solid black;
+    cursor: pointer;
+    color: #ffffff;
+    background: #3498db;    
+}
+td {
+    border: 1px solid black;
+}
+
 input[type=text]{
   -webkit-appearance: none; -moz-appearance: none;
   margin: 10pt;
