@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import {database} from './firebaseInterface.jsx'
 import {PageEnum} from './pageEnum.jsx';
-import {getCurrentScore, getNumberOfRounds, equalArray} from './utils.jsx';
+import {getCurrentScore, getNumberOfRounds, equalArrayPrefix} from './utils.jsx';
 
 
 export default class RoundTricks extends React.Component {
@@ -40,7 +40,7 @@ export default class RoundTricks extends React.Component {
       var score = getCurrentScore(game.bids, game.takes, this.state.gameState.roundNumber);
       game.scores[this.state.gameState.roundNumber-1] = score;
       this.state.players[playerNumber].currentScore = score;
-      this.state.players[playerNumber].isPerfect = (equalArray(game.bids, game.takes));
+      this.state.players[playerNumber].isPerfect = (equalArrayPrefix(game.bids, game.takes, this.state.gameState.roundNumber));
     }
   }
 
@@ -79,9 +79,9 @@ export default class RoundTricks extends React.Component {
     do some processing to compute scores, then send it to Firebase.
   */ 
   render() {
-    var gameState = this.state.gameState;
-    var players = this.state.players; 
-    var takeTrickButtons = players.map((player) => (
+    const gameState = this.state.gameState;
+    const players = this.state.players; 
+    const takeTrickButtons = players.map((player) => (
       <div key={player.playerNumber}>
         <hr />
         <RecordTricks
@@ -93,11 +93,15 @@ export default class RoundTricks extends React.Component {
       </div>
     ));
 
-   var canEndRound = gameState.roundNumber != getNumberOfRounds(this.props.players.length)
-      && players.map(p => gameState[p.playerName].takes[gameState.roundNumber-1]).reduce((a,b)=>a+b, 0) === gameState.roundNumber; 
+    const totalBids = players.map(p => gameState[p.playerName].bids[gameState.roundNumber-1] || 0).reduce((a,b)=>a+b, 0);
+    const totalTricks = players.map(p => gameState[p.playerName].takes[gameState.roundNumber-1]).reduce((a,b)=>a+b, 0);
+    const roundBalance = totalBids - gameState.roundNumber;
+
+    const canEndRound = gameState.roundNumber != getNumberOfRounds(this.props.players.length) && totalTricks === gameState.roundNumber; 
 
     return (
       <div>
+        <div className='roundBalance'>{roundBalance < 0 ? `${-roundBalance} under` : `${roundBalance} over`}</div>
         <h2> Round: {gameState.roundNumber} </h2>
         {takeTrickButtons}
         { canEndRound && <button onClick={this.endRound.bind(this)}> End Round </button> }

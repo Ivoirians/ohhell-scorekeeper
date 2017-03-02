@@ -84,11 +84,11 @@ export default class RoundBids extends React.Component {
     bid being updated, in that case.
   */
   render() {
-    var gameState = this.props.gameState;
-    var players = this.props.players;
-    var numPlayers = players.length;
-    var dealerNumber = (gameState.roundNumber -1) % numPlayers;
-    var currentBidder = (dealerNumber + 1) % numPlayers;
+    const gameState = this.props.gameState;
+    const players = this.props.players;
+    const numPlayers = players.length;
+    const dealerNumber = (gameState.roundNumber -1) % numPlayers;
+    let currentBidder = (dealerNumber + 1) % numPlayers;
     while(gameState[players[currentBidder].playerName].bids[gameState.roundNumber-1] !== "-") {
       currentBidder = (currentBidder + 1) % numPlayers;
       if(currentBidder == (dealerNumber + 1) % numPlayers) {
@@ -96,8 +96,10 @@ export default class RoundBids extends React.Component {
         break;
       }
     }
-    var canFinalize = currentBidder < 0 && players.map(p => gameState[p.playerName].bids[gameState.roundNumber-1]).reduce((a,b)=>a+b, 0) != gameState.roundNumber;
-    var pendingBids = this.props.players.map((player) => (
+
+    const totalBids = players.map(p => gameState[p.playerName].bids[gameState.roundNumber-1] || 0).reduce((a,b)=>a+b, 0);
+    const canFinalize = currentBidder < 0 && totalBids != gameState.roundNumber;
+    const pendingBids = this.props.players.map((player) => (
       <div key={player.playerNumber}>
         <hr />
         <PendingBid
@@ -111,7 +113,7 @@ export default class RoundBids extends React.Component {
           isCurrentBidder = {currentBidder == player.playerNumber}/>
       </div>
     ));
-    var errorMessage = "";
+    const errorMessage = "";
 
     return (
       <div>

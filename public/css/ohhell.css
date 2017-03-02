@@ -156,3 +156,13 @@ input[type=number]{
 .currentTrick {
   font-size: 40pt;
 }
+
+.roundBalance {
+    position: fixed;
+    top: 3%;
+    right: 5%;
+    font-size: 40pt;
+    background-color: yellow;
+    padding: 20px;
+    border-radius: 1000px;
+}
