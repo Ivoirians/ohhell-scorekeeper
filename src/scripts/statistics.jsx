@@ -128,9 +128,11 @@ export default class Statistics extends React.Component {
 
     return (
       <div className="statistics">
-        <button onClick={this.changeTab.bind(this, StatsTab.GAMES)}> Games </button>
-        <button onClick={this.changeTab.bind(this, StatsTab.PLAYERS)}> Players </button>
-        <button onClick={this.returnToMain.bind(this)}> Main Menu </button>
+        <div className='statistics-header'>
+          <button onClick={this.changeTab.bind(this, StatsTab.GAMES)}> Games </button>
+          <button onClick={this.changeTab.bind(this, StatsTab.PLAYERS)}> Players </button>
+          <button onClick={this.returnToMain.bind(this)}> Main Menu </button>
+        </div>
         {games}
         {players}
       </div>

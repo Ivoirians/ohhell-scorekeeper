@@ -166,3 +166,7 @@ input[type=number]{
     padding: 20px;
     border-radius: 1000px;
 }
+
+.statistics-header {
+  margin-bottom: 20px;
+}
