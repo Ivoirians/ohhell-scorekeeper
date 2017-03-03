@@ -119,7 +119,7 @@ export default class RoundBids extends React.Component {
 
     return (
       <div>
-        {roundBalance && <div className='roundBalance'>{roundBalance < 0 ? `${-roundBalance} under` : `${roundBalance} over`}</div>}     
+        {roundBalance != 0 && <div className='roundBalance'>{roundBalance < 0 ? `${-roundBalance} under` : `${roundBalance} over`}</div>}     
         <h2> Round: {this.state.gameState.roundNumber} </h2>
         {pendingBids}
         { canFinalize && <button onClick={this.goToRoundTricks.bind(this)}> Finalize Bids </button>}

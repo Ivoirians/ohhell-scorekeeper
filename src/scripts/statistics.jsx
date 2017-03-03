@@ -27,6 +27,11 @@ class GamePlayers extends React.Component {
           players[winner.playerName] = players[winner.playerName] || {};
           players[winner.playerName].winCount = (players[winner.playerName].winCount || 0) + 1;
         });
+        //winners no 42
+        getWinnersAndMessage(game.players, game.state, true)[0].forEach(winner => {
+          players[winner.playerName] = players[winner.playerName] || {};
+          players[winner.playerName].winCountNo42 = (players[winner.playerName].winCountNo42 || 0) + 1;
+        });        
         //the rest
         game.players.forEach(player => {
           const name = player.playerName;
@@ -51,6 +56,7 @@ class GamePlayers extends React.Component {
       case 'name': players.sort((a,b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0); break;
       case 'wins': players.sort((a,b) => b.winCount - a.winCount); break;
       case 'winpct': players.sort((a,b) => b.winCount / b.gameCount - a.winCount / a.gameCount); break;
+      case 'winpctno42': players.sort((a,b) => b.winCountNo42 / b.gameCount - a.winCountNo42 / a.gameCount); break;      
       case 'hitpct': players.sort((a,b) => b.hitCount / b.roundCount - a.hitCount / a.roundCount); break;
       case 'games': players.sort((a,b) => b.gameCount - a.gameCount); break;
     }
@@ -59,7 +65,8 @@ class GamePlayers extends React.Component {
       <tr key={player.name}>
         <td>{player.name}</td>
         <td>{player.winCount}</td>
-        <td>{Math.round(100 * player.winCount / player.gameCount)}</td>        
+        <td>{Math.round(100 * player.winCount / player.gameCount)}</td>
+        <td>{Math.round(100 * player.winCountNo42 / player.gameCount)}</td>              
         <td>{Math.round(100 * player.hitCount / player.roundCount)}</td>
         <td>{player.gameCount}</td>        
       </tr>);
@@ -70,6 +77,7 @@ class GamePlayers extends React.Component {
             <th onClick={()=>this.setState({sortOrder: 'name'})}>Name {sortOrder == 'name' && '*'}</th>
             <th onClick={()=>this.setState({sortOrder: 'wins'})}>Wins {sortOrder == 'wins' && '*'}</th>
             <th onClick={()=>this.setState({sortOrder: 'winpct'})}>Win % {sortOrder == 'winpct' && '*'}</th>
+            <th onClick={()=>this.setState({sortOrder: 'winpctno42'})}>No 42 Win % {sortOrder == 'winpctno42' && '*'}</th>            
             <th onClick={()=>this.setState({sortOrder: 'hitpct'})}>Hit % {sortOrder == 'hitpct' && '*'}</th>             
             <th onClick={()=>this.setState({sortOrder: 'games'})}>Games {sortOrder == 'games' && '*'}</th>
           </tr>

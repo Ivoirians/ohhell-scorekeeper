@@ -51,7 +51,7 @@ export function countArrayPrefix(arr1, arr2, prefixSize) {
   Testing this is pretty rough until I come up with a way to generate gameStates without
   going through the motions.
 */
-export function getWinnersAndMessage(players, gameState) {
+export function getWinnersAndMessage(players, gameState, no42 = false) {
   var winReason = "Error. No winner.";
   var winners = [];
 
@@ -71,7 +71,7 @@ export function getWinnersAndMessage(players, gameState) {
       highScorers.push(player);
     }
   }
-  if (fortyTwoers.length == 0) {
+  if (fortyTwoers.length == 0 || no42) {
     //high scorer
     winners=highScorers;
     if (highScorers.length == 1) {
