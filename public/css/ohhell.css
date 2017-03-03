@@ -59,6 +59,9 @@ th {
     color: #ffffff;
     background: #3498db;    
 }
+th.selected {
+    background: #db9834;  
+}
 td {
     border: 1px solid black;
 }

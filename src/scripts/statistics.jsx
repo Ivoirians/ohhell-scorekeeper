@@ -74,12 +74,12 @@ class GamePlayers extends React.Component {
       <table className="GameWinners">
         <thead>
           <tr>
-            <th onClick={()=>this.setState({sortOrder: 'name'})}>Name {sortOrder == 'name' && '*'}</th>
-            <th onClick={()=>this.setState({sortOrder: 'wins'})}>Wins {sortOrder == 'wins' && '*'}</th>
-            <th onClick={()=>this.setState({sortOrder: 'winpct'})}>Win % {sortOrder == 'winpct' && '*'}</th>
-            <th onClick={()=>this.setState({sortOrder: 'winpctno42'})}>No 42 Win % {sortOrder == 'winpctno42' && '*'}</th>            
-            <th onClick={()=>this.setState({sortOrder: 'hitpct'})}>Hit % {sortOrder == 'hitpct' && '*'}</th>             
-            <th onClick={()=>this.setState({sortOrder: 'games'})}>Games {sortOrder == 'games' && '*'}</th>
+            <th className={sortOrder == 'name' && 'selected'} onClick={()=>this.setState({sortOrder: 'name'})}>Name</th>
+            <th className={sortOrder == 'wins' && 'selected'} onClick={()=>this.setState({sortOrder: 'wins'})}>Wins</th>
+            <th className={sortOrder == 'winpct' && 'selected'} onClick={()=>this.setState({sortOrder: 'winpct'})}>Win %</th>
+            <th className={sortOrder == 'winpctno42' && 'selected'} onClick={()=>this.setState({sortOrder: 'winpctno42'})}>No 42 Win %</th>            
+            <th className={sortOrder == 'hitpct' && 'selected'} onClick={()=>this.setState({sortOrder: 'hitpct'})}>Hit %</th>             
+            <th className={sortOrder == 'games' && 'selected'} onClick={()=>this.setState({sortOrder: 'games'})}>Games</th>
           </tr>
         </thead>
         <tbody>
