@@ -30,14 +30,16 @@ export function getNumberOfRounds(numPlayers) {
   return parseInt((52-1)/numPlayers);
 }
 
-export function equalArrayPrefix(arr1, arr2, prefixSize) {
-  if (arr1.length < prefixSize || arr2.length < prefixSize)
-    return false;
+export function countArrayPrefix(arr1, arr2, prefixSize) {
+  prefixSize = Math.min(prefixSize, arr1.length);
+  prefixSize = Math.min(prefixSize, arr2.length);
+
+  let count = 0;
   for (var i = 0; i < prefixSize; i++) {
-    if (arr1[i] != arr2[i])
-      return false;
+    if (arr1[i] === arr2[i])
+      count++
   }
-  return true;
+  return count;
 }
 
 /***

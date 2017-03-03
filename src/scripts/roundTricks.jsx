@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import {database} from './firebaseInterface.jsx'
 import {PageEnum} from './pageEnum.jsx';
-import {getCurrentScore, getNumberOfRounds, equalArrayPrefix} from './utils.jsx';
+import {getCurrentScore, getNumberOfRounds, countArrayPrefix} from './utils.jsx';
 
 
 export default class RoundTricks extends React.Component {
@@ -35,12 +35,13 @@ export default class RoundTricks extends React.Component {
   //computes scores from the current state and updates this.state.gameState.scores
   computeRoundScores() {
     //the only score guaranteed to match the gameState (which may have changed) is the latest one
+    const roundNumber = this.state.gameState.roundNumber;
     for (var playerNumber in this.state.players) {
       var game = this.state.gameState[this.props.players[playerNumber].playerName];
-      var score = getCurrentScore(game.bids, game.takes, this.state.gameState.roundNumber);
-      game.scores[this.state.gameState.roundNumber-1] = score;
+      var score = getCurrentScore(game.bids, game.takes, roundNumber);
+      game.scores[roundNumber-1] = score;
       this.state.players[playerNumber].currentScore = score;
-      this.state.players[playerNumber].isPerfect = (equalArrayPrefix(game.bids, game.takes, this.state.gameState.roundNumber));
+      this.state.players[playerNumber].isPerfect = countArrayPrefix(game.bids, game.takes, roundNumber) === roundNumber;
     }
   }
 

@@ -3,7 +3,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import {database} from './firebaseInterface.jsx'
 import {PageEnum} from './pageEnum.jsx';
-import {GameSummary, getWinnersAndMessage} from './utils.jsx';
+import {GameSummary, getWinnersAndMessage, countArrayPrefix} from './utils.jsx';
 
 var StatsTab = new Enum([
   "NONE",
@@ -33,6 +33,7 @@ class GamePlayers extends React.Component {
           players[name] = players[name] || {};
           players[name].gameCount = (players[name].gameCount || 0) + 1;
           players[name].roundCount = (players[name].roundCount || 0) + game.state.roundNumber;
+          players[name].hitCount = (players[name].hitCount || 0) + countArrayPrefix(game.state[name].bids, game.state[name].takes, game.state.roundNumber);          
           players[name].totalScore = (players[name].totalScore || 0) + player.currentScore;
         });
     });
@@ -50,7 +51,7 @@ class GamePlayers extends React.Component {
       case 'name': players.sort((a,b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0); break;
       case 'wins': players.sort((a,b) => b.winCount - a.winCount); break;
       case 'winpct': players.sort((a,b) => b.winCount / b.gameCount - a.winCount / a.gameCount); break;
-      case 'pointave': players.sort((a,b) => b.totalScore / b.roundCount - a.totalScore / a.roundCount); break;
+      case 'hitpct': players.sort((a,b) => b.hitCount / b.roundCount - a.hitCount / a.roundCount); break;
       case 'games': players.sort((a,b) => b.gameCount - a.gameCount); break;
     }
 
@@ -59,7 +60,7 @@ class GamePlayers extends React.Component {
         <td>{player.name}</td>
         <td>{player.winCount}</td>
         <td>{Math.round(100 * player.winCount / player.gameCount)}</td>        
-        <td>{Math.round(100 * player.totalScore / player.roundCount) / 100}</td>
+        <td>{Math.round(100 * player.hitCount / player.roundCount)}</td>
         <td>{player.gameCount}</td>        
       </tr>);
     return (
@@ -69,7 +70,7 @@ class GamePlayers extends React.Component {
             <th onClick={()=>this.setState({sortOrder: 'name'})}>Name {sortOrder == 'name' && '*'}</th>
             <th onClick={()=>this.setState({sortOrder: 'wins'})}>Wins {sortOrder == 'wins' && '*'}</th>
             <th onClick={()=>this.setState({sortOrder: 'winpct'})}>Win % {sortOrder == 'winpct' && '*'}</th>
-            <th onClick={()=>this.setState({sortOrder: 'pointave'})}>Point Ave {sortOrder == 'pointave' && '*'}</th>             
+            <th onClick={()=>this.setState({sortOrder: 'hitpct'})}>Hit % {sortOrder == 'hitpct' && '*'}</th>             
             <th onClick={()=>this.setState({sortOrder: 'games'})}>Games {sortOrder == 'games' && '*'}</th>
           </tr>
         </thead>

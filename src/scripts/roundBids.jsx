@@ -97,8 +97,10 @@ export default class RoundBids extends React.Component {
       }
     }
 
-    const totalBids = players.map(p => gameState[p.playerName].bids[gameState.roundNumber-1] || 0).reduce((a,b)=>a+b, 0);
-    const canFinalize = currentBidder < 0 && totalBids != gameState.roundNumber;
+    const totalBids = players.map(p => gameState[p.playerName].bids[gameState.roundNumber-1] || 0).reduce((a,b)=>(+a || 0)+(+b || 0), 0);
+    const roundBalance = totalBids - gameState.roundNumber; 
+    
+    const canFinalize = currentBidder < 0 && roundBalance != 0;
     const pendingBids = this.props.players.map((player) => (
       <div key={player.playerNumber}>
         <hr />
@@ -117,6 +119,7 @@ export default class RoundBids extends React.Component {
 
     return (
       <div>
+        {roundBalance && <div className='roundBalance'>{roundBalance < 0 ? `${-roundBalance} under` : `${roundBalance} over`}</div>}     
         <h2> Round: {this.state.gameState.roundNumber} </h2>
         {pendingBids}
         { canFinalize && <button onClick={this.goToRoundTricks.bind(this)}> Finalize Bids </button>}
