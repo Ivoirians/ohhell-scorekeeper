@@ -111,15 +111,16 @@ export default class RoundBids extends React.Component {
           updateBid={this.updateBid.bind(this)}
           maxBid={10}
           isPerfect={player.isPerfect}
-          isDealer={dealerNumber == player.playerNumber} 
-          isCurrentBidder = {currentBidder == player.playerNumber}/>
+          isDealer={dealerNumber === player.playerNumber} 
+          isCurrentBidder = {currentBidder === player.playerNumber}/>
       </div>
     ));
     const errorMessage = "";
 
     return (
       <div>
-        {roundBalance != 0 && <div className='roundBalance'>{roundBalance < 0 ? `${-roundBalance} under` : `${roundBalance} over`}</div>}     
+        {roundBalance < 0 && <div className='roundBalance roundBalance-under'>{-roundBalance} under</div>}
+        {roundBalance > 0 && <div className='roundBalance roundBalance-over'>{roundBalance} over</div>} 
         <h2> Round: {this.state.gameState.roundNumber} </h2>
         {pendingBids}
         { canFinalize && <button onClick={this.goToRoundTricks.bind(this)}> Finalize Bids </button>}

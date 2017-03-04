@@ -82,6 +82,25 @@ export default class RoundTricks extends React.Component {
   render() {
     const gameState = this.state.gameState;
     const players = this.state.players; 
+    const numPlayers = players.length;
+    const dealerNumber = (gameState.roundNumber -1) % numPlayers;
+    let firstLeader = -1;
+    let highestBid = -1;
+    for(let i = 0; i < numPlayers; i++) {
+      const playerNum = (dealerNumber + i + 1) % numPlayers;
+      //if a trick was taken, don't show the first leader anymore
+      if(gameState[players[playerNum].playerName].takes[gameState.roundNumber-1] > 0) {
+        firstLeader = -1;
+        break;
+      }
+      const bid = gameState[players[playerNum].playerName].bids[gameState.roundNumber-1];
+      if (bid > highestBid) {
+        highestBid = bid;
+        firstLeader = playerNum;
+      }
+    }
+
+
     const takeTrickButtons = players.map((player) => (
       <div key={player.playerNumber}>
         <hr />
@@ -90,7 +109,8 @@ export default class RoundTricks extends React.Component {
           playerName={player.playerName}
           currentScore={gameState[player.playerName].scores[gameState.roundNumber-2]}
           currentBid={gameState[player.playerName].bids[gameState.roundNumber-1]}
-          currentTake={gameState[player.playerName].takes[gameState.roundNumber-1]} />
+          currentTake={gameState[player.playerName].takes[gameState.roundNumber-1]}
+          isFirstLeader={firstLeader === player.playerNumber} />
       </div>
     ));
 
@@ -102,7 +122,8 @@ export default class RoundTricks extends React.Component {
 
     return (
       <div>
-        <div className='roundBalance'>{roundBalance < 0 ? `${-roundBalance} under` : `${roundBalance} over`}</div>
+        {roundBalance < 0 && <div className='roundBalance roundBalance-under'>{-roundBalance} under</div>}
+        {roundBalance > 0 && <div className='roundBalance roundBalance-over'>{roundBalance} over</div>}
         <h2> Round: {gameState.roundNumber} </h2>
         {takeTrickButtons}
         { canEndRound && <button onClick={this.endRound.bind(this)}> End Round </button> }
@@ -135,7 +156,7 @@ class RecordTricks extends React.Component {
   render() {
     return (
       <div>
-      <h3 className="currentTrick"> {this.props.playerName} : {this.props.currentScore ? this.props.currentScore : 0} </ h3>
+      <h3 className={`currentTrick${this.props.isFirstLeader ? ' currentTrick-firstLeader' : ''}`}> {this.props.playerName} : {this.props.currentScore ? this.props.currentScore : 0} </ h3>
         <button onClick={this.decreaseTake.bind(this)}>-</button>
          <span className="currentTrick">{this.state.currentTake}/{this.props.currentBid} </span>
         <button onClick={this.increaseTake.bind(this)}>+</button>
