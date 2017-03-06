@@ -142,8 +142,8 @@ export default class CreateGame extends React.Component {
       }
 
       return (
-        <div key={playerName}>
-          <button type="button" className="add-player-button" value={playerName} onClick={this.handlePlayerButton.bind(this)}>
+        <div className="add-player-button" key={playerName}>
+          <button className="add-player-button" type="button" value={playerName} onClick={this.handlePlayerButton.bind(this)}>
             {playerName}
           </button>
         </div>

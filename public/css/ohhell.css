@@ -116,13 +116,14 @@ input[type=number]{
 
 .add-player-button, .add-player-button:hover {
   font-size: 16pt;
-  float: left;
-  margin: auto 5px;
+  margin: 5px;
+  display: inline;
 }
 
 .player-buttons {
   margin:auto;
   clear:both;
+  width:60%;
 }
 
 .player-rows {
