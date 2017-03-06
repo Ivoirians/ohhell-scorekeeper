@@ -2,13 +2,17 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import {database} from './firebaseInterface.jsx'
 import {PageEnum} from './pageEnum.jsx';
+import {AddPlayerRow} from './createGame.jsx';
+import {getNumberOfRounds, getGUID} from './utils.jsx';
 
 export default class RoundBids extends React.Component {
   
   constructor(props) {
     super(props);
     this.state= { players: this.props.players,
-                  gameState: this.props.gameState};
+                  gameState: this.props.gameState,
+                  newPlayerGUID: getGUID(),
+                  showAddPlayer: false};
   }
 
   componentWillMount() {
@@ -29,27 +33,54 @@ export default class RoundBids extends React.Component {
 
 
   /*** Untested function for adding a new player from this bid page. */
-  addPlayer(playerName, score) {
+  addPlayer() {
+    const playerName = this.state.newPlayerName;
+    if (!this.state.newPlayerName)
+    {
+      //just return, maybe retoggle the button
+      console.log("Error: Did not add player");
+      this.toggleAddPlayer();
+      return;
+    }
+    //lowest score
+    var minScore = this.state.players[0].currentScore;
+    for (var player of this.state.players) {
+      if (player.currentScore < minScore)
+        minScore = player.currentScore
+    }
+
+
     var newPlayer =
     {
       playerNumber: this.state.players.length + 1,
       playerName: playerName,
       scorekeeper: false,
       dealer: false,
-      currentScore: score,
-      isPerfect: false, //judgment call here, late joiners aren't perfect,
+      currentScore: minScore,
+      isPerfect: false, //judgment call here, late joiners aren't perfect
       joinedRound: this.state.gameState.roundNumber
     };
+
     this.state.players.push(newPlayer);
+
+    var numRounds = getNumberOfRounds(this.state.players.length);
+    
     var newGameState = 
     {
       scores: Array(numRounds + 1).join('0').split('').map(parseFloat),
       bids: Array(numRounds + 1).join('-').split(''),
       takes: Array(numRounds + 1).join('0').split('').map(parseFloat)
     };
-    newGameState[scores][this.state.gameState.roundNumber - 2] = score;
-    this.state.gameState.push(newGameState);
-    this.forceUpdate();
+    newGameState["scores"][this.state.gameState.roundNumber - 2] = minScore;
+    this.state.gameState[playerName] = newGameState;
+    
+    //clear everything out
+    this.setState({showAddPlayer: false, newPlayerName: null});
+  }
+
+  updatePlayer(player) {
+    //all we want is the name
+    this.setState({newPlayerName: player.playerName});
   }
 
   updateFirebase() {
@@ -70,6 +101,43 @@ export default class RoundBids extends React.Component {
 
   logStateDebug() {
     console.log(JSON.stringify(this.state));
+  }
+
+  /***
+    Logic for this was a bit annoying to throw inline into render,
+    but would also be annoying to create a standalone component.
+
+    Sucks that while using React, the phrase "Even though it makes sense,
+    making a component for this would just be more annoying than not."
+
+    Should have learned Redux.
+  */
+  getAddPlayerComponent()
+  {
+    if (!this.state.showAddPlayer)
+    {
+      return (<button onClick={this.toggleAddPlayer.bind(this)}>Add New Player </button>);
+    }
+    else {
+      return(
+        <div className="add-player-from-bids-dialog">
+          <button onClick={this.toggleAddPlayer.bind(this)}> Cancel </button>
+
+          <AddPlayerRow
+            playerNumber={this.state.players.length}
+            updatePlayer={this.updatePlayer.bind(this)}
+            uid={this.state.newPlayerGUID}
+            clickOnce={true} />
+
+          <button onClick={this.addPlayer.bind(this)}> Add </button>
+        </div>
+      )
+    }
+  }
+
+  toggleAddPlayer()
+  {
+    this.setState({showAddPlayer:!this.state.showAddPlayer});
   }
 
   /***
@@ -125,6 +193,7 @@ export default class RoundBids extends React.Component {
         {pendingBids}
         { canFinalize && <button onClick={this.goToRoundTricks.bind(this)}> Finalize Bids </button>}
         <button onClick={this.logStateDebug.bind(this)}> Debug </button>
+        {this.getAddPlayerComponent()}
       </div>
     );
   }

@@ -219,7 +219,7 @@ export default class CreateGame extends React.Component {
   }
 }
 
-class AddPlayerRow extends React.Component {
+export class AddPlayerRow extends React.Component {
 
   constructor(props) {
     super(props);
