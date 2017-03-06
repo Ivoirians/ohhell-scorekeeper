@@ -130,6 +130,15 @@ input[type=number]{
   clear:both;
 }
 
+.add-player-from-bids-dialog-container {
+  border:10px solid black;
+}
+
+.add-player-from-bids-dialog, .add-player-from-bids-dialog:hover{
+  display:inline;
+  font-size:16pt;
+}
+
 .pending-bid {
   font-size: 50pt;
 }

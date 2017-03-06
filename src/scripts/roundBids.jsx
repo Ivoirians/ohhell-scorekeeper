@@ -120,16 +120,16 @@ export default class RoundBids extends React.Component {
     }
     else {
       return(
-        <div className="add-player-from-bids-dialog">
-          <button onClick={this.toggleAddPlayer.bind(this)}> Cancel </button>
+        <div className="add-player-from-bids-dialog-container">
+          <button className="add-player-from-bids-dialog" onClick={this.toggleAddPlayer.bind(this)}> Cancel </button>
 
-          <AddPlayerRow
+          <AddPlayerRow className="add-player-from-bids-dialog"
             playerNumber={this.state.players.length}
             updatePlayer={this.updatePlayer.bind(this)}
             uid={this.state.newPlayerGUID}
             clickOnce={true} />
 
-          <button onClick={this.addPlayer.bind(this)}> Add </button>
+          <button className="add-player-from-bids-dialog" onClick={this.addPlayer.bind(this)}> Add </button>
         </div>
       )
     }
@@ -155,6 +155,7 @@ export default class RoundBids extends React.Component {
     const gameState = this.props.gameState;
     const players = this.props.players;
     const numPlayers = players.length;
+    const totalNumRounds = getNumberOfRounds(numPlayers);
     const dealerNumber = (gameState.roundNumber -1) % numPlayers;
     let currentBidder = (dealerNumber + 1) % numPlayers;
     while(gameState[players[currentBidder].playerName].bids[gameState.roundNumber-1] !== "-") {
@@ -189,7 +190,7 @@ export default class RoundBids extends React.Component {
       <div>
         {roundBalance < 0 && <div className='roundBalance roundBalance-under'>{-roundBalance} under</div>}
         {roundBalance > 0 && <div className='roundBalance roundBalance-over'>{roundBalance} over</div>} 
-        <h2> Round: {this.state.gameState.roundNumber} </h2>
+        <h2> Round: {this.state.gameState.roundNumber}/{totalNumRounds} </h2>
         {pendingBids}
         { canFinalize && <button onClick={this.goToRoundTricks.bind(this)}> Finalize Bids </button>}
         <button onClick={this.logStateDebug.bind(this)}> Debug </button>
