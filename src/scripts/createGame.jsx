@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import {database} from './firebaseInterface.jsx'
 import {PageEnum} from './pageEnum.jsx';
-import {getNumberOfRounds} from './utils.jsx';
+import {getNumberOfRounds, getGUID} from './utils.jsx';
 
 export default class CreateGame extends React.Component {
 
@@ -24,7 +24,6 @@ export default class CreateGame extends React.Component {
   goToRoundBids() {
     //todo: check for duplicate player names
     if (this.state.players.length == 0) {
-      console.log("Error: no players.")
       this.setState({errorMessage: "No players."});
       return;
     }
@@ -44,7 +43,8 @@ export default class CreateGame extends React.Component {
       scorekeeper: false,
       currentScore: 0,
       isPerfect: true,
-      joinedRound: 1
+      joinedRound: 1,
+      uid: getGUID()
     });
   }
 
@@ -97,13 +97,35 @@ export default class CreateGame extends React.Component {
 
   updatePlayer(player) {
     //TODO: check for duplicates, if people are going to be malicious--necessary?
-    this.state.players[player.playerNumber] = player;
+    
+    //if playerName is now blank, remove the row
+    const newPlayers = this.state.players;
+    if (player.playerName == null || player.playerName.length < 1)
+    {
+      for (var oldPlayer of this.state.players)
+      {
+        if (oldPlayer.playerNumber > player.playerNumber)
+        {
+          oldPlayer.playerNumber--;
+        }
+      }
 
-    //increase player count so another row appears
-    //if this is the "newest" player
-    if (player.playerNumber == this.state.numPlayers)
-      this.setState({numPlayers: this.state.numPlayers+1});
-    this.forceUpdate();
+      newPlayers.splice(player.playerNumber, 1);
+      this.setState({numPlayers: this.state.numPlayers-1, players:newPlayers});
+    }
+    else
+    {
+      newPlayers[player.playerNumber] = player;
+
+      //increase player count so another row appears
+      //if this is the "newest" player
+      if (player.playerNumber == this.state.numPlayers)
+        this.setState({numPlayers: this.state.numPlayers+1, players:newPlayers});
+      this.forceUpdate();
+
+    }
+
+
   }
 
   logStateDebug() {
@@ -130,7 +152,6 @@ export default class CreateGame extends React.Component {
     If the last row is modified, increase the count.
   */
   render() {
-
     var playerButtons = Object.keys(this.state.allPlayers).map((playerName) =>
     {
       //must be a better way to remove already clicked buttons...
@@ -151,16 +172,21 @@ export default class CreateGame extends React.Component {
     });
 
     var playerRows = this.state.players.map((player) =>
-      <div key={player.playerNumber}>
+      <div key={player.uid}>
         <AddPlayerRow
           playerNumber={player.playerNumber}
           updatePlayer={this.updatePlayer.bind(this)}
-          playerName={player.playerName} />
+          playerName={player.playerName}
+          uid={player.uid} />
       </div>
     );
+    var newPlayerGUID = getGUID();
     playerRows.push(
-      <div key={this.state.numPlayers}>
-          <AddPlayerRow playerNumber={this.state.numPlayers} updatePlayer={this.updatePlayer.bind(this)} />
+      <div key={newPlayerGUID}>
+          <AddPlayerRow
+            playerNumber={this.state.numPlayers}
+            updatePlayer={this.updatePlayer.bind(this)}
+            uid={newPlayerGUID} />
       </div>
     );
 
@@ -221,7 +247,8 @@ class AddPlayerRow extends React.Component {
       scorekeeper: this.state.scorekeeper,
       currentScore: 0,
       isPerfect: true,
-      joinedRound: 1
+      joinedRound: 1,
+      uid: this.props.uid
     });
   }
 
