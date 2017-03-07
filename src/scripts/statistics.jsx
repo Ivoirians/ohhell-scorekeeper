@@ -43,6 +43,11 @@ class GamePlayers extends React.Component {
         });
     });
 
+    for(let playerName in players) {
+      players[playerName].winCount = players[playerName].winCount || 0;
+      players[playerName].winCountNo42 = players[playerName].winCountNo42 || 0;
+    }
+
     this.setState({
       players: Object.keys(players).map(name => Object.assign(players[name], {name: name})),
       sortOrder: 'wins'
