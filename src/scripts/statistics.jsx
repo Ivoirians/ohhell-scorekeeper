@@ -37,9 +37,9 @@ class GamePlayers extends React.Component {
           const name = player.playerName;
           players[name] = players[name] || {};
           players[name].gameCount = (players[name].gameCount || 0) + 1;
-          players[name].roundCount = (players[name].roundCount || 0) + game.state.roundNumber;
+          players[name].roundCount = (players[name].roundCount || 0) + game.state[name].bids.filter(x => x !== '-').length;
           players[name].hitCount = (players[name].hitCount || 0) + countArrayPrefix(game.state[name].bids, game.state[name].takes, game.state.roundNumber);          
-          players[name].totalScore = (players[name].totalScore || 0) + player.currentScore;
+          //players[name].totalScore = (players[name].totalScore || 0) + player.currentScore;
         });
     });
 
