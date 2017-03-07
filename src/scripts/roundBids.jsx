@@ -77,6 +77,10 @@ export default class RoundBids extends React.Component {
     
     //clear everything out
     this.setState({showAddPlayer: false, newPlayerName: null});
+
+    //increment player count and update firebase (for data consistency)
+    database.ref(`/players/${playerName}/count`).transaction(x => (x || 0) + 1);
+    this.updateFirebase();
   }
 
   updatePlayer(player) {
