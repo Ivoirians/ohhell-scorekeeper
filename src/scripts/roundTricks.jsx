@@ -38,7 +38,7 @@ export default class RoundTricks extends React.Component {
     const roundNumber = this.state.gameState.roundNumber;
     for (var playerNumber in this.state.players) {
       var game = this.state.gameState[this.props.players[playerNumber].playerName];
-      var score = getCurrentScore(game.bids, game.takes, roundNumber);
+      var score = getCurrentScore(game.bids, game.takes, game.scores, roundNumber-1);
       game.scores[roundNumber-1] = score;
       this.state.players[playerNumber].currentScore = score;
       this.state.players[playerNumber].isPerfect = countArrayPrefix(game.bids, game.takes, roundNumber) === roundNumber;

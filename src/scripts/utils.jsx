@@ -2,14 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import {database} from './firebaseInterface.jsx'
 
-export function getCurrentScore(bids, takes, rounds) {
-  var i = 0;
-  var score = 0;
-  while (i < rounds) {
-    score += getRoundScore(bids[i], takes[i], i);
-    i++;
-  }
-  return score;
+export function getCurrentScore(bids, takes, scores, roundNumber) {
+  return (roundNumber > 0 ? scores[roundNumber-1] : 0) + getRoundScore(bids[roundNumber], takes[roundNumber], roundNumber);
 }
 
 export function getGUID() {
