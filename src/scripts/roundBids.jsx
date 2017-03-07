@@ -35,7 +35,7 @@ export default class RoundBids extends React.Component {
   /*** Untested function for adding a new player from this bid page. */
   addPlayer() {
     const playerName = this.state.newPlayerName;
-    if (!this.state.newPlayerName)
+    if (!playerName)
     {
       //just return, maybe retoggle the button
       console.log("Error: Did not add player");
@@ -49,6 +49,7 @@ export default class RoundBids extends React.Component {
         minScore = player.currentScore
     }
 
+    const joinedRound = this.state.gameState.roundNumber;
 
     var newPlayer =
     {
@@ -57,8 +58,8 @@ export default class RoundBids extends React.Component {
       scorekeeper: false,
       dealer: false,
       currentScore: minScore,
-      isPerfect: false, //judgment call here, late joiners aren't perfect
-      joinedRound: this.state.gameState.roundNumber
+      isPerfect: joinedRound === 1, //judgment call here, late joiners aren't perfect (except if they are not actually late)
+      joinedRound
     };
 
     this.state.players.push(newPlayer);
