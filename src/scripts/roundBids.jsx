@@ -218,7 +218,7 @@ class PendingBid extends React.Component {
 
   increaseBid(event) {
     if(this.state.currentBid === "-")
-      this.state.currentBid = 0;
+      this.state.currentBid = 1;
     else if (this.state.currentBid < this.props.maxBid)
       this.setState( {currentBid: this.state.currentBid += 1 });
     this.props.updateBid(this.props.playerName, this.state.currentBid)
@@ -245,7 +245,7 @@ class PendingBid extends React.Component {
         <h3 className={className}> {this.state.playerName}: {this.state.currentScore} {perfectMark} </h3>
         
         <div className={this.props.isCurrentBidder && "current-bidder"}>
-          <button onClick={this.decreaseBid.bind(this)}>-</button>
+          <button onClick={this.decreaseBid.bind(this)}>{this.state.currentBid === "-" ? "0" : "-"}</button>
           <span className="currentBid"> {this.state.currentBid} </span>
           <button onClick={this.increaseBid.bind(this)}>+</button>
         </div>
