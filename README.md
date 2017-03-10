@@ -24,6 +24,8 @@ Scorekeeping app for the Zazzle games lunch crew. Latest deployments currently l
 * ~~Add player from Bids page~~
 * Reorder players
 * ~~Allow adding players without typing (e.g. clicking on preset names)~~
+* Show history of players' scores, i.e., display previous rounds' bids/takes for auditing/fixing purposes
+* Standardize backups. Currently, Kevin manually downloads a JSON file to his own computer every few days.
 
 ##Game State
 The current schema for a game looks like this (definitely subject to change/see additions)
