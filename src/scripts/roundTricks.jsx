@@ -117,8 +117,10 @@ export default class RoundTricks extends React.Component {
     const totalBids = players.map(p => gameState[p.playerName].bids[gameState.roundNumber-1] || 0).reduce((a,b)=>a+b, 0);
     const totalTricks = players.map(p => gameState[p.playerName].takes[gameState.roundNumber-1]).reduce((a,b)=>a+b, 0);
     const roundBalance = totalBids - gameState.roundNumber;
+    const numRounds = getNumberOfRounds(this.props.players.length);
 
-    const canEndRound = gameState.roundNumber != getNumberOfRounds(this.props.players.length) && totalTricks === gameState.roundNumber; 
+    const canEndRound = gameState.roundNumber != numRounds && totalTricks === gameState.roundNumber;
+    const canEndGame = gameState.roundNumber == numRounds && totalTricks === gameState.roundNumber; 
 
     return (
       <div>
@@ -127,7 +129,7 @@ export default class RoundTricks extends React.Component {
         <h2> Round: {gameState.roundNumber} </h2>
         {takeTrickButtons}
         { canEndRound && <button onClick={this.endRound.bind(this)}> End Round </button> }
-        <button onClick={this.endGame.bind(this)}> End Game </button>
+        { canEndGame && <button onClick={this.endGame.bind(this)}> End Game </button> }
         <button onClick={this.logStateDebug.bind(this)}> Debug </button>
       </div>
     );
