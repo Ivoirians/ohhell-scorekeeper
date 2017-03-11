@@ -178,7 +178,7 @@ export class GameSummary extends React.Component {
 
     return (
       <div className="game-summary" key={game.dateCreated}>
-        <h3> Date: {game.dateCreated} </h3>
+        <h3> Date: {new Date(game.dateCreated).toLocaleString()} </h3>
         <h3> Players: {game.players.map((p) => p.playerName).join(", ")} </h3>
         <h3> Round: {game.state ? game.state.roundNumber : "N/A"} </h3>
         <h3> {status} </h3>
