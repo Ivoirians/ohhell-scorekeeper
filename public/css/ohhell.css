@@ -84,6 +84,17 @@ input[type=number]{
   border: 1pt solid #bbb;
 }
 
+.vertDivider {
+    height: 40px;
+}
+
+.player-row-bid {
+    display: flex;
+    padding: 0 40px;
+    justify-content: space-between;
+    align-items: center;
+}
+
 .player-row-scorekeeper {
   background-color: blue;
 }
@@ -140,7 +151,7 @@ input[type=number]{
   font-size:16pt;
 }
 
-.pending-bid {
+.player-name {
   font-size: 50pt;
 }
 
@@ -149,10 +160,14 @@ input[type=number]{
   background-color: gold;
 }
 
-.current-bidder {
+.bid {
   display: inline-block;
   padding: 10px;
-  border: 4px solid black;
+  border: 4px solid transparent;
+}
+
+.current-bidder {
+  border-color: black;
 }
 
 .winReason {
@@ -163,11 +178,9 @@ input[type=number]{
   font-size: 32pt;
 }
 
-.currentBid {
-  font-size: 40pt;
-}
-
-.currentTrick {
+.current-bidtrick {
+  display: inline-block;
+  margin: 0 10px;
   font-size: 40pt;
 }
 .currentTrick-firstLeader {

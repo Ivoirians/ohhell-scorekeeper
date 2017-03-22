@@ -110,7 +110,8 @@ export default class RoundTricks extends React.Component {
           currentScore={gameState[player.playerName].scores[gameState.roundNumber-2]}
           currentBid={gameState[player.playerName].bids[gameState.roundNumber-1]}
           currentTake={gameState[player.playerName].takes[gameState.roundNumber-1]}
-          isFirstLeader={firstLeader === player.playerNumber} />
+          isFirstLeader={firstLeader === player.playerNumber}
+          isPerfect={player.isPerfect} />
       </div>
     ));
 
@@ -127,7 +128,10 @@ export default class RoundTricks extends React.Component {
         {roundBalance < 0 && <div className='roundBalance roundBalance-under'>{-roundBalance} under</div>}
         {roundBalance > 0 && <div className='roundBalance roundBalance-over'>{roundBalance} over</div>}
         <h2> Round: {gameState.roundNumber} </h2>
+        <div className="vertDivider"/>
         {takeTrickButtons}
+        <hr />
+        <div className="vertDivider"/>
         { canEndRound && <button onClick={this.endRound.bind(this)}> End Round </button> }
         { canEndGame && <button onClick={this.endGame.bind(this)}> End Game </button> }
         <button onClick={this.logStateDebug.bind(this)}> Debug </button>
@@ -156,12 +160,18 @@ class RecordTricks extends React.Component {
   }
 
   render() {
+    var perfectMark = "";
+    if (this.props.isPerfect)
+      perfectMark = "*";
+
     return (
-      <div>
-      <h3 className={`currentTrick${this.props.isFirstLeader ? ' currentTrick-firstLeader' : ''}`}> {this.props.playerName} : {this.props.currentScore ? this.props.currentScore : 0} </ h3>
-        <button onClick={this.decreaseTake.bind(this)}>-</button>
-         <span className="currentTrick">{this.state.currentTake}/{this.props.currentBid} </span>
-        <button onClick={this.increaseTake.bind(this)}>+</button>
+      <div className={`player-row-bid ${this.props.isFirstLeader && 'currentTrick-firstLeader'}`}>
+      <h3 className='player-name'> {this.props.playerName}: {this.props.currentScore ? this.props.currentScore : 0} {perfectMark} </ h3>
+        <div className="bid">
+          <button onClick={this.decreaseTake.bind(this)}>-</button>
+          <span className="current-bidtrick">{this.state.currentTake}/{this.props.currentBid} </span>
+          <button onClick={this.increaseTake.bind(this)}>+</button>
+        </div>
       </div>
     )
   }

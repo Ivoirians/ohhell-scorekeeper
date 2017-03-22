@@ -196,7 +196,10 @@ export default class RoundBids extends React.Component {
         {roundBalance < 0 && <div className='roundBalance roundBalance-under'>{-roundBalance} under</div>}
         {roundBalance > 0 && <div className='roundBalance roundBalance-over'>{roundBalance} over</div>} 
         <h2> Round: {this.state.gameState.roundNumber}/{totalNumRounds} </h2>
+        <div className="vertDivider"/>
         {pendingBids}
+        <hr />
+        <div className="vertDivider"/>
         { canFinalize && <button onClick={this.goToRoundTricks.bind(this)}> Finalize Bids </button>}
         <button onClick={this.logStateDebug.bind(this)}> Debug </button>
         {this.getAddPlayerComponent()}
@@ -237,16 +240,13 @@ class PendingBid extends React.Component {
     if (this.props.isPerfect)
       perfectMark = "*";
 
-    var className = "pending-bid";
-    if (this.props.isDealer)
-      className = "pending-bid-dealer";
     return (
-      <div>
-        <h3 className={className}> {this.state.playerName}: {this.state.currentScore} {perfectMark} </h3>
+      <div className={`player-row-bid ${this.props.isDealer && 'pending-bid-dealer'}`}>
+        <h3 className="player-name"> {this.state.playerName}: {this.state.currentScore} {perfectMark} </h3>
         
-        <div className={this.props.isCurrentBidder && "current-bidder"}>
+        <div className={`bid ${this.props.isCurrentBidder && "current-bidder"}`}>
           <button onClick={this.decreaseBid.bind(this)}>{this.state.currentBid === "-" ? "0" : "-"}</button>
-          <span className="currentBid"> {this.state.currentBid} </span>
+          <span className="current-bidtrick"> {this.state.currentBid} </span>
           <button onClick={this.increaseBid.bind(this)}>+</button>
         </div>
       </div>
