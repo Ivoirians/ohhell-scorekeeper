@@ -102,8 +102,7 @@ input[type=number]{
 .latest-games {
   font-size:20pt;
   border: 1pt solid #000;
-  width: 20%;
-  margin: 0 auto;
+  margin: 40px auto;
 }
 
 .game-summary {
@@ -161,9 +160,9 @@ input[type=number]{
 }
 
 .bid {
-  display: inline-block;
+  display: flex;
   padding: 10px;
-  border: 4px solid transparent;
+  border: 6px solid transparent;
 }
 
 .current-bidder {
@@ -181,7 +180,8 @@ input[type=number]{
 .current-bidtrick {
   display: inline-block;
   margin: 0 10px;
-  font-size: 40pt;
+  font-size: 60pt;
+  font-weight: bold;
 }
 .currentTrick-firstLeader {
   background-color: gold;

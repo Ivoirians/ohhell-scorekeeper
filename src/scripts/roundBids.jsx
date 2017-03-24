@@ -244,7 +244,7 @@ class PendingBid extends React.Component {
       <div className={`player-row-bid ${this.props.isDealer && 'pending-bid-dealer'}`}>
         <h3 className="player-name"> {this.state.playerName}: {this.state.currentScore} {perfectMark} </h3>
         
-        <div className={`bid ${this.props.isCurrentBidder && "current-bidder"}`}>
+        <div className={`bid${this.props.isCurrentBidder ? " current-bidder" : ""}`}>
           <button onClick={this.decreaseBid.bind(this)}>{this.state.currentBid === "-" ? "0" : "-"}</button>
           <span className="current-bidtrick"> {this.state.currentBid} </span>
           <button onClick={this.increaseBid.bind(this)}>+</button>

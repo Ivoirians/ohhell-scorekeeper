@@ -27,11 +27,9 @@ export default class MainMenu extends React.Component {
   render() {
     return (
       <div className="main-menu">
-        <ul>
-          <button onClick={this.goToNewGame.bind(this)}> New Game </button>
-          <button onClick={this.goToStatistics.bind(this)}> Statistics </button>
-          <LatestGames loadGame={this.loadGame.bind(this)} numberOfGames={3}/>
-        </ul>
+        <button onClick={this.goToNewGame.bind(this)}> New Game </button>
+        <button onClick={this.goToStatistics.bind(this)}> Statistics </button>
+        <LatestGames loadGame={this.loadGame.bind(this)} numberOfGames={3}/>
       </div>
     );
   }
