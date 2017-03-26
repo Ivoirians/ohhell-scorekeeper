@@ -19,7 +19,9 @@
   "dependencies": {
     "enum": "^2.4.0",
     "firebase": "^3.6.9",
+    "moment": "^2.18.1",
     "react": "^15.4.2",
+    "react-datepicker": "^0.43.0",
     "react-dom": "^15.4.2"
   },
   "devDependencies": {

@@ -205,3 +205,12 @@ input[type=number]{
 .statistics-header {
   margin-bottom: 20px;
 }
+
+/* statistics */
+.GamePlayers-filters button {
+  font-size: 20pt;
+  padding: 5px;
+}
+.calendar {
+  transform: scale(2,2);
+}
