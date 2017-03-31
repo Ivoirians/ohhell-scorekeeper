@@ -53,7 +53,7 @@ export default class RoundBids extends React.Component {
 
     var newPlayer =
     {
-      playerNumber: this.state.players.length + 1,
+      playerNumber: this.state.players.length,
       playerName: playerName,
       scorekeeper: false,
       dealer: false,
