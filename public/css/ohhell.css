@@ -87,6 +87,10 @@ input[type=number]{
 .vertDivider {
     height: 40px;
 }
+.horzDivider {
+    display: inline-block;
+    width: 25%;
+}
 
 .player-row-bid {
     display: flex;
@@ -207,7 +211,7 @@ input[type=number]{
 }
 
 /* statistics */
-.GamePlayers-filters button {
+.GamePlayers-filters button, .GamePlayers-filters span {
   font-size: 20pt;
   padding: 5px;
 }

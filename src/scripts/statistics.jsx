@@ -16,7 +16,9 @@ var StatsTab = new Enum([
 class GamePlayers extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      shift:0
+    };
   }
 
   componentWillMount() {
@@ -25,27 +27,36 @@ class GamePlayers extends React.Component {
 
   doStats() {
     const { allGames } = this.props;
-    let { startDate, endDate, sortOrder } = this.state;
+    let { startDate, endDate, sortOrder, shift } = this.state;
     if (endDate)
       endDate = endDate.clone().add(1, 'days'); //need to add one day so that the end date is inclusive
     let players = {};
     allGames
       .filter(game => !game.state.inProgress && (!startDate || startDate <= moment(game.dateCreated)) && (!endDate || moment(game.dateCreated) <= endDate))
       .forEach(game => {
+        //get mapping based on shift in positions
+        const mapto = {}
+        const playersCount = game.players.length;
+        for(let i = 0; i < playersCount; i++)
+          mapto[game.players[i].playerName] = game.players[((i - shift) % playersCount + playersCount) % playersCount].playerName;
+
         //winners
         getWinnersAndMessage(game.players, game.state)[0].forEach(winner => {
-          players[winner.playerName] = players[winner.playerName] || {};
-          players[winner.playerName].winCount = (players[winner.playerName].winCount || 0) + 1;
+          const name = mapto[winner.playerName];
+          players[name] = players[name] || {};
+          players[name].winCount = (players[name].winCount || 0) + 1;
         });
         //winners no 42
         getWinnersAndMessage(game.players, game.state, true)[0].forEach(winner => {
-          players[winner.playerName] = players[winner.playerName] || {};
-          players[winner.playerName].winCountNo42 = (players[winner.playerName].winCountNo42 || 0) + 1;
+          const name = mapto[winner.playerName];
+          players[name] = players[name] || {};
+          players[name].winCountNo42 = (players[name].winCountNo42 || 0) + 1;
         });
         //the rest
         game.players.forEach(player => {
-          const name = player.playerName;
+          let name = player.playerName;
           const stats = this.playerStats(game.state[name].bids, game.state[name].takes, game.state[name].scores, game.state.roundNumber);
+          name = mapto[name];
           players[name] = players[name] || {};
           players[name].gameCount = (players[name].gameCount || 0) + 1;
           players[name].roundCount = (players[name].roundCount || 0) + stats.roundCount;
@@ -118,6 +129,10 @@ class GamePlayers extends React.Component {
     return (
       <div>
         <div className="GamePlayers-filters">
+          <button onClick={() => this.setState({ shift: this.state.shift + 1 }, () => this.doStats())}>Left</button>
+          <span className="current-bidtrick">{this.state.shift}</span>
+          <button onClick={() => this.setState({ shift: this.state.shift - 1 }, () => this.doStats())}>Right</button>          
+          <div className="horzDivider"/>
           <button onClick={() => this.setState({ startDateOpen: !this.state.startDateOpen })}>{this.state.startDate ? this.state.startDate.format("DD-MM-YYYY") : "Start Date"}</button>
           {this.state.startDateOpen &&
             <DatePicker
