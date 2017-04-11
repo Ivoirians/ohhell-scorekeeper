@@ -180,7 +180,7 @@ export default class RoundBids extends React.Component {
   render() {
     const roundNumber = this.state.roundNumber;
     const gameState = this.state.gameState;
-    const players = this.state.players;
+    const players = this.state.players.filter(x => x.joinedRound <= roundNumber);
     const numPlayers = players.length;
     const totalNumRounds = getNumberOfRounds(numPlayers);
     const dealerNumber = (roundNumber - 1) % numPlayers;
@@ -197,7 +197,7 @@ export default class RoundBids extends React.Component {
     const roundBalance = totalBids - roundNumber; 
 
     const canFinalize = currentBidder < 0 && roundBalance != 0;
-    const pendingBids = this.state.players.map((player) => (
+    const pendingBids = players.map((player) => (
       <div key={player.playerNumber}>
         <hr />
         <PendingBid
