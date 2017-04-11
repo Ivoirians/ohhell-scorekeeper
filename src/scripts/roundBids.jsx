@@ -9,7 +9,7 @@ export default class RoundBids extends React.Component {
   
   constructor(props) {
     super(props);
-    this.state= { roundNumber: this.props.roundNumber
+    this.state= { roundNumber: this.props.roundNumber,
                   players: this.props.players,
                   gameState: this.props.gameState,
                   newPlayerGUID: getGUID(),
@@ -182,8 +182,8 @@ export default class RoundBids extends React.Component {
         <hr />
         <PendingBid
           playerName={player.playerName}
-          currentScore={this.state.gameState[player.playerName].scores[this.roundNumber-2]}
-          currentBid={this.state.gameState[player.playerName].bids[this.roundNumber-1]}
+          currentScore={this.state.gameState[player.playerName].scores[roundNumber-2]}
+          currentBid={this.state.gameState[player.playerName].bids[roundNumber-1]}
           updateBid={this.updateBid.bind(this)}
           maxBid={10}
           isPerfect={player.isPerfect}
