@@ -42,7 +42,7 @@ class LatestGames extends React.Component {
     this.state = {latestGames: []};
   };
 
-  componentWillMount() {
+  componentDidMount() {
     var latestGames = [];
     var dbRef = database.ref("games").orderByChild("dateCreated").limitToLast(this.props.numberOfGames);
     dbRef.once("value", function(data) {

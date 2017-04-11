@@ -104,6 +104,7 @@ class OhHell extends React.Component {
         break;
       case PageEnum.ROUND_BIDS:
         partial = <RoundBids changePage={this.changePage.bind(this)}
+                    roundNumber={this.state.gameState.roundNumber}
                     gameState={this.state.gameState}
                     players={this.state.currentPlayers}
                     updateGameState={this.updateGameState.bind(this)}
@@ -111,6 +112,7 @@ class OhHell extends React.Component {
         break;
       case PageEnum.ROUND_TRICKS:
         partial = <RoundTricks changePage={this.changePage.bind(this)}
+                    roundNumber = {this.state.gameState.roundNumber}
                     gameState={this.state.gameState}
                     players={this.state.currentPlayers}
                     updateGameState={this.updateGameState.bind(this)}

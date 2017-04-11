@@ -9,7 +9,8 @@ export default class RoundBids extends React.Component {
   
   constructor(props) {
     super(props);
-    this.state= { players: this.props.players,
+    this.state= { roundNumber: this.props.roundNumber,
+                  players: this.props.players,
                   gameState: this.props.gameState,
                   newPlayerGUID: getGUID(),
                   showAddPlayer: false};
@@ -20,6 +21,24 @@ export default class RoundBids extends React.Component {
     this.updateFirebase();
   }
 
+  decrementRound() {
+    this.changeRoundNumber(this.state.gameState.roundNumber - 1);
+  }
+
+  incrementRound() {
+    this.changeRoundNumber(this.state.gameState.roundNumber + 1);
+  }
+
+  changeRoundNumber(roundNumber) {
+    if (roundNumber > 0 && roundNumber <= getNumberOfRounds(this.state.players.length))
+    {
+      //not clear why both have to change...
+      this.setState({roundNumber: roundNumber});
+      this.state.gameState.roundNumber = roundNumber;
+      this.forceUpdate();
+    }
+  }
+
   goToRoundTricks() {
     this.updateFirebase();
     this.props.updateGameState(this.state.players, this.state.gameState);
@@ -27,7 +46,7 @@ export default class RoundBids extends React.Component {
   }
 
   updateBid(playerName, newBid) {
-    this.state.gameState[playerName].bids[this.state.gameState.roundNumber - 1] = parseInt(newBid);
+    this.state.gameState[playerName].bids[this.state.roundNumber - 1] = parseInt(newBid);
     this.forceUpdate();
   }
 
@@ -49,7 +68,7 @@ export default class RoundBids extends React.Component {
         minScore = player.currentScore
     }
 
-    const joinedRound = this.state.gameState.roundNumber;
+    const joinedRound = this.state.roundNumber;
 
     var newPlayer =
     {
@@ -72,15 +91,18 @@ export default class RoundBids extends React.Component {
       bids: Array(numRounds + 1).join('-').split(''),
       takes: Array(numRounds + 1).join('0').split('').map(parseFloat)
     };
-    newGameState["scores"][this.state.gameState.roundNumber - 2] = minScore;
+    newGameState["scores"][this.state.roundNumber - 2] = minScore;
     this.state.gameState[playerName] = newGameState;
     
     //clear everything out
     this.setState({showAddPlayer: false, newPlayerName: null});
 
-    //increment player count and update firebase (for data consistency)
-    database.ref(`/players/${playerName}/count`).transaction(x => (x || 0) + 1);
-    this.updateFirebase();
+    if (!this.state.gameState.isDebug)
+    {
+      //increment player count and update firebase (for data consistency)
+      database.ref(`/players/${playerName}/count`).transaction(x => (x || 0) + 1);
+      this.updateFirebase();
+    }
   }
 
   updatePlayer(player) {
@@ -89,7 +111,6 @@ export default class RoundBids extends React.Component {
   }
 
   updateFirebase() {
-    console.log(this.state.gameState.isDebug);
     if (!this.state.gameState.isDebug)
     {
       var updates = {};
@@ -157,13 +178,14 @@ export default class RoundBids extends React.Component {
     bid being updated, in that case.
   */
   render() {
-    const gameState = this.props.gameState;
-    const players = this.props.players;
+    const roundNumber = this.state.roundNumber;
+    const gameState = this.state.gameState;
+    const players = this.state.players.filter(x => x.joinedRound <= roundNumber);
     const numPlayers = players.length;
     const totalNumRounds = getNumberOfRounds(numPlayers);
-    const dealerNumber = (gameState.roundNumber -1) % numPlayers;
+    const dealerNumber = (roundNumber - 1) % numPlayers;
     let currentBidder = (dealerNumber + 1) % numPlayers;
-    while(gameState[players[currentBidder].playerName].bids[gameState.roundNumber-1] !== "-") {
+    while(gameState[players[currentBidder].playerName].bids[roundNumber-1] !== "-") {
       currentBidder = (currentBidder + 1) % numPlayers;
       if(currentBidder == (dealerNumber + 1) % numPlayers) {
         currentBidder = -1;
@@ -171,31 +193,35 @@ export default class RoundBids extends React.Component {
       }
     }
 
-    const totalBids = players.map(p => gameState[p.playerName].bids[gameState.roundNumber-1] || 0).reduce((a,b)=>(+a || 0)+(+b || 0), 0);
-    const roundBalance = totalBids - gameState.roundNumber; 
-    
+    const totalBids = players.map(p => gameState[p.playerName].bids[roundNumber-1] || 0).reduce((a,b)=>(+a || 0)+(+b || 0), 0);
+    const roundBalance = totalBids - roundNumber; 
+
     const canFinalize = currentBidder < 0 && roundBalance != 0;
-    const pendingBids = this.props.players.map((player) => (
+    const pendingBids = players.map((player) => (
       <div key={player.playerNumber}>
         <hr />
         <PendingBid
+          roundNumber={roundNumber}
           playerName={player.playerName}
-          currentScore={this.state.gameState[player.playerName].scores[this.state.gameState.roundNumber-2]}
-          currentBid={this.state.gameState[player.playerName].bids[this.state.gameState.roundNumber-1]}
+          currentScore={this.state.gameState[player.playerName].scores[roundNumber-2]}
+          currentBid={this.state.gameState[player.playerName].bids[roundNumber-1]}
           updateBid={this.updateBid.bind(this)}
-          maxBid={10}
+          maxBid={100}
           isPerfect={player.isPerfect}
           isDealer={dealerNumber === player.playerNumber} 
           isCurrentBidder = {currentBidder === player.playerNumber}/>
       </div>
     ));
     const errorMessage = "";
-
     return (
       <div>
         {roundBalance < 0 && <div className='roundBalance roundBalance-under'>{-roundBalance} under</div>}
         {roundBalance > 0 && <div className='roundBalance roundBalance-over'>{roundBalance} over</div>} 
-        <h2> Round: {this.state.gameState.roundNumber}/{totalNumRounds} </h2>
+        <div>
+          <button className="change-round" onClick={this.decrementRound.bind(this)}> &lt; </button>
+          <div className="bids-round-number"> Round: {this.state.roundNumber}/{totalNumRounds} </div>
+          <button className="change-round" onClick={this.incrementRound.bind(this)}> &gt; </button>
+        </div>
         <div className="vertDivider"/>
         {pendingBids}
         <hr />
@@ -211,28 +237,24 @@ export default class RoundBids extends React.Component {
 class PendingBid extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      playerName: this.props.playerName,
-      currentBid: this.props.currentBid,
-      currentScore: (this.props.currentScore) ? this.props.currentScore : 0,
-      maxBid: this.props.maxBid
-    }
   }
 
   increaseBid(event) {
-    if(this.state.currentBid === "-")
-      this.state.currentBid = 1;
-    else if (this.state.currentBid < this.props.maxBid)
-      this.setState( {currentBid: this.state.currentBid += 1 });
-    this.props.updateBid(this.props.playerName, this.state.currentBid)
+    var newBid = 0;    
+    if(this.props.currentBid === "-")
+      newBid = 1;
+    else if (this.props.currentBid < this.props.maxBid)
+      newBid =  this.props.currentBid + 1;
+    this.props.updateBid(this.props.playerName, newBid);
   }
 
   decreaseBid(event) {
-    if(this.state.currentBid === "-")
-      this.state.currentBid = 0;    
-    else if (this.state.currentBid > 0)
-      this.setState( {currentBid: this.state.currentBid -= 1 });
-    this.props.updateBid(this.props.playerName, this.state.currentBid)
+    var newBid = 0;
+    if(this.props.currentBid === "-")
+      newBid = 0;    
+    else if (this.props.currentBid > 0)
+      newBid = this.props.currentBid - 1;
+    this.props.updateBid(this.props.playerName, newBid);
   }
 
   render() {
@@ -242,11 +264,11 @@ class PendingBid extends React.Component {
 
     return (
       <div className={`player-row-bid ${this.props.isDealer && 'pending-bid-dealer'}`}>
-        <h3 className="player-name"> {this.state.playerName}: {this.state.currentScore} {perfectMark} </h3>
+        <h3 className="player-name"> {this.props.playerName}: {this.props.currentScore || 0} {perfectMark} </h3>
         
         <div className={`bid${this.props.isCurrentBidder ? " current-bidder" : ""}`}>
-          <button onClick={this.decreaseBid.bind(this)}>{this.state.currentBid === "-" ? "0" : "-"}</button>
-          <span className="current-bidtrick"> {this.state.currentBid} </span>
+          <button onClick={this.decreaseBid.bind(this)}>{this.props.currentBid === "-" ? "0" : "-"}</button>
+          <span className="current-bidtrick"> {this.props.currentBid} </span>
           <button onClick={this.increaseBid.bind(this)}>+</button>
         </div>
       </div>

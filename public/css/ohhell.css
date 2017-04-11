@@ -129,6 +129,17 @@ input[type=number]{
   background-color: red;
 }
 
+/* Bids */
+.bids-round-number {
+  font-size: 50pt;
+  display: inline-block;
+}
+
+button.change-round {
+  display: inline-block;
+}
+
+
 .add-player-button, .add-player-button:hover {
   font-size: 16pt;
   margin: 5px;

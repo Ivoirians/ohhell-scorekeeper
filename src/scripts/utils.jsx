@@ -134,6 +134,8 @@ export class GameSummary extends React.Component {
 
   deleteGame() {
     //delete the user-games for each player first, then the game
+    if(!confirm("Are you sure you want to delete this game?"))
+      return;
     var gameKey = this.props.gameWithKey.key;
     var updates = {};
     for (var player of this.props.gameWithKey.players)
@@ -165,7 +167,7 @@ export class GameSummary extends React.Component {
     var game = this.props.gameWithKey;
 
     var resumeButton = "";
-    if (this.props.resume && game.state.inProgress)
+    if (this.props.resume)
       resumeButton = (<button className="resume-game" onClick={this.resumeGame.bind(this)}> Resume </button>);
 
     var deleteButton = "";
