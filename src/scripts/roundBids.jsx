@@ -9,7 +9,8 @@ export default class RoundBids extends React.Component {
   
   constructor(props) {
     super(props);
-    this.state= { players: this.props.players,
+    this.state= { roundNumber: this.props.roundNumber
+                  players: this.props.players,
                   gameState: this.props.gameState,
                   newPlayerGUID: getGUID(),
                   showAddPlayer: false};
@@ -27,7 +28,7 @@ export default class RoundBids extends React.Component {
   }
 
   updateBid(playerName, newBid) {
-    this.state.gameState[playerName].bids[this.state.gameState.roundNumber - 1] = parseInt(newBid);
+    this.state.gameState[playerName].bids[this.state.roundNumber - 1] = parseInt(newBid);
     this.forceUpdate();
   }
 
@@ -49,7 +50,7 @@ export default class RoundBids extends React.Component {
         minScore = player.currentScore
     }
 
-    const joinedRound = this.state.gameState.roundNumber;
+    const joinedRound = this.state.roundNumber;
 
     var newPlayer =
     {
@@ -72,7 +73,7 @@ export default class RoundBids extends React.Component {
       bids: Array(numRounds + 1).join('-').split(''),
       takes: Array(numRounds + 1).join('0').split('').map(parseFloat)
     };
-    newGameState["scores"][this.state.gameState.roundNumber - 2] = minScore;
+    newGameState["scores"][this.state.roundNumber - 2] = minScore;
     this.state.gameState[playerName] = newGameState;
     
     //clear everything out
@@ -157,13 +158,14 @@ export default class RoundBids extends React.Component {
     bid being updated, in that case.
   */
   render() {
+    const roundNumber = this.props.roundNumber;
     const gameState = this.props.gameState;
     const players = this.props.players;
     const numPlayers = players.length;
     const totalNumRounds = getNumberOfRounds(numPlayers);
-    const dealerNumber = (gameState.roundNumber -1) % numPlayers;
+    const dealerNumber = (roundNumber -1) % numPlayers;
     let currentBidder = (dealerNumber + 1) % numPlayers;
-    while(gameState[players[currentBidder].playerName].bids[gameState.roundNumber-1] !== "-") {
+    while(gameState[players[currentBidder].playerName].bids[roundNumber-1] !== "-") {
       currentBidder = (currentBidder + 1) % numPlayers;
       if(currentBidder == (dealerNumber + 1) % numPlayers) {
         currentBidder = -1;
@@ -171,8 +173,8 @@ export default class RoundBids extends React.Component {
       }
     }
 
-    const totalBids = players.map(p => gameState[p.playerName].bids[gameState.roundNumber-1] || 0).reduce((a,b)=>(+a || 0)+(+b || 0), 0);
-    const roundBalance = totalBids - gameState.roundNumber; 
+    const totalBids = players.map(p => gameState[p.playerName].bids[roundNumber-1] || 0).reduce((a,b)=>(+a || 0)+(+b || 0), 0);
+    const roundBalance = totalBids - roundNumber; 
     
     const canFinalize = currentBidder < 0 && roundBalance != 0;
     const pendingBids = this.props.players.map((player) => (
@@ -180,8 +182,8 @@ export default class RoundBids extends React.Component {
         <hr />
         <PendingBid
           playerName={player.playerName}
-          currentScore={this.state.gameState[player.playerName].scores[this.state.gameState.roundNumber-2]}
-          currentBid={this.state.gameState[player.playerName].bids[this.state.gameState.roundNumber-1]}
+          currentScore={this.state.gameState[player.playerName].scores[this.roundNumber-2]}
+          currentBid={this.state.gameState[player.playerName].bids[this.roundNumber-1]}
           updateBid={this.updateBid.bind(this)}
           maxBid={10}
           isPerfect={player.isPerfect}
@@ -195,7 +197,7 @@ export default class RoundBids extends React.Component {
       <div>
         {roundBalance < 0 && <div className='roundBalance roundBalance-under'>{-roundBalance} under</div>}
         {roundBalance > 0 && <div className='roundBalance roundBalance-over'>{roundBalance} over</div>} 
-        <h2> Round: {this.state.gameState.roundNumber}/{totalNumRounds} </h2>
+        <h2> Round: {this.state.roundNumber}/{totalNumRounds} </h2>
         <div className="vertDivider"/>
         {pendingBids}
         <hr />
