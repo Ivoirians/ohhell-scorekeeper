@@ -126,6 +126,8 @@ class GamePlayers extends React.Component {
         <td>{(100 * player.above42HitCount / player.above42RoundCount || 0).toFixed(1)}</td>
         <td>{player.gameCount}</td>
       </tr>);
+
+    const highlighted = this.props.allGames.map(g => new Date(g.dateCreated));
     return (
       <div>
         <div className="GamePlayers-filters">
@@ -138,6 +140,7 @@ class GamePlayers extends React.Component {
             <DatePicker
               calendarClassName="calendar"
               endDate={this.state.endDate}
+              highlightDates={highlighted}
               inline
               maxDate={moment()}
               minDate={moment("2017-01-01")}
@@ -154,6 +157,7 @@ class GamePlayers extends React.Component {
             <DatePicker
               calendarClassName="calendar"
               endDate={this.state.endDate}
+              highlightDates={highlighted}
               inline
               maxDate={moment()}
               minDate={moment("2017-01-01")}
