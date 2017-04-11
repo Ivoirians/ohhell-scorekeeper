@@ -230,7 +230,7 @@ export default class Statistics extends React.Component {
     const { allGames, currentTab } = this.state;
 
     var games = currentTab === StatsTab.GAMES && this.state.allGames.map((gameWithKey) =>
-      <GameSummary key={gameWithKey.key} gameWithKey={gameWithKey} resume={null} showDelete={false} />
+      <GameSummary key={gameWithKey.key} gameWithKey={gameWithKey} resume={true} showDelete={true} />
     );
     var players = currentTab === StatsTab.PLAYERS && <GamePlayers allGames={allGames} />;
 
