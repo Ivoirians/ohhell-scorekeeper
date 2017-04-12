@@ -67,10 +67,36 @@ class GamePlayers extends React.Component {
         });
       });
 
+    let above42HitCount = 0;
+    let above42RoundCount = 0;
+    let gameCount = 0;
+    let hitCount = 0;
+    let roundCount = 0;
+    let winCount = 0;
+    let winCountNo42 = 0;
+
     for (let playerName in players) {
       players[playerName].winCount = players[playerName].winCount || 0;
       players[playerName].winCountNo42 = players[playerName].winCountNo42 || 0;
+
+      above42HitCount += players[playerName].above42HitCount;
+      above42RoundCount += players[playerName].above42RoundCount;
+      gameCount += players[playerName].gameCount;
+      hitCount += players[playerName].hitCount;
+      roundCount += players[playerName].roundCount;
+      winCount += players[playerName].winCount;
+      winCountNo42 += players[playerName].winCountNo42;
     }
+
+    players['---'] = {
+      above42HitCount,
+      above42RoundCount,
+      gameCount,
+      hitCount,
+      roundCount,
+      winCount,
+      winCountNo42
+    } 
 
     this.setState({
       players: Object.keys(players).map(name => Object.assign(players[name], { name: name })),
@@ -117,7 +143,7 @@ class GamePlayers extends React.Component {
     }
 
     const playersStats = this.state.players.map(player =>
-      <tr key={player.name}>
+      <tr className={`tr-${player.name}`} key={player.name}>
         <td>{player.name}</td>
         <td>{player.winCount}</td>
         <td>{(100 * player.winCount / player.gameCount).toFixed(1)}</td>
