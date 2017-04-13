@@ -138,7 +138,7 @@ class GamePlayers extends React.Component {
       case 'winpct': players.sort((a, b) => b.winCount / b.gameCount - a.winCount / a.gameCount); break;
       case 'winpctno42': players.sort((a, b) => b.winCountNo42 / b.gameCount - a.winCountNo42 / a.gameCount); break;
       case 'hitpct': players.sort((a, b) => b.hitCount / b.roundCount - a.hitCount / a.roundCount); break;
-      case 'above42hitpct': players.sort((a, b) => b.above42HitCount / b.above42RoundCount - a.above42HitCount / a.above42RoundCount); break;
+      case 'above42hitpct': players.sort((a, b) => b.above42HitCount / (b.above42RoundCount || 1) - a.above42HitCount / (a.above42RoundCount || 1)); break;
       case 'games': players.sort((a, b) => b.gameCount - a.gameCount); break;
     }
 
