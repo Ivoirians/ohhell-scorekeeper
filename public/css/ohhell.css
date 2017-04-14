@@ -225,9 +225,20 @@ button.change-round {
 }
 
 /* statistics */
+.GamePlayers-filters {
+  display:flex;
+  justify-content: space-between;
+  margin: 0 1%;
+}
 .GamePlayers-filters button, .GamePlayers-filters span {
   font-size: 20pt;
   padding: 5px;
+}
+.GamePlayers-filters > shift {
+  display: inline-block;
+  margin: 0 10px;
+  font-size: 60pt;
+  font-weight: bold;
 }
 .calendar {
   transform: scale(2,2);

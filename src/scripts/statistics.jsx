@@ -17,7 +17,8 @@ class GamePlayers extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      shift:0
+      shift:0,
+      sortOrder: 'wins'
     };
   }
 
@@ -26,19 +27,58 @@ class GamePlayers extends React.Component {
   }
 
   doStats() {
-    const { allGames } = this.props;
-    let { startDate, endDate, sortOrder, shift } = this.state;
-    if (endDate)
-      endDate = endDate.clone().add(1, 'days'); //need to add one day so that the end date is inclusive
+    let { allGames } = this.props;
+    let { startDate, endDate } = this.state;
+
+    allGames = allGames.filter(game => !game.state.inProgress && (!startDate || startDate <= moment(game.dateCreated)) && (!endDate || moment(game.dateCreated) <= endDate));
+    this.setState({players: this.playerStatsForGames(allGames)}, () => this.doDiff());
+  }
+
+  doDiff() {
+    let { allGames } = this.props;
+    let { startDate } = this.state;
+
+    const endDate = this.state.endDate || moment();
+    const diffDate = this.state.diffDate || moment(endDate).startOf('day').add(-1, 'second');    
+
+    allGames = allGames.filter(game => !game.state.inProgress && (!startDate || startDate <= moment(game.dateCreated)) && moment(game.dateCreated) <= diffDate);
+    const previous = this.playerStatsForGames(allGames)
+
+    const diff = [];
+    for(let player of this.state.players) {
+      diff.push({
+        name: player.name,
+        winCount: player.winCount,
+        winPct: player.winPct,
+        winPctNo42: player.winPctNo42,
+        hitPct: player.hitPct,
+        above42HitPct: player.above42HitPct,
+        gameCount: player.gameCount
+      });
+    }
+
+    for(let player of previous) {
+      const d = diff.find(p => p.name === player.name);
+      d.winCount -= player.winCount;
+      d.winPct -= player.winPct;
+      d.winPctNo42 -= player.winPctNo42;
+      d.hitPct -= player.hitPct;
+      d.above42HitPct -= player.above42HitPct;
+      d.gameCount -= player.gameCount;
+    }
+
+    this.setState({diff});
+  }
+
+  playerStatsForGames(games) {
     let players = {};
-    allGames
-      .filter(game => !game.state.inProgress && (!startDate || startDate <= moment(game.dateCreated)) && (!endDate || moment(game.dateCreated) <= endDate))
+    games
       .forEach(game => {
         //get mapping based on shift in positions
         const mapto = {}
         const playersCount = game.players.length;
         for(let i = 0; i < playersCount; i++)
-          mapto[game.players[i].playerName] = game.players[((i - shift) % playersCount + playersCount) % playersCount].playerName;
+          mapto[game.players[i].playerName] = game.players[((i - this.state.shift) % playersCount + playersCount) % playersCount].playerName;
 
         //winners
         getWinnersAndMessage(game.players, game.state)[0].forEach(winner => {
@@ -55,7 +95,7 @@ class GamePlayers extends React.Component {
         //the rest
         game.players.forEach(player => {
           let name = player.playerName;
-          const stats = this.playerStats(game.state[name].bids, game.state[name].takes, game.state[name].scores, game.state.roundNumber);
+          const stats = this.playerStatsForGame(game.state[name].bids, game.state[name].takes, game.state[name].scores, game.state.roundNumber);
           name = mapto[name];
           players[name] = players[name] || {};
           players[name].gameCount = (players[name].gameCount || 0) + 1;
@@ -96,15 +136,23 @@ class GamePlayers extends React.Component {
       roundCount,
       winCount,
       winCountNo42
-    } 
+    }
 
-    this.setState({
-      players: Object.keys(players).map(name => Object.assign(players[name], { name: name })),
-      sortOrder: sortOrder || 'wins'
+    return Object.keys(players).map(name => { 
+      const player = players[name];
+      return {
+        name,
+        winCount: player.winCount,
+        winPct: 100 * player.winCount / player.gameCount,
+        winPctNo42: 100 * player.winCountNo42 / player.gameCount,
+        hitPct: 100 * player.hitCount / player.roundCount,
+        above42HitPct: 100 * player.above42HitCount / (player.above42RoundCount || 1),
+        gameCount: player.gameCount
+      };
     });
   }
 
-  playerStats(bids, takes, scores, rounds) {
+  playerStatsForGame(bids, takes, scores, rounds) {
     rounds = Math.min(rounds, bids.length);
 
     const stats = {
@@ -131,71 +179,89 @@ class GamePlayers extends React.Component {
 
   render() {
     const { players, sortOrder } = this.state;
+    const startDate = this.state.startDate || moment("2017-01-01");
+    const endDate = this.state.endDate || moment();
+    const diffMaxDate = moment(endDate).add(-1, 'days');
+    const diffDate = this.state.diffDate || diffMaxDate;
+
+    const stats = this.state.diffShow ? this.state.diff : this.state.players;
 
     switch (sortOrder) {
-      case 'name': players.sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0); break;
-      case 'wins': players.sort((a, b) => b.winCount - a.winCount); break;
-      case 'winpct': players.sort((a, b) => b.winCount / b.gameCount - a.winCount / a.gameCount); break;
-      case 'winpctno42': players.sort((a, b) => b.winCountNo42 / b.gameCount - a.winCountNo42 / a.gameCount); break;
-      case 'hitpct': players.sort((a, b) => b.hitCount / b.roundCount - a.hitCount / a.roundCount); break;
-      case 'above42hitpct': players.sort((a, b) => b.above42HitCount / (b.above42RoundCount || 1) - a.above42HitCount / (a.above42RoundCount || 1)); break;
-      case 'games': players.sort((a, b) => b.gameCount - a.gameCount); break;
+      case 'name': stats.sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0); break;
+      case 'wins': stats.sort((a, b) => b.winCount - a.winCount); break;
+      case 'winpct': stats.sort((a, b) => b.winPct - a.winPct); break;
+      case 'winpctno42': stats.sort((a, b) => b.winPctNo42 - a.winPctNo42); break;
+      case 'hitpct': stats.sort((a, b) => b.hitPct - a.hitPct); break;
+      case 'above42hitpct': stats.sort((a, b) => b.above42HitPct - a.above42HitPct); break;
+      case 'games': stats.sort((a, b) => b.gameCount - a.gameCount); break;
     }
 
-    const playersStats = this.state.players.map(player =>
+    const playersStats = stats.map(player =>
       <tr className={`tr-${player.name}`} key={player.name}>
         <td>{player.name}</td>
         <td>{player.winCount}</td>
-        <td>{(100 * player.winCount / player.gameCount).toFixed(1)}</td>
-        <td>{(100 * player.winCountNo42 / player.gameCount).toFixed(1)}</td>
-        <td>{(100 * player.hitCount / player.roundCount).toFixed(1)}</td>
-        <td>{(100 * player.above42HitCount / player.above42RoundCount || 0).toFixed(1)}</td>
+        <td>{player.winPct.toFixed(1)}</td>
+        <td>{player.winPctNo42.toFixed(1)}</td>
+        <td>{player.hitPct.toFixed(1)}</td>
+        <td>{player.above42HitPct.toFixed(1)}</td>
         <td>{player.gameCount}</td>
       </tr>);
 
-    const highlighted = this.props.allGames.map(g => new Date(g.dateCreated));
+    const highlighted = this.props.allGames.map(g => moment(g.dateCreated).startOf('day'));
+    const highlightedDiff = highlighted.filter(d => startDate <= d && d <= diffMaxDate);
     return (
       <div>
         <div className="GamePlayers-filters">
-          <button onClick={() => this.setState({ shift: this.state.shift + 1 }, () => this.doStats())}>Left</button>
-          <span className="current-bidtrick">{this.state.shift}</span>
-          <button onClick={() => this.setState({ shift: this.state.shift - 1 }, () => this.doStats())}>Right</button>          
-          <div className="horzDivider"/>
-          <button onClick={() => this.setState({ startDateOpen: !this.state.startDateOpen })}>{this.state.startDate ? this.state.startDate.format("DD-MM-YYYY") : "Start Date"}</button>
-          {this.state.startDateOpen &&
-            <DatePicker
-              calendarClassName="calendar"
-              endDate={this.state.endDate}
-              highlightDates={highlighted}
-              inline
-              maxDate={moment()}
-              minDate={moment("2017-01-01")}
-              onChange={(date) => this.setState({ startDate: date, startDateOpen: !this.state.startDateOpen }, () => this.doStats())}
-              openToDate={this.state.endDate}
-              selected={this.state.startDate}
-              selectsStart
-              startDate={this.state.startDate}
-              withPortal
-            />
-          }
-          <button onClick={() => this.setState({ endDateOpen: !this.state.endDateOpen })}>{this.state.endDate ? this.state.endDate.format("DD-MM-YYYY") : "End Date"}</button>
-          {this.state.endDateOpen &&
-            <DatePicker
-              calendarClassName="calendar"
-              endDate={this.state.endDate}
-              highlightDates={highlighted}
-              inline
-              maxDate={moment()}
-              minDate={moment("2017-01-01")}
-              onChange={(date) => this.setState({ endDate: date, endDateOpen: !this.state.endDateOpen }, () => this.doStats())}
-              openToDate={this.state.startDate}
-              selected={this.state.endDate}
-              selectsEnd
-              startDate={this.state.startDate}
-              withPortal
-            />
-          }
-          {(this.state.startDate || this.state.endDate) && <button onClick={() => this.setState({ startDate: null, endDate: null }, () => this.doStats())}>Clear</button>}
+          <div>
+            <button onClick={() => this.setState({ shift: this.state.shift + 1 }, () => this.doStats())}>Left</button>
+            <span className="shift">{this.state.shift}</span>
+            <button onClick={() => this.setState({ shift: this.state.shift - 1 }, () => this.doStats())}>Right</button>          
+          </div>
+          <div>
+            <button onClick={() => this.setState({ diffShow: !this.state.diffShow})}>{this.state.diffShow ? 'No Diff' : 'Diff'}</button>
+            <button onClick={() => this.setState({ diffDateOpen: !this.state.diffDateOpen })}>{diffDate.format("MM-DD-YY")}</button>            
+            {this.state.diffDateOpen &&
+              <DatePicker
+                calendarClassName="calendar"
+                highlightDates={highlightedDiff}
+                inline
+                maxDate={diffMaxDate}
+                minDate={startDate}
+                onChange={(date) => this.setState({ diffDate: moment(date).add(23, 'h'), diffDateOpen: !this.state.diffDateOpen }, () => this.doDiff())}
+                openToDate={diffDate}             
+                withPortal
+              />
+            }
+          </div>
+          <div>
+            <button onClick={() => this.setState({ startDateOpen: !this.state.startDateOpen })}>{this.state.startDate ? startDate.format("MM-DD-YY") : "Start"}</button>
+            {this.state.startDateOpen &&
+              <DatePicker
+                calendarClassName="calendar"
+                highlightDates={highlighted}
+                inline
+                maxDate={moment()}
+                minDate={moment("2017-01-01")}
+                onChange={(date) => this.setState({ startDate: date, startDateOpen: !this.state.startDateOpen, diffDate: null }, () => this.doStats())}
+                openToDate={this.state.endDate}
+                withPortal
+              />
+            }
+            <button onClick={() => this.setState({ endDateOpen: !this.state.endDateOpen })}>{this.state.endDate ? endDate.format("MM-DD-YY") : "End"}</button>
+            {this.state.endDateOpen &&
+              <DatePicker
+                calendarClassName="calendar"
+                highlightDates={highlighted}
+                inline
+                maxDate={moment()}
+                minDate={moment("2017-01-01")}
+                onChange={(date) => { console.log(date); return this.setState({ endDate: moment(date).add(23, 'h'), endDateOpen: !this.state.endDateOpen, diffDate: null }, () => this.doStats())}}
+                openToDate={this.state.startDate}
+                withPortal
+              />
+            }
+            {(this.state.startDate || this.state.endDate) && <button onClick={() => this.setState({ startDate: null, endDate: null, diffDate: null }, () => this.doStats())}>Clear</button>}
+          </div>
         </div>
         <div className="vertDivider" />
         <table className="GameWinners">
