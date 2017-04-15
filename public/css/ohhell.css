@@ -243,3 +243,13 @@ button.change-round {
 .calendar {
   transform: scale(2,2);
 }
+/* diffs */
+span.diff {
+  font-size: 14pt;
+}
+span.positive {
+  color:green;
+}
+span.negative {
+  color:red;
+}

@@ -29,7 +29,6 @@ class GamePlayers extends React.Component {
   doStats() {
     let { allGames } = this.props;
     let { startDate, endDate } = this.state;
-
     allGames = allGames.filter(game => !game.state.inProgress && (!startDate || startDate <= moment(game.dateCreated)) && (!endDate || moment(game.dateCreated) <= endDate));
     this.setState({players: this.playerStatsForGames(allGames)}, () => this.doDiff());
   }
@@ -44,21 +43,21 @@ class GamePlayers extends React.Component {
     allGames = allGames.filter(game => !game.state.inProgress && (!startDate || startDate <= moment(game.dateCreated)) && moment(game.dateCreated) <= diffDate);
     const previous = this.playerStatsForGames(allGames)
 
-    const diff = [];
+    const diff = {};
     for(let player of this.state.players) {
-      diff.push({
-        name: player.name,
+      diff[player.name] =
+      {
         winCount: player.winCount,
         winPct: player.winPct,
         winPctNo42: player.winPctNo42,
         hitPct: player.hitPct,
         above42HitPct: player.above42HitPct,
         gameCount: player.gameCount
-      });
+      };
     }
 
     for(let player of previous) {
-      const d = diff.find(p => p.name === player.name);
+      const d = diff[player.name];
       d.winCount -= player.winCount;
       d.winPct -= player.winPct;
       d.winPctNo42 -= player.winPctNo42;
@@ -177,14 +176,31 @@ class GamePlayers extends React.Component {
     return stats;
   }
 
+  getDiffElement(num)
+  {
+    if (!this.state.diffShow)
+      return "";
+    if (num > 0) {
+      return <span className="diff positive"> (+{num}) </span>;
+    }
+    else if (num < 0) {
+      return <span className="diff negative"> ({num}) </span>;
+    }
+    else {
+      return <span className="diff"> (0.0) </span>;
+    }
+  }
+
   render() {
+    console.log("In render");
+    console.log(this.state);
     const { players, sortOrder } = this.state;
     const startDate = this.state.startDate || moment("2017-01-01");
     const endDate = this.state.endDate || moment();
     const diffMaxDate = moment(endDate).add(-1, 'days');
     const diffDate = this.state.diffDate || diffMaxDate;
 
-    const stats = this.state.diffShow ? this.state.diff : this.state.players;
+    const stats = this.state.players;
 
     switch (sortOrder) {
       case 'name': stats.sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0); break;
@@ -197,15 +213,23 @@ class GamePlayers extends React.Component {
     }
 
     const playersStats = stats.map(player =>
-      <tr className={`tr-${player.name}`} key={player.name}>
-        <td>{player.name}</td>
-        <td>{player.winCount}</td>
-        <td>{player.winPct.toFixed(1)}</td>
-        <td>{player.winPctNo42.toFixed(1)}</td>
-        <td>{player.hitPct.toFixed(1)}</td>
-        <td>{player.above42HitPct.toFixed(1)}</td>
-        <td>{player.gameCount}</td>
-      </tr>);
+      {
+        if (!this.state.diff)
+        {
+          //waiting for doDiff to finish.
+          return (<div> "Loading..."; </div>)
+        }
+        var diffPlayer = this.state.diff[player.name];
+        return (<tr className={`tr-${player.name}`} key={player.name}>
+          <td>{player.name}</td>
+          <td>{player.winCount} {this.getDiffElement(diffPlayer.winCount)}</td>
+          <td>{player.winPct.toFixed(1)} {this.getDiffElement(diffPlayer.winPct.toFixed(1))}</td>
+          <td>{player.winPctNo42.toFixed(1)} {this.getDiffElement(diffPlayer.winPctNo42.toFixed(1))}</td>
+          <td>{player.hitPct.toFixed(1)} {this.getDiffElement(diffPlayer.hitPct.toFixed(1))}</td>
+          <td>{player.above42HitPct.toFixed(1)} {this.getDiffElement(diffPlayer.above42HitPct.toFixed(1))}</td>
+          <td>{player.gameCount} {this.getDiffElement(diffPlayer.gameCount)}</td>
+        </tr>);
+    });
 
     const highlighted = this.props.allGames.map(g => moment(g.dateCreated).startOf('day'));
     const highlightedDiff = highlighted.filter(d => startDate <= d && d <= diffMaxDate);
