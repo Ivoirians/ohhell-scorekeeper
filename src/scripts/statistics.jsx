@@ -192,8 +192,6 @@ class GamePlayers extends React.Component {
   }
 
   render() {
-    console.log("In render");
-    console.log(this.state);
     const { players, sortOrder } = this.state;
     const startDate = this.state.startDate || moment("2017-01-01");
     const endDate = this.state.endDate || moment();
@@ -214,7 +212,7 @@ class GamePlayers extends React.Component {
 
     const playersStats = stats.map(player =>
       {
-        if (!this.state.diff)
+        if (!this.state.diff || !this.state.diff[player.name])
         {
           //waiting for doDiff to finish.
           return (<div> "Loading..."; </div>)
