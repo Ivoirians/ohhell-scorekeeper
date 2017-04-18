@@ -67,6 +67,7 @@ tr.tr---- {
     font-weight: bold;
 }
 td {
+    white-space: nowrap;
     border: 1px solid black;
 }
 
