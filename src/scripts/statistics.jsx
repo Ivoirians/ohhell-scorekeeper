@@ -130,7 +130,7 @@ class GamePlayers extends React.Component {
     players['---'] = {
       above42HitCount,
       above42RoundCount,
-      gameCount,
+      gameCount: games.length,
       hitCount,
       roundCount,
       winCount,
