@@ -166,7 +166,7 @@ class GamePlayers extends React.Component {
         stats.roundCount++;
         if (bids[i] === takes[i])
           stats.hitCount++;
-        if (i > 0 && scores[i - 1] >= 42) {
+        if (i > 0 && scores[i - 1] > 42) {
           stats.above42RoundCount++;
           if (bids[i] === takes[i])
             stats.above42HitCount++;
