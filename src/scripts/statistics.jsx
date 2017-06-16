@@ -18,7 +18,8 @@ class GamePlayers extends React.Component {
     super(props);
     this.state = {
       shift:0,
-      sortOrder: 'wins'
+      sortOrder: 'wins',
+      showModal: false
     };
   }
 
@@ -191,6 +192,65 @@ class GamePlayers extends React.Component {
     }
   }
 
+  showProfile(playerName)
+  {
+    var playerGames = this.props.allGames.filter(function(game) {
+        return game.players.some(function(player) { return player.playerName == playerName });
+      });
+    this.setState({
+      showModal: true,
+      playerName: playerName,
+      playerStats: this.processGames(playerGames, playerName)
+    });
+  }
+
+  processGames(playerGames, playerName) {
+    var numGames = playerGames.length;
+    var playerStats = {totalGames : numGames, bidRounds : [], bidHits : []};
+    playerGames.forEach(game => {
+      var numPlayers = game.players.length;
+      playerStats.totalPlayers = (playerStats.totalPlayers || 0) + numPlayers;
+      var playerNumber = game.players.filter(function(player) { return player.playerName == playerName})[0].playerNumber;
+      if (playerNumber == 0) {
+        //first round dealer
+        playerStats.firstRoundDealer = (playerStats.firstRoundDealer || 0) + 1;
+      }
+
+      var playerState = game.state[playerName];
+      for (var i = 0; i < playerState.bids.length; i++) {
+        
+        var bid = playerState.bids[i];
+        if (bid == '-') {
+          continue;
+        }
+        playerStats.bidRounds[bid] = (playerStats.bidRounds[bid] || 0) + 1;
+        if (playerState.takes[i] == bid) {
+          //hit
+          playerStats.bidHits[bid] = (playerStats.bidHits[bid] || 0) + 1;
+        }
+
+        //dealer hits
+        if ((playerNumber + i) % numPlayers == 0) {
+          //isDealer
+          playerStats.dealerRounds = (playerStats.dealerRounds || 0) + 1;
+          if (playerState.bids[i] == playerState.takes[i]) {
+            playerStats.dealerHits = (playerStats.dealerHits || 0) + 1;
+          }
+        }
+      }
+
+
+    });
+    playerStats.averagePlayersPerGame = playerStats.totalPlayers / numGames;
+    playerStats.averageFirstDealer = numGames / playerStats.firstRoundDealer;
+    playerStats.dealerHitRate = 100 * playerStats.dealerHits / playerStats.dealerRounds;
+    return playerStats;
+  }
+
+  hideModal() {
+    this.setState({showModal: false});
+  }
+
   render() {
     const { players, sortOrder } = this.state;
     const startDate = this.state.startDate || moment("2017-01-01");
@@ -219,7 +279,7 @@ class GamePlayers extends React.Component {
         }
         var diffPlayer = this.state.diff[player.name];
         return (<tr className={`tr-${player.name}`} key={player.name}>
-          <td>{player.name}</td>
+          <td><div onClick={() => this.showProfile(player.name)}>{player.name}</div></td>
           <td>{player.winCount} {this.getDiffElement(diffPlayer.winCount)}</td>
           <td>{player.winPct.toFixed(1)} {this.getDiffElement(diffPlayer.winPct.toFixed(1))}</td>
           <td>{player.winPctNo42.toFixed(1)} {this.getDiffElement(diffPlayer.winPctNo42.toFixed(1))}</td>
@@ -302,6 +362,7 @@ class GamePlayers extends React.Component {
             {playersStats}
           </tbody>
         </table>
+        <ExtraPlayerStatistics playerName={this.state.playerName} playerStats={this.state.playerStats} show={this.state.showModal} onClose={this.hideModal.bind(this)} />
       </div>
     );
   }
@@ -364,5 +425,44 @@ export default class Statistics extends React.Component {
         {players}
       </div>
     );
+  }
+}
+
+class ExtraPlayerStatistics extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+
+  render() {
+    if (!this.props.show) {
+      return null;
+    }
+
+    var stats = this.props.playerStats
+
+    //get per bid stats
+    var perBids = [];
+    for (var i in stats.bidRounds) {
+      perBids.push(<div key={'hit-' + i}>Hit ({i}) : {stats.bidHits[i] || 0}/{stats.bidRounds[i]} = {(100 * (stats.bidHits[i] || 0)/stats.bidRounds[i]).toFixed(2)}%</div>)
+    }
+    return (
+        <div className="backdrop">
+          <div className="player-modal">
+            <h2>{this.props.playerName}</h2>
+            <div>
+              <div>Total Games: {stats.totalGames}</div>
+              <div>Average First-Round-Dealer: 1/{stats.averageFirstDealer.toFixed(2)}</div>
+              <div>Average Players per Game: {stats.averagePlayersPerGame.toFixed(2)}</div>
+              <div>Dealer round hit rate: {stats.dealerHitRate.toFixed(2)}%</div>
+              {perBids}
+            </div>
+            <div className="footer">
+              <button onClick={this.props.onClose}>
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      );
   }
 }

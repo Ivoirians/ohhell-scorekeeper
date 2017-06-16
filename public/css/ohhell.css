@@ -254,3 +254,24 @@ span.positive {
 span.negative {
   color:red;
 }
+
+/*stats modal*/
+.backdrop {
+  background-color: rgba(0, 0, 0, 0.7);
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 50px;
+}
+
+.player-modal {
+  background-color: #F1F1F1;
+  border-radius: 5;
+  max-width: 500;
+  min-height: 300;
+  margin: 0px auto;
+  padding: 30px;
+  font-size: 20pt;
+}
