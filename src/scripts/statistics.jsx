@@ -385,6 +385,12 @@ export default class Statistics extends React.Component {
     this.props.changePage(PageEnum.MAIN_MENU)
   }
 
+  loadGame(gameWithKey) {
+    this.props.updateGameState(gameWithKey.players, gameWithKey.state);
+    this.props.setCurrentGameKey(gameWithKey.key);
+    this.props.changePage(PageEnum.ROUND_BIDS);
+  }
+
   componentWillMount() {
     this.getAllGames();
   }
@@ -409,7 +415,7 @@ export default class Statistics extends React.Component {
     const { allGames, currentTab } = this.state;
 
     var games = currentTab === StatsTab.GAMES && this.state.allGames.map((gameWithKey) =>
-      <GameSummary key={gameWithKey.key} gameWithKey={gameWithKey} resume={true} showDelete={gameWithKey.state.inProgress} />
+      <GameSummary key={gameWithKey.key} gameWithKey={gameWithKey} resume={this.loadGame.bind(this)} showDelete={gameWithKey.state.inProgress} />
     );
     var players = currentTab === StatsTab.PLAYERS && <GamePlayers allGames={allGames} />;
 

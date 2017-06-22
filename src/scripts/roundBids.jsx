@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import {database} from './firebaseInterface.jsx'
 import {PageEnum} from './pageEnum.jsx';
 import {AddPlayerRow} from './createGame.jsx';
-import {getNumberOfRounds, getGUID} from './utils.jsx';
+import {getNumberOfRounds, getGUID, GameSummaryModal} from './utils.jsx';
 
 export default class RoundBids extends React.Component {
   
@@ -13,7 +13,8 @@ export default class RoundBids extends React.Component {
                   players: this.props.players,
                   gameState: this.props.gameState,
                   newPlayerGUID: getGUID(),
-                  showAddPlayer: false};
+                  showAddPlayer: false,
+                  showGameSummaryModal: false};
   }
 
   componentWillMount() {
@@ -37,6 +38,11 @@ export default class RoundBids extends React.Component {
       this.state.gameState.roundNumber = roundNumber;
       this.forceUpdate();
     }
+  }
+
+  goToMainMenu() {
+    this.updateFirebase();
+    this.props.changePage(PageEnum.MAIN_MENU);
   }
 
   goToRoundTricks() {
@@ -166,6 +172,14 @@ export default class RoundBids extends React.Component {
     this.setState({showAddPlayer:!this.state.showAddPlayer});
   }
 
+  showGameSummaryModal() {
+    this.setState({showGameSummaryModal: true});
+  }
+
+  hideGameSummaryModal() {
+    this.setState({showGameSummaryModal: false});
+  }
+
   /***
     Idea: Display a PendingBid component for every player.
 
@@ -227,8 +241,16 @@ export default class RoundBids extends React.Component {
         <hr />
         <div className="vertDivider"/>
         { canFinalize && <button onClick={this.goToRoundTricks.bind(this)}> Finalize Bids </button>}
-        <button onClick={this.logStateDebug.bind(this)}> Debug </button>
+        <button onClick={this.showGameSummaryModal.bind(this)}> Summary </button>
+        <button onClick={this.goToMainMenu.bind(this)}> Back to Main Menu </button>
         {this.getAddPlayerComponent()}
+        <div className="game-summary-modal">
+          <GameSummaryModal
+          players = {this.state.players}
+          gameState={this.state.gameState}
+          show={this.state.showGameSummaryModal}
+          onClose={this.hideGameSummaryModal.bind(this)} />
+        </div>
       </div>
     );
   }

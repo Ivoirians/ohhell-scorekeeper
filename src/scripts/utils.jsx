@@ -199,14 +199,72 @@ export class Scoreboard extends React.Component {
   render() {
     var game = this.props.gameState;
     var scores = this.props.players.map((p) => (
-      <div key={p.playerName}>
+      <div key={"score-" + p.playerName}>
         {p.playerName} : {p.currentScore}
       </div>
-    ))
+    ));
     return (
       <div className="scoreboard">
         {scores}
       </div>
     );
+  }
+}
+
+export class GameSummaryModal extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+
+  render() {
+    if (!this.props.show) {
+      return null;
+    }
+    var numRounds = getNumberOfRounds(this.props.players.length);
+    var tableRows = this.props.players.map((p) => {
+      var playerGame = this.props.gameState[p.playerName];
+      var zipped = playerGame.bids.map(function(e, index) {
+        return {col: index, bid: e, take:playerGame.takes[index], score: playerGame.scores[index]};
+      }).slice(0, numRounds); //mainly for when players join mid-game
+      var rows = zipped.map((bidTakeScore) => {
+        return(
+          <td className="game-summary-cell" key={"player-" + p.playerName + "-" + bidTakeScore.col}>{bidTakeScore.bid} / {bidTakeScore.score}</td>
+          )
+      });
+      return (
+        <tr key={"player-row-" + p.playerName}>
+          <td className="game-summary-cell" key={"player-" + p.playerName}>{p.playerName} </td>
+          {rows}
+        </tr>
+        )
+      });
+
+    var headerRow = Array.apply(null, Array(numRounds)).map((e, index) => {
+      return (
+        <th key={"game-summary-header-" + index}>
+          {index + 1} : {this.props.players[index % this.props.players.length].playerName.charAt(0)}
+        </th>
+        );
+    });
+    return (
+      <div className="backdrop">
+          <div className="game-summary-modal">
+            <table>
+              <tbody>
+                <tr>
+                  <th></th>
+                  {headerRow}
+                </tr>
+                {tableRows}
+              </tbody>
+            </table>
+            <div className="footer">
+              <button onClick={this.props.onClose}>
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      );
   }
 }

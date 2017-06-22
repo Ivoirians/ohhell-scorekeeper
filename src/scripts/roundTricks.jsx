@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import {database} from './firebaseInterface.jsx'
 import {PageEnum} from './pageEnum.jsx';
-import {getCurrentScore, getNumberOfRounds, countArrayPrefix} from './utils.jsx';
+import {getCurrentScore, getNumberOfRounds, countArrayPrefix, GameSummaryModal} from './utils.jsx';
 
 
 export default class RoundTricks extends React.Component {
@@ -10,7 +10,8 @@ export default class RoundTricks extends React.Component {
   constructor(props) {
     super(props);
     this.state= { players: this.props.players,
-                  gameState: this.props.gameState};
+                  gameState: this.props.gameState,
+                  showGameSummaryModal: false};
   }
 
   goToRoundBids() {
@@ -29,7 +30,16 @@ export default class RoundTricks extends React.Component {
   }
 
   logStateDebug() {
+    //no longer used
     console.log(JSON.stringify(this.state));
+  }
+
+  showGameSummaryModal() {
+    this.setState({showGameSummaryModal: true});
+  }
+
+  hideGameSummaryModal() {
+    this.setState({showGameSummaryModal: false});
   }
 
   //computes scores from the current state and updates this.state.gameState.scores
@@ -125,16 +135,25 @@ export default class RoundTricks extends React.Component {
 
     return (
       <div>
-        {roundBalance < 0 && <div className='roundBalance roundBalance-under'>{-roundBalance} under</div>}
-        {roundBalance > 0 && <div className='roundBalance roundBalance-over'>{roundBalance} over</div>}
-        <h2> Round: {gameState.roundNumber} </h2>
-        <div className="vertDivider"/>
-        {takeTrickButtons}
-        <hr />
-        <div className="vertDivider"/>
-        { canEndRound && <button onClick={this.endRound.bind(this)}> End Round </button> }
-        { canEndGame && <button onClick={this.endGame.bind(this)}> End Game </button> }
-        <button onClick={this.logStateDebug.bind(this)}> Debug </button>
+        <div>
+          {roundBalance < 0 && <div className='roundBalance roundBalance-under'>{-roundBalance} under</div>}
+          {roundBalance > 0 && <div className='roundBalance roundBalance-over'>{roundBalance} over</div>}
+          <h2> Round: {gameState.roundNumber} </h2>
+          <div className="vertDivider"/>
+          {takeTrickButtons}
+          <hr />
+          <div className="vertDivider"/>
+          { canEndRound && <button onClick={this.endRound.bind(this)}> End Round </button> }
+          { canEndGame && <button onClick={this.endGame.bind(this)}> End Game </button> }
+          <button onClick={this.showGameSummaryModal.bind(this)}> Summary </button>
+        </div>
+        <div className="game-summary-modal">
+          <GameSummaryModal 
+          players = {this.state.players}
+          gameState={this.state.gameState}
+          show={this.state.showGameSummaryModal}
+          onClose={this.hideGameSummaryModal.bind(this)} />
+        </div>
       </div>
     );
   }

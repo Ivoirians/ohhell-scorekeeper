@@ -126,7 +126,9 @@ class OhHell extends React.Component {
         break;
       case PageEnum.STATISTICS:
         partial = <Statistics   changePage={this.changePage.bind(this)}
-                                currentGameKey={this.state.currentGameKey} />;
+                                currentGameKey={this.state.currentGameKey}
+                            updateGameState={this.updateGameState.bind(this)}
+                            setCurrentGameKey={this.setCurrentGameKey.bind(this)} />;
         break;
       default:
         partial = <MainMenu changePage={this.changePage.bind(this)}
