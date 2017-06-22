@@ -206,7 +206,7 @@ class GamePlayers extends React.Component {
 
   processGames(playerGames, playerName) {
     var numGames = playerGames.length;
-    var playerStats = {totalGames : numGames, bidRounds : [], bidHits : [], totalTakes : []};
+    var playerStats = {totalGames : numGames, bidHits: [], bidRounds: [], bidsToTakes : [], roundsToBids: [], roundsToTakes: []};
     playerGames.forEach(game => {
       var numPlayers = game.players.length;
       playerStats.totalPlayers = (playerStats.totalPlayers || 0) + numPlayers;
@@ -224,7 +224,15 @@ class GamePlayers extends React.Component {
           continue;
         }
 
-        playerStats.totalTakes[playerState.takes[i]] = (playerStats.totalTakes[playerState.takes[i]] || 0) + 1;
+        playerStats.bidsToTakes[playerState.bids[i]] = (playerStats.bidsToTakes[playerState.bids[i]] || []);
+        playerStats.bidsToTakes[playerState.bids[i]][playerState.takes[i]] = (playerStats.bidsToTakes[playerState.bids[i]][playerState.takes[i]] || 0) + 1;
+
+        playerStats.roundsToBids[i] = (playerStats.roundsToBids[i] || []);
+        playerStats.roundsToBids[i][playerState.bids[i]] = (playerStats.roundsToBids[i][playerState.bids[i]] || 0) + 1;
+
+        playerStats.roundsToTakes[i] = (playerStats.roundsToTakes[i] || []);
+        playerStats.roundsToTakes[i][playerState.takes[i]] = (playerStats.roundsToTakes[i][playerState.takes[i]] || 0) + 1;
+
 
         playerStats.bidRounds[bid] = (playerStats.bidRounds[bid] || 0) + 1;
         if (playerState.takes[i] == bid) {
@@ -278,7 +286,7 @@ class GamePlayers extends React.Component {
         if (!this.state.diff || !this.state.diff[player.name])
         {
           //waiting for doDiff to finish.
-          return (<div> "Loading..."; </div>)
+          return (<tr><td>"Loading...";</td></tr>)
         }
         var diffPlayer = this.state.diff[player.name];
         return (<tr className={`tr-${player.name}`} key={player.name}>
@@ -442,6 +450,30 @@ class ExtraPlayerStatistics extends React.Component {
     super(props);
   }
 
+  prepTable(twoDArray, incrementRowHeader = false, cornerText="") {
+    var numCols = /*voodoo*/ Math.max(...twoDArray.map((x) => {x = x || []; return x.length}).filter(isFinite));
+    for (var index in twoDArray)
+    {
+      //fill sparse values
+      for (var j = 0; j < numCols; j++) {
+        twoDArray[index][j] = twoDArray[index][j] || 0;
+      }
+      if (incrementRowHeader)
+        twoDArray[index].unshift(parseInt(index) + 1);
+      else
+        twoDArray[index].unshift(parseInt(index));
+
+    }
+
+    var headerRow = Array.apply(null, Array(numCols+1)).map((row, index) => {
+      return index-1;
+    });
+    headerRow[0] = cornerText;
+    twoDArray.unshift(headerRow)
+
+    return twoDArray;
+  }
+
   render() {
     if (!this.props.show) {
       return null;
@@ -452,39 +484,36 @@ class ExtraPlayerStatistics extends React.Component {
     //get per bid stats
     var perBids = [];
     for (var i in stats.bidRounds) {
-      perBids.push(<tr key={'hit-' + i}> <td>{i}</td> <td>{stats.bidHits[i] || 0}/{stats.bidRounds[i]} = {(100 * (stats.bidHits[i] || 0)/stats.bidRounds[i]).toFixed(2)}%</td></tr>);
+      perBids.push(<tr key={'hit-' + i}><td>{i}</td><td>{stats.bidHits[i] || 0}/{stats.bidRounds[i]} = {(100 * (stats.bidHits[i] || 0)/stats.bidRounds[i]).toFixed(2)}%</td></tr>);
     }
 
     var perTakes = [];
     for (var i in stats.totalTakes) {
-      perTakes.push(<tr key={'take-' + i}><td>{i}</td> <td>{stats.totalTakes[i] || 0}</td></tr>);
+      perTakes.push(<tr key={'take-' + i}><td>{i}</td><td>{stats.totalTakes[i] || 0}</td></tr>);
     }
     return (
-        <div className="backdrop">
-          <div className="player-modal">
+        <div className="backdrop" onClick={this.props.onClose}>
+          <div className="player-modal" onClick={(e) => e.stopPropagation() }>
             <h2>{this.props.playerName}</h2>
             <div>
               <div>Total Games: {stats.totalGames}</div>
               <div>Average First-Round-Dealer: 1/{stats.averageFirstDealer.toFixed(2)}</div>
               <div>Average Players per Game: {stats.averagePlayersPerGame.toFixed(2)}</div>
               <div className="extra-stats-table">
-                <div className="left-column">
+                <div className="table-column">
                   <table>
                     <tbody>
                       <tr><th>Bids</th><th>Hit Rate</th></tr>
+                      {perBids}
                     </tbody>
-                    {perBids}
                   </table>
                 </div>
-
-                <div className="right-column">
-                  <table>
-                    <tbody>
-                      <tr><th>Takes</th><th>Count</th></tr>
-                    </tbody>
-                    {perTakes}
-                  </table>
-                </div>
+              <h2>Takes vs. Bids</h2>
+              <TwoDArrayToTable twoDArray={this.prepTable(stats.bidsToTakes, false, "Bids\\Takes")} tableKey="bidsToTakes" />
+              <h2>Bids per Round</h2>
+              <TwoDArrayToTable twoDArray={this.prepTable(stats.roundsToBids, true, "Round\\Bids")} tableKey="roundsToBids" />
+              <h2>Takes per Round</h2>
+              <TwoDArrayToTable twoDArray={this.prepTable(stats.roundsToTakes, true, "Round\\Takes")} tableKey="roundsToTakes" />
               </div>
             </div>
             <div className="footer">
@@ -495,5 +524,38 @@ class ExtraPlayerStatistics extends React.Component {
           </div>
         </div>
       );
+  }
+}
+
+class TwoDArrayToTable extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+  render() {
+    var tableRows = this.props.twoDArray.map((row, index) => {
+      const key = this.props.tableKey;
+      if (index == 0) {
+        //header
+        var headerCells = row.map((s, colIndex) => {
+          return (<th key={key + "-row-" + index + "-" + colIndex}>{s}</th>);
+        });
+        return (<tr key={key + "-row-" + index}>{headerCells}</tr>);
+      }
+      else {
+        var tableCells = row.map((s, colIndex) => {
+          return (<td key={key + "-row-" + index + "-" + colIndex}>{s}</td>);
+        });
+        return (<tr key={key + "-row-" + index}>{tableCells}</tr>);
+      }
+    });
+    return (
+      <table className="table-column">
+        <tbody>
+          {tableRows}
+        </tbody>
+      </table>
+      )
+
+
   }
 }

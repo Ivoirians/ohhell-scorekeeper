@@ -268,21 +268,22 @@ span.negative {
 
 .player-modal, .game-summary-modal {
   background-color: #F1F1F1;
-  border-radius: 5;
-  max-width: 500;
-  min-height: 300;
+  border-radius: 5pt;
+  max-width: 800pt;
+  min-height: 300pt;
+  height:80%;
   margin: 0px auto;
   padding: 30px;
   font-size: 20pt;
+  overflow-y:scroll;
 }
 
-.left-column, .right-column {
+.table-column {
   display:inline-block;
-  width:300pt;
-  padding:20pt;
+  padding-top:20pt;
+  border:none;
 }
 
 .extra-stats-table {
-  width:80%;
   text-align: center;
 }
