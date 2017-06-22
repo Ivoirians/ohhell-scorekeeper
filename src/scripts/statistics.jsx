@@ -103,6 +103,91 @@ class GamePlayers extends React.Component {
     return stats;
   }
 
+  getDiffElement(num)
+  {
+    if (!this.state.diffShow)
+      return "";
+    if (num > 0) {
+      return <span className="diff positive"> (+{num}) </span>;
+    }
+    else if (num < 0) {
+      return <span className="diff negative"> ({num}) </span>;
+    }
+    else {
+      return <span className="diff"> (0.0) </span>;
+    }
+  }
+
+  showProfile(playerName)
+  {
+    var playerGames = this.props.allGames.filter(function(game) {
+        return game.players.some(function(player) { return player.playerName == playerName });
+      });
+    this.setState({
+      showModal: true,
+      playerName: playerName,
+      playerStats: this.processGames(playerGames, playerName)
+    });
+  }
+
+  processGames(playerGames, playerName) {
+    var numGames = playerGames.length;
+    var playerStats = {totalGames : numGames, bidHits: [], bidRounds: [], bidsToTakes : [], roundsToBids: [], roundsToTakes: []};
+    playerGames.forEach(game => {
+      var numPlayers = game.players.length;
+      playerStats.totalPlayers = (playerStats.totalPlayers || 0) + numPlayers;
+      var playerNumber = game.players.filter(function(player) { return player.playerName == playerName})[0].playerNumber;
+      if (playerNumber == 0) {
+        //first round dealer
+        playerStats.firstRoundDealer = (playerStats.firstRoundDealer || 0) + 1;
+      }
+
+      var playerState = game.state[playerName];
+      for (var i = 0; i < playerState.bids.length; i++) {
+        
+        var bid = playerState.bids[i];
+        if (bid == '-') {
+          continue;
+        }
+
+        playerStats.bidsToTakes[playerState.bids[i]] = (playerStats.bidsToTakes[playerState.bids[i]] || []);
+        playerStats.bidsToTakes[playerState.bids[i]][playerState.takes[i]] = (playerStats.bidsToTakes[playerState.bids[i]][playerState.takes[i]] || 0) + 1;
+
+        playerStats.roundsToBids[i] = (playerStats.roundsToBids[i] || []);
+        playerStats.roundsToBids[i][playerState.bids[i]] = (playerStats.roundsToBids[i][playerState.bids[i]] || 0) + 1;
+
+        playerStats.roundsToTakes[i] = (playerStats.roundsToTakes[i] || []);
+        playerStats.roundsToTakes[i][playerState.takes[i]] = (playerStats.roundsToTakes[i][playerState.takes[i]] || 0) + 1;
+
+
+        playerStats.bidRounds[bid] = (playerStats.bidRounds[bid] || 0) + 1;
+        if (playerState.takes[i] == bid) {
+          //hit
+          playerStats.bidHits[bid] = (playerStats.bidHits[bid] || 0) + 1;
+        }
+
+        //dealer hits
+        if ((playerNumber + i) % numPlayers == 0) {
+          //isDealer
+          playerStats.dealerRounds = (playerStats.dealerRounds || 0) + 1;
+          if (playerState.bids[i] == playerState.takes[i]) {
+            //playerStats.dealerHits = (playerStats.dealerHits || 0) + 1;
+          }
+        }
+      }
+
+
+    });
+    playerStats.averagePlayersPerGame = playerStats.totalPlayers / numGames;
+    playerStats.averageFirstDealer = numGames / playerStats.firstRoundDealer;
+    //playerStats.dealerHitRate = 100 * playerStats.dealerHits / playerStats.dealerRounds;
+    return playerStats;
+  }
+
+  hideModal() {
+    this.setState({showModal: false});
+  }
+
   render() {
     const { players, sortOrder } = this.state;
 
@@ -246,5 +331,101 @@ export default class Statistics extends React.Component {
         {players}
       </div>
     );
+  }
+}
+
+class ExtraPlayerStatistics extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+
+  prepTable(twoDArray, incrementRowHeader = false) {
+    var numCols = /*voodoo*/ Math.max(...twoDArray.map((x) => x.length));
+    for (var index in twoDArray)
+    {
+      //fill sparse values
+      for (var j = 0; j < numCols; j++) {
+        twoDArray[index][j] = twoDArray[index][j] || 0;
+      }
+      if (incrementRowHeader)
+        twoDArray[index].unshift(parseInt(index) + 1);
+      else
+        twoDArray[index].unshift(parseInt(index));
+
+    }
+
+    var headerRow = Array.apply(null, Array(numCols+1)).map((row, index) => {
+      return index-1;
+    });
+    headerRow[0] = "";
+    twoDArray.unshift(headerRow)
+
+    return twoDArray;
+  }
+
+  render() {
+    if (!this.props.show) {
+      return null;
+    }
+
+    var stats = this.props.playerStats;
+
+
+    console.log(stats.bidsToTakes);
+    console.log(stats.roundsToBids);
+    console.log(stats.roundsToTakes);
+    return (
+        <div className="backdrop">
+          <div className="player-modal">
+            <h2>{this.props.playerName}</h2>
+            <div>
+              <TwoDArrayToTable twoDArray={this.prepTable(stats.bidsToTakes, false)} tableKey="bidsToTakes" />
+              <TwoDArrayToTable twoDArray={this.prepTable(stats.roundsToBids, true)} tableKey="roundsToBids" />
+              <TwoDArrayToTable twoDArray={this.prepTable(stats.roundsToTakes, true)} tableKey="roundsToTakes" />
+              <div>Total Games: {stats.totalGames}</div>
+              <div>Average First-Round-Dealer: 1/{stats.averageFirstDealer.toFixed(2)}</div>
+              <div>Average Players per Game: {stats.averagePlayersPerGame.toFixed(2)}</div>
+            </div>
+            <div className="footer">
+              <button onClick={this.props.onClose}>
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+  }
+}
+
+class TwoDArrayToTable extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+  render() {
+    var tableRows = this.props.twoDArray.map((row, index) => {
+      const key = this.props.tableKey;
+      if (index == 0) {
+        //header
+        var headerCells = row.map((s, colIndex) => {
+          return (<th key={key + "-row-" + index + "-" + colIndex}>{s}</th>);
+        });
+        return (<tr key={key + "-row-" + index}>{headerCells}</tr>);
+      }
+      else {
+        var tableCells = row.map((s, colIndex) => {
+          return (<td key={key + "-row-" + index + "-" + colIndex}>{s}</td>);
+        });
+        return (<tr key={key + "-row-" + index}>{tableCells}</tr>);
+      }
+    });
+    return (
+      <table className="table-column">
+        <tbody>
+          {tableRows}
+        </tbody>
+      </table>
+      )
+
+
   }
 }
