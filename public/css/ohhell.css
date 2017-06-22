@@ -275,3 +275,14 @@ span.negative {
   padding: 30px;
   font-size: 20pt;
 }
+
+.left-column, .right-column {
+  display:inline-block;
+  width:300pt;
+  padding:20pt;
+}
+
+.extra-stats-table {
+  width:80%;
+  text-align: center;
+}

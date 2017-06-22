@@ -206,7 +206,7 @@ class GamePlayers extends React.Component {
 
   processGames(playerGames, playerName) {
     var numGames = playerGames.length;
-    var playerStats = {totalGames : numGames, bidRounds : [], bidHits : []};
+    var playerStats = {totalGames : numGames, bidRounds : [], bidHits : [], totalTakes : []};
     playerGames.forEach(game => {
       var numPlayers = game.players.length;
       playerStats.totalPlayers = (playerStats.totalPlayers || 0) + numPlayers;
@@ -223,6 +223,9 @@ class GamePlayers extends React.Component {
         if (bid == '-') {
           continue;
         }
+
+        playerStats.totalTakes[playerState.takes[i]] = (playerStats.totalTakes[playerState.takes[i]] || 0) + 1;
+
         playerStats.bidRounds[bid] = (playerStats.bidRounds[bid] || 0) + 1;
         if (playerState.takes[i] == bid) {
           //hit
@@ -234,7 +237,7 @@ class GamePlayers extends React.Component {
           //isDealer
           playerStats.dealerRounds = (playerStats.dealerRounds || 0) + 1;
           if (playerState.bids[i] == playerState.takes[i]) {
-            playerStats.dealerHits = (playerStats.dealerHits || 0) + 1;
+            //playerStats.dealerHits = (playerStats.dealerHits || 0) + 1;
           }
         }
       }
@@ -243,7 +246,7 @@ class GamePlayers extends React.Component {
     });
     playerStats.averagePlayersPerGame = playerStats.totalPlayers / numGames;
     playerStats.averageFirstDealer = numGames / playerStats.firstRoundDealer;
-    playerStats.dealerHitRate = 100 * playerStats.dealerHits / playerStats.dealerRounds;
+    //playerStats.dealerHitRate = 100 * playerStats.dealerHits / playerStats.dealerRounds;
     return playerStats;
   }
 
@@ -449,7 +452,12 @@ class ExtraPlayerStatistics extends React.Component {
     //get per bid stats
     var perBids = [];
     for (var i in stats.bidRounds) {
-      perBids.push(<div key={'hit-' + i}>Hit ({i}) : {stats.bidHits[i] || 0}/{stats.bidRounds[i]} = {(100 * (stats.bidHits[i] || 0)/stats.bidRounds[i]).toFixed(2)}%</div>)
+      perBids.push(<tr key={'hit-' + i}> <td>{i}</td> <td>{stats.bidHits[i] || 0}/{stats.bidRounds[i]} = {(100 * (stats.bidHits[i] || 0)/stats.bidRounds[i]).toFixed(2)}%</td></tr>);
+    }
+
+    var perTakes = [];
+    for (var i in stats.totalTakes) {
+      perTakes.push(<tr key={'take-' + i}><td>{i}</td> <td>{stats.totalTakes[i] || 0}</td></tr>);
     }
     return (
         <div className="backdrop">
@@ -459,8 +467,25 @@ class ExtraPlayerStatistics extends React.Component {
               <div>Total Games: {stats.totalGames}</div>
               <div>Average First-Round-Dealer: 1/{stats.averageFirstDealer.toFixed(2)}</div>
               <div>Average Players per Game: {stats.averagePlayersPerGame.toFixed(2)}</div>
-              <div>Dealer round hit rate: {stats.dealerHitRate.toFixed(2)}%</div>
-              {perBids}
+              <div className="extra-stats-table">
+                <div className="left-column">
+                  <table>
+                    <tbody>
+                      <tr><th>Bids</th><th>Hit Rate</th></tr>
+                    </tbody>
+                    {perBids}
+                  </table>
+                </div>
+
+                <div className="right-column">
+                  <table>
+                    <tbody>
+                      <tr><th>Takes</th><th>Count</th></tr>
+                    </tbody>
+                    {perTakes}
+                  </table>
+                </div>
+              </div>
             </div>
             <div className="footer">
               <button onClick={this.props.onClose}>
