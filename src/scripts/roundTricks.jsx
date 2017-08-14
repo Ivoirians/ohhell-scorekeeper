@@ -82,6 +82,12 @@ export default class RoundTricks extends React.Component {
       }
       database.ref().update(updates);
     }
+    else {
+      var updates = {};
+      updates['/games-debug/' + this.props.currentGameKey + '/state'] = this.state.gameState;
+      updates['/games-debug/' + this.props.currentGameKey + '/players'] = this.state.players;
+      database.ref().update(updates);
+    }
   }
 
   /***

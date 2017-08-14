@@ -90,6 +90,13 @@ export default class CreateGame extends React.Component {
       }
       database.ref().update(updates);
     }
+    else {
+      newKey = database.ref().child('games-debug').push().key;
+
+      var updates = {};
+      updates[`/games-debug/${newKey}`] = gameMetaData;
+      database.ref().update(updates);
+    }
     this.props.setCurrentGameKey(newKey);
     this.setState({currentGameKey: newKey});
     
