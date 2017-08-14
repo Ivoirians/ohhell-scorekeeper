@@ -29,7 +29,11 @@ export default class MainMenu extends React.Component {
       <div className="main-menu">
         <button onClick={this.goToNewGame.bind(this)}> New Game </button>
         <button onClick={this.goToStatistics.bind(this)}> Statistics </button>
-        <LatestGames loadGame={this.loadGame.bind(this)} numberOfGames={3}/>
+        <LatestGames loadGame={this.loadGame.bind(this)} numberOfGames={3} debug={false}/>
+        //<div>
+        //  <h3> Debug Games </h3>
+        //  <LatestGames loadGame={this.loadGame.bind(this)} numberOfGames={3} debug={true}/>
+        //</div>
       </div>
     );
   }
@@ -39,12 +43,15 @@ class LatestGames extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {latestGames: []};
+    this.state = {
+      latestGames: [],
+      dbRefName: this.props.debug ? "games-debug" : "games"
+    };
   };
 
   componentDidMount() {
     var latestGames = [];
-    var dbRef = database.ref("games").orderByChild("dateCreated").limitToLast(this.props.numberOfGames);
+    var dbRef = database.ref(this.state.dbRefName).orderByChild("dateCreated").limitToLast(this.props.numberOfGames);
     dbRef.once("value", function(data) {
       var games = data.val();
       for (var key in games) {

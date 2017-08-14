@@ -12,6 +12,17 @@ export default class RoundTricks extends React.Component {
     this.state= { players: this.props.players,
                   gameState: this.props.gameState,
                   showGameSummaryModal: false};
+    this.gameRef = database.ref((this.state.gameState.isDebug ? '/games-debug/' : '/games/') + this.props.currentGameKey + '/state')
+  }
+
+  componentWillMount() {
+    this.gameRef.on('value', function(dataSnapshot){
+      this.setState({gameState: dataSnapshot.val()});
+    }.bind(this));
+  }
+
+  componentWillUnmount() {
+    this.gameRef.off();
   }
 
   goToRoundBids() {
@@ -26,6 +37,7 @@ export default class RoundTricks extends React.Component {
 
   updateTake(playerName, newBid) {
     this.state.gameState[playerName].takes[this.state.gameState.roundNumber - 1] = parseInt(newBid);
+    this.updateFirebase();
     this.forceUpdate();
   }
 
@@ -130,7 +142,7 @@ export default class RoundTricks extends React.Component {
           isPerfect={player.isPerfect} />
       </div>
     ));
-
+    
     const totalBids = players.map(p => gameState[p.playerName].bids[gameState.roundNumber-1] || 0).reduce((a,b)=>a+b, 0);
     const totalTricks = players.map(p => gameState[p.playerName].takes[gameState.roundNumber-1]).reduce((a,b)=>a+b, 0);
     const roundBalance = totalBids - gameState.roundNumber;
@@ -139,12 +151,14 @@ export default class RoundTricks extends React.Component {
     const canEndRound = gameState.roundNumber != numRounds && totalTricks === gameState.roundNumber;
     const canEndGame = gameState.roundNumber == numRounds && totalTricks === gameState.roundNumber; 
 
+    const debugMessage = gameState.isDebug ? "(DEBUG)" : ":";
+
     return (
       <div>
         <div>
           {roundBalance < 0 && <div className='roundBalance roundBalance-under'>{-roundBalance} under</div>}
           {roundBalance > 0 && <div className='roundBalance roundBalance-over'>{roundBalance} over</div>}
-          <h2> Round: {gameState.roundNumber} </h2>
+          <h2> Round: {gameState.roundNumber} {debugMessage} </h2>
           <div className="vertDivider"/>
           {takeTrickButtons}
           <hr />
@@ -169,19 +183,16 @@ class RecordTricks extends React.Component {
   
   constructor(props) {
     super(props);
-    this.state= {currentTake: this.props.currentTake};
   }
 
   increaseTake(event) {
-    if (this.state.currentTake < 10)
-      this.setState( {currentTake: this.state.currentTake += 1 });
-    this.props.updateTake(this.props.playerName, this.state.currentTake)
+    if (this.props.currentTake < 10)
+      this.props.updateTake(this.props.playerName, this.props.currentTake + 1)
   }
 
   decreaseTake(event) {
-    if (this.state.currentTake > 0)
-      this.setState( {currentTake: this.state.currentTake -= 1 });
-    this.props.updateTake(this.props.playerName, this.state.currentTake)
+    if (this.props.currentTake > 0)
+      this.props.updateTake(this.props.playerName, this.props.currentTake - 1)
   }
 
   render() {
@@ -194,7 +205,7 @@ class RecordTricks extends React.Component {
       <h3 className='player-name'> {this.props.playerName}: {this.props.currentScore ? this.props.currentScore : 0} {perfectMark} </ h3>
         <div className="bid">
           <button onClick={this.decreaseTake.bind(this)}>-</button>
-          <span className="current-bidtrick">{this.state.currentTake}/{this.props.currentBid} </span>
+          <span className="current-bidtrick">{this.props.currentTake}/{this.props.currentBid} </span>
           <button onClick={this.increaseTake.bind(this)}>+</button>
         </div>
       </div>

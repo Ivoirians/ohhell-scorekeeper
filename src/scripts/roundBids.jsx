@@ -15,11 +15,19 @@ export default class RoundBids extends React.Component {
                   newPlayerGUID: getGUID(),
                   showAddPlayer: false,
                   showGameSummaryModal: false};
+    this.gameRef = database.ref((this.state.gameState.isDebug ? '/games-debug/' : '/games/') + this.props.currentGameKey + '/state')
   }
 
   componentWillMount() {
     //update firebase on mount - this allows to later resume the game even if no bids were ever finalized
     this.updateFirebase();
+    this.gameRef.on('value', function(dataSnapshot){
+      this.setState({gameState: dataSnapshot.val()});
+    }.bind(this));
+  }
+
+  componentWillUnmount() {
+    this.gameRef.off();
   }
 
   decrementRound() {
@@ -53,9 +61,9 @@ export default class RoundBids extends React.Component {
 
   updateBid(playerName, newBid) {
     this.state.gameState[playerName].bids[this.state.roundNumber - 1] = parseInt(newBid);
+    this.updateFirebase();
     this.forceUpdate();
   }
-
 
   /*** Untested function for adding a new player from this bid page. */
   addPlayer() {
@@ -233,6 +241,8 @@ export default class RoundBids extends React.Component {
           isCurrentBidder = {currentBidder === player.playerNumber}/>
       </div>
     ));
+
+    const debugMessage = gameState.isDebug ? "(DEBUG)" : "";
     const errorMessage = "";
     return (
       <div>
@@ -240,7 +250,7 @@ export default class RoundBids extends React.Component {
         {roundBalance > 0 && <div className='roundBalance roundBalance-over'>{roundBalance} over</div>} 
         <div>
           <button className="change-round" onClick={this.decrementRound.bind(this)}> &lt; </button>
-          <div className="bids-round-number"> Round: {this.state.roundNumber}/{totalNumRounds} </div>
+          <div className="bids-round-number"> Round: {this.state.roundNumber}/{totalNumRounds} {debugMessage} </div>
           <button className="change-round" onClick={this.incrementRound.bind(this)}> &gt; </button>
         </div>
         <div className="vertDivider"/>
