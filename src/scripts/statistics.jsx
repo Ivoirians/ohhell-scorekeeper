@@ -205,8 +205,19 @@ class GamePlayers extends React.Component {
   }
 
   processGames(playerGames, playerName) {
+    //i just realized this is the only reason we have the user-games tables and we aren't even using it
+    //vote to delete the user-games table, which is like, 80% of the database's size and not used anywhere
     var numGames = playerGames.length;
-    var playerStats = {totalGames : numGames, bidHits: [], bidRounds: [], bidsToTakes : [], roundsToBids: [], roundsToTakes: []};
+    var playerStats = {
+      totalGames : numGames,
+      bidHits: [],
+      bidRounds: [],
+      bidsToTakes : [],
+      roundsToBids: [],
+      roundsToTakes: [],
+      roundsToBidHits: [],
+      roundsToTakeHits: [],
+    };
     playerGames.forEach(game => {
       var numPlayers = game.players.length;
       playerStats.totalPlayers = (playerStats.totalPlayers || 0) + numPlayers;
@@ -217,34 +228,41 @@ class GamePlayers extends React.Component {
       }
 
       var playerState = game.state[playerName];
-      for (var i = 0; i < playerState.bids.length; i++) {
+      for (var roundNumber = 0; roundNumber < playerState.bids.length; roundNumber++) {
         
-        var bid = playerState.bids[i];
+        var bid = playerState.bids[roundNumber];
+        var take = playerState.takes[roundNumber];
         if (bid == '-') {
           continue;
         }
 
-        playerStats.bidsToTakes[playerState.bids[i]] = (playerStats.bidsToTakes[playerState.bids[i]] || []);
-        playerStats.bidsToTakes[playerState.bids[i]][playerState.takes[i]] = (playerStats.bidsToTakes[playerState.bids[i]][playerState.takes[i]] || 0) + 1;
+        playerStats.bidsToTakes[bid] = (playerStats.bidsToTakes[bid] || []);
+        playerStats.bidsToTakes[bid][take] = (playerStats.bidsToTakes[bid][take] || 0) + 1;
 
-        playerStats.roundsToBids[i] = (playerStats.roundsToBids[i] || []);
-        playerStats.roundsToBids[i][playerState.bids[i]] = (playerStats.roundsToBids[i][playerState.bids[i]] || 0) + 1;
+        playerStats.roundsToBids[roundNumber] = (playerStats.roundsToBids[roundNumber] || []);
+        playerStats.roundsToBids[roundNumber][bid] = (playerStats.roundsToBids[roundNumber][bid] || 0) + 1;
 
-        playerStats.roundsToTakes[i] = (playerStats.roundsToTakes[i] || []);
-        playerStats.roundsToTakes[i][playerState.takes[i]] = (playerStats.roundsToTakes[i][playerState.takes[i]] || 0) + 1;
+        playerStats.roundsToTakes[roundNumber] = (playerStats.roundsToTakes[roundNumber] || []);
+        playerStats.roundsToTakes[roundNumber][take] = (playerStats.roundsToTakes[roundNumber][take] || 0) + 1;
 
 
         playerStats.bidRounds[bid] = (playerStats.bidRounds[bid] || 0) + 1;
-        if (playerState.takes[i] == bid) {
+        if (bid == take) {
           //hit
           playerStats.bidHits[bid] = (playerStats.bidHits[bid] || 0) + 1;
+
+          playerStats.roundsToBidHits[roundNumber] = (playerStats.roundsToBidHits[roundNumber] || []);
+          playerStats.roundsToBidHits[roundNumber][bid] = (playerStats.roundsToBidHits[roundNumber][bid] || 0) + 1;
+
+          playerStats.roundsToTakeHits[roundNumber] = (playerStats.roundsToTakeHits[roundNumber] || []);
+          playerStats.roundsToTakeHits[roundNumber][take] = (playerStats.roundsToTakeHits[roundNumber][take] || 0) + 1;
         }
 
         //dealer hits
-        if ((playerNumber + i) % numPlayers == 0) {
+        if ((playerNumber + roundNumber) % numPlayers == 0) {
           //isDealer
           playerStats.dealerRounds = (playerStats.dealerRounds || 0) + 1;
-          if (playerState.bids[i] == playerState.takes[i]) {
+          if (bid == take) {
             //playerStats.dealerHits = (playerStats.dealerHits || 0) + 1;
           }
         }
@@ -448,30 +466,90 @@ export default class Statistics extends React.Component {
 class ExtraPlayerStatistics extends React.Component {
   constructor(props) {
     super(props);
+    this.state={showHitRates: false};
   }
 
-  prepTable(twoDArray, incrementRowHeader = false, cornerText="") {
-    var numCols = /*voodoo*/ Math.max(...twoDArray.map((x) => {x = x || []; return x.length}).filter(isFinite));
-    for (var index in twoDArray)
+  prepTable(inputArray, incrementRowHeader = false, cornerText="", defaultValue=0) {
+    var outputArray = [];
+    var numCols = /*voodoo*/ Math.max(...inputArray.map((x) => {x = x || []; return x.length}).filter(isFinite));
+    for (var i in inputArray)
     {
+      outputArray[i] = [];
       //fill sparse values
       for (var j = 0; j < numCols; j++) {
-        twoDArray[index][j] = twoDArray[index][j] || 0;
+        if (!inputArray[i] && !inputArray[i][j])
+          outputArray[i][j] = defaultValue;
+        else
+          outputArray[i][j] = inputArray[i][j];
       }
       if (incrementRowHeader)
-        twoDArray[index].unshift(parseInt(index) + 1);
+        outputArray[i].unshift(parseInt(i) + 1);
       else
-        twoDArray[index].unshift(parseInt(index));
+        outputArray[i].unshift(parseInt(i));
 
     }
 
-    var headerRow = Array.apply(null, Array(numCols+1)).map((row, index) => {
-      return index-1;
+    var headerRow = Array.apply(null, Array(numCols+1)).map((row, i) => {
+      return i-1;
     });
     headerRow[0] = cornerText;
-    twoDArray.unshift(headerRow)
+    outputArray.unshift(headerRow)
+    return outputArray;
+  }
 
-    return twoDArray;
+  /*
+    Given two 2D arrays, creates one 2D array that contains both arrays.
+
+    This strongly assumes that table2's dimensions are contained in table1,
+    and that table 2 only contains an entry if table1 also contains that entry.
+
+    To repeat: table1 (contains) all of table2 and more.
+
+    mapFunc is used to determine how the two inputs are combined
+
+    defaultFunc is used if a table2 input is not found for a given cell that exists in table1.
+    in this case, defaultFunc(table1[i][j]) will be used instead.
+
+    This function only exists to create the hit rates table. If we have. e/g/. 0/5 hits, we still want to display 0/5.
+  */
+  combineTables(table1, table2, mapFunc, defaultFunc)
+  {
+    var outputArray = [];
+    for (var row in table1){
+      outputArray [row] = [];
+      for (var col in table1[row]){
+        if (table2[row] != null && table2[row][col] != null)
+        {
+          outputArray[row][col] = mapFunc(table1[row][col], table2[row][col]);
+        }
+        else
+        {
+          outputArray[row][col] = defaultFunc(table1[row][col]);
+        }
+
+      }
+    }
+    return outputArray;
+  }
+
+  createHitRates(counts, hits)
+  {
+    return this.combineTables(counts, hits, function(x, y){
+      if (x == 0) {
+        return y + "/" + x + " (N/A)"
+      }
+      return y + "/" + x + " (" + (100*y/x).toFixed(2) + ")";
+    }, function(x) {
+      if (x == 0) {
+        return "0/0 (N/A)"
+      }
+      return "0/" + x + " (0.00%)";
+    });
+  }
+
+
+  toggleHitRates() {
+    this.setState({showHitRates:!this.state.showHitRates});
   }
 
   render() {
@@ -479,7 +557,38 @@ class ExtraPlayerStatistics extends React.Component {
       return null;
     }
 
-    var stats = this.props.playerStats
+    var stats = this.props.playerStats;
+
+    var tablesToDisplay = null;
+
+    if (!this.state.showHitRates)
+    {
+      tablesToDisplay = (
+        <div>
+          <h2>Takes vs. Bids</h2>
+          <TwoDArrayToTable twoDArray={this.prepTable(stats.bidsToTakes, false, "Bids\\Takes")} tableKey="bidsToTakes" />
+          <h2>Bids per Round</h2>
+          <TwoDArrayToTable twoDArray={this.prepTable(stats.roundsToBids, true, "Round\\Bids")} tableKey="roundsToBids" />
+          <h2>Takes per Round</h2>
+          <TwoDArrayToTable twoDArray={this.prepTable(stats.roundsToTakes, true, "Round\\Takes")} tableKey="roundsToTakes" />
+        </div>
+      );
+    }
+    else
+    {
+      tablesToDisplay = (
+        <div>
+          <h2>Takes vs. Bids</h2>
+          <TwoDArrayToTable twoDArray={this.prepTable(stats.bidsToTakes, false, "Bids\\Takes")} tableKey="bidsToTakes" />
+          <h2>Bids per Round</h2>
+          <TwoDArrayToTable twoDArray={this.prepTable(this.createHitRates(stats.roundsToBids, stats.roundsToBidHits), true, "Round\\Bids", "0/0 (N/A)")} tableKey="roundsToBids" />
+          <h2>Takes per Round</h2>
+          <TwoDArrayToTable twoDArray={this.prepTable(this.createHitRates(stats.roundsToTakes, stats.roundsToTakeHits), true, "Round\\Takes", "0/0 (N/A)")} tableKey="roundsToTakes" />
+        </div>
+      );
+    }
+
+
 
     //get per bid stats
     var perBids = [];
@@ -508,15 +617,11 @@ class ExtraPlayerStatistics extends React.Component {
                     </tbody>
                   </table>
                 </div>
-              <h2>Takes vs. Bids</h2>
-              <TwoDArrayToTable twoDArray={this.prepTable(stats.bidsToTakes, false, "Bids\\Takes")} tableKey="bidsToTakes" />
-              <h2>Bids per Round</h2>
-              <TwoDArrayToTable twoDArray={this.prepTable(stats.roundsToBids, true, "Round\\Bids")} tableKey="roundsToBids" />
-              <h2>Takes per Round</h2>
-              <TwoDArrayToTable twoDArray={this.prepTable(stats.roundsToTakes, true, "Round\\Takes")} tableKey="roundsToTakes" />
+                {tablesToDisplay}
               </div>
             </div>
             <div className="footer">
+              <button onClick={this.toggleHitRates.bind(this)}>Toggle Hit Rates</button>
               <button onClick={this.props.onClose}>
                 Close
               </button>
