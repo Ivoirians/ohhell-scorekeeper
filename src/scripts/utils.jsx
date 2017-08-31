@@ -235,8 +235,9 @@ export class GameSummaryModal extends React.Component {
         return {col: index, bid: e, take:playerGame.takes[index], score: playerGame.scores[index]};
       }).slice(0, numRounds); //mainly for when players join mid-game
       var rows = zipped.map((bidTakeScore) => {
+        const hitMiss = bidTakeScore.bid === bidTakeScore.take ? 'hit' : 'miss';
         return(
-          <td className="game-summary-cell" key={"player-" + p.playerName + "-" + bidTakeScore.col}>{bidTakeScore.bid} / {bidTakeScore.score}</td>
+          <td className={`game-summary-${hitMiss}`} key={"player-" + p.playerName + "-" + bidTakeScore.col}>{bidTakeScore.bid} / {bidTakeScore.score}</td>
           )
       });
       return (

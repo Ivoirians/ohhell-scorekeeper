@@ -117,6 +117,13 @@ input[type=number]{
   border: 1pt solid #000;
 }
 
+.game-summary-hit {
+  background-color: lightgreen;
+}
+.game-summary-miss {
+  background-color: lightcoral;
+}
+
 .resume-game, .resume-game:hover {
   font-size: 20pt;
 }
