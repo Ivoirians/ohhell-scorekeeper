@@ -30,10 +30,12 @@ export default class MainMenu extends React.Component {
         <button onClick={this.goToNewGame.bind(this)}> New Game </button>
         <button onClick={this.goToStatistics.bind(this)}> Statistics </button>
         <LatestGames loadGame={this.loadGame.bind(this)} numberOfGames={3} debug={false}/>
-        //<div>
-        //  <h3> Debug Games </h3>
-        //  <LatestGames loadGame={this.loadGame.bind(this)} numberOfGames={3} debug={true}/>
-        //</div>
+        {/*
+        <div>
+          <h3> Debug Games </h3>
+          <LatestGames loadGame={this.loadGame.bind(this)} numberOfGames={3} debug={true}/>
+        </div>
+        */}
       </div>
     );
   }
