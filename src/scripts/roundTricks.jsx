@@ -16,9 +16,6 @@ export default class RoundTricks extends React.Component {
   }
 
   componentWillMount() {
-    this.gameRef.on('value', function(dataSnapshot){
-      this.setState({gameState: dataSnapshot.val()});
-    }.bind(this));
   }
 
   componentWillUnmount() {

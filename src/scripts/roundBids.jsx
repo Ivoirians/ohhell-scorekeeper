@@ -21,9 +21,6 @@ export default class RoundBids extends React.Component {
   componentWillMount() {
     //update firebase on mount - this allows to later resume the game even if no bids were ever finalized
     this.updateFirebase();
-    this.gameRef.on('value', function(dataSnapshot){
-      this.setState({gameState: dataSnapshot.val()});
-    }.bind(this));
   }
 
   componentWillUnmount() {

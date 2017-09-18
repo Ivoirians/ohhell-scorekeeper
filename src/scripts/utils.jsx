@@ -132,6 +132,15 @@ export class GameSummary extends React.Component {
     this.props.resume(this.props.gameWithKey);
   }
 
+
+  showGameSummaryModal() {
+    this.setState({showGameSummaryModal: true});
+  }
+
+  hideGameSummaryModal() {
+    this.setState({showGameSummaryModal: false});
+  }
+
   deleteGame() {
     //delete the user-games for each player first, then the game
     if(!confirm("Are you sure you want to delete this game?"))
@@ -177,7 +186,7 @@ export class GameSummary extends React.Component {
     var resumeButton = "";
     if (this.props.resume)
       resumeButton = (<button className="resume-game" onClick={this.resumeGame.bind(this)}> Resume </button>);
-
+    var spectateButton = (<button className="spectate-game" onClick={this.showGameSummaryModal.bind(this)}> Spectate </button>);
     var deleteButton = "";
     if (this.props.showDelete)
     {
@@ -185,6 +194,7 @@ export class GameSummary extends React.Component {
     }
 
     var status = this.getStatus(game);
+    console.log(game);
 
     return (
       <div className="game-summary" key={game.dateCreated}>
@@ -193,7 +203,16 @@ export class GameSummary extends React.Component {
         <h3> Round: {game.state ? game.state.roundNumber : "N/A"} </h3>
         <h3> {status} </h3>
         {resumeButton}
+        {spectateButton}
         {deleteButton}
+        <div>
+          <GameSummaryModal 
+          players = {game.players}
+          gameState={game.state}
+          currentGameKey={game.key}
+          show={this.state.showGameSummaryModal}
+          onClose={this.hideGameSummaryModal.bind(this)} />
+        </div>
       </div>
     );
   }
@@ -222,6 +241,14 @@ export class Scoreboard extends React.Component {
 export class GameSummaryModal extends React.Component {
   constructor(props) {
     super(props);
+    this.state = {gameState: this.props.gameState};
+    this.gameRef = database.ref((this.props.gameState.isDebug ? '/games-debug/' : '/games/') + this.props.currentGameKey + '/state')
+  }
+
+  componentWillMount() {
+    this.gameRef.on('value', function(dataSnapshot) {
+      this.setState({gameState: dataSnapshot.val()});
+    }.bind(this));
   }
 
   render() {
@@ -230,14 +257,14 @@ export class GameSummaryModal extends React.Component {
     }
     var numRounds = getNumberOfRounds(this.props.players.length);
     var tableRows = this.props.players.map((p) => {
-      var playerGame = this.props.gameState[p.playerName];
+      var playerGame = this.state.gameState[p.playerName];
       var zipped = playerGame.bids.map(function(e, index) {
         return {col: index, bid: e, take:playerGame.takes[index], score: playerGame.scores[index]};
       }).slice(0, numRounds); //mainly for when players join mid-game
       var rows = zipped.map((bidTakeScore) => {
         const state = bidTakeScore.bid !== '-' ? bidTakeScore.bid === bidTakeScore.take ? 'hit' : 'miss' : 'none';
         return(
-          <td className={`game-summary-${state}`} key={"player-" + p.playerName + "-" + bidTakeScore.col}>{bidTakeScore.bid} / {bidTakeScore.score}</td>
+          <td className={`game-summary-${state}`} key={"player-" + p.playerName + "-" + bidTakeScore.col}>{bidTakeScore.take} / {bidTakeScore.bid} [{bidTakeScore.score}]</td>
           )
       });
       return (

@@ -97,7 +97,7 @@ input[type=number]{
 }
 
 .player-row-bid {
-    display: flex;
+    display: flex;a
     padding: 0 40px;
     justify-content: space-between;
     align-items: center;
@@ -111,6 +111,7 @@ input[type=number]{
   font-size:20pt;
   border: 1pt solid #000;
   margin: 40px auto;
+  max-width:800px;
 }
 
 .game-summary {
@@ -126,6 +127,15 @@ input[type=number]{
 
 .resume-game, .resume-game:hover {
   font-size: 20pt;
+}
+
+.spectate-game, .spectate-game:hover {
+  font-size: 20pt;
+  background-color: #00a0a0;
+}
+
+.spectate-game:hover {
+  background-color:#00c0c0;
 }
 
 .delete-game, .delete-game:hover {
@@ -276,7 +286,6 @@ span.negative {
 .player-modal, .game-summary-modal {
   background-color: #F1F1F1;
   border-radius: 5pt;
-  max-width: 800pt;
   min-height: 300pt;
   height:80%;
   margin: 0px auto;
