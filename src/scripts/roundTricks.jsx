@@ -18,10 +18,6 @@ export default class RoundTricks extends React.Component {
   componentWillMount() {
   }
 
-  componentWillUnmount() {
-    this.gameRef.off();
-  }
-
   goToRoundBids() {
     this.updateFirebase();
     this.props.changePage(PageEnum.ROUND_BIDS);

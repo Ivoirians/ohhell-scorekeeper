@@ -194,8 +194,6 @@ export class GameSummary extends React.Component {
     }
 
     var status = this.getStatus(game);
-    console.log(game);
-
     return (
       <div className="game-summary" key={game.dateCreated}>
         <h3> Date: {new Date(game.dateCreated).toLocaleString()} </h3>
@@ -247,7 +245,10 @@ export class GameSummaryModal extends React.Component {
 
   componentWillMount() {
     this.gameRef.on('value', function(dataSnapshot) {
-      this.setState({gameState: dataSnapshot.val()});
+      if (dataSnapshot.val() != null)
+      {
+        this.setState({gameState: dataSnapshot.val()});
+      }
     }.bind(this));
   }
 
