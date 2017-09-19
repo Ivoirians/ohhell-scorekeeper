@@ -143,12 +143,8 @@ export default class CreateGame extends React.Component {
     var players = {};
     var dbRef = database.ref("players").orderByChild("count");
     dbRef.once("value", function(data) {
-      var counts = data.val();
-      for (var playerName in counts) {
-        players[playerName] = counts[playerName]["count"];
-      }
       this.setState({
-        allPlayers: players
+        allPlayers: data.val()
       });
     }.bind(this));
   }
@@ -159,8 +155,13 @@ export default class CreateGame extends React.Component {
     If the last row is modified, increase the count.
   */
   render() {
+    console.log(this.state.allPlayers);
     var playerButtons = Object.keys(this.state.allPlayers).map((playerName) =>
     {
+      if (this.state.allPlayers[playerName].inactive)
+      {
+        return null;
+      }
       //must be a better way to remove already clicked buttons...
       for (var key in this.state.players) {
         if (this.state.players[key].playerName == playerName)
