@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import {database} from './firebaseInterface.jsx'
 import {PageEnum} from './pageEnum.jsx';
 import {getNumberOfRounds, getGUID} from './utils.jsx';
+import { appStore } from './appStore.jsx';
 
 export default class CreateGame extends React.Component {
 
@@ -74,6 +75,7 @@ export default class CreateGame extends React.Component {
   createGameKeyAndUpdateFirebase() {
     var gameMetaData = {
       dateCreated: new Date(),
+      league: appStore.league,
       players: this.state.players.map((player) => (/*some kind of toString?*/player))
     }
     var newKey = "test-game";

@@ -5,7 +5,7 @@ import moment from 'moment';
 import DatePicker from 'react-datepicker';
 import { database } from './firebaseInterface.jsx'
 import { PageEnum } from './pageEnum.jsx';
-import { GameSummary, getWinnersAndMessage, countArrayPrefix } from './utils.jsx';
+import { GameSummary, getWinnersAndMessage, countArrayPrefix, matchLeague } from './utils.jsx';
 
 var StatsTab = new Enum([
   "NONE",
@@ -432,7 +432,8 @@ export default class Statistics extends React.Component {
       for (var key in games) {
         var game = games[key];
         game.key = key;
-        allGames.push(game);
+        if(matchLeague(game))
+          allGames.push(game);
       }
       this.setState({
         allGames: allGames.reverse()

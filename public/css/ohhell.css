@@ -138,6 +138,14 @@ input[type=number]{
   background-color:#00c0c0;
 }
 
+button.league {
+  background-color: #a0a000;
+}
+
+button.league:hover {
+  background-color:#c0c000;
+}
+
 .delete-game, .delete-game:hover {
   font-size: 20pt;
   color: black;

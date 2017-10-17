@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {database} from './firebaseInterface.jsx'
+import {appStore} from './appStore.jsx'
 
 export function getCurrentScore(bids, takes, scores, roundNumber) {
   return (roundNumber > 0 ? scores[roundNumber-1] : 0) + getRoundScore(bids[roundNumber], takes[roundNumber], roundNumber);
@@ -120,6 +121,10 @@ export function getWinnersAndMessage(players, gameState, no42 = false) {
   }
 
   return [winners, winReason];
+}
+
+export function matchLeague(game) {
+  return (game.league || 'Zazzle') === appStore.league; 
 }
 
 export class GameSummary extends React.Component {

@@ -2,13 +2,19 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import {database} from './firebaseInterface.jsx'
 import {PageEnum} from './pageEnum.jsx';
-import {getGameSummary, GameSummary} from './utils.jsx';
+import {getGameSummary, GameSummary, matchLeague} from './utils.jsx';
+import { appStore } from './appStore.jsx';
 
 export default class MainMenu extends React.Component {
 
   constructor(props) {
     super(props);
   };
+
+  handleLeague() {
+    appStore.nextLeague();
+    this.forceUpdate();
+  }
 
   goToNewGame(event) {
     this.props.changePage(PageEnum.CREATE_GAME);
@@ -27,6 +33,7 @@ export default class MainMenu extends React.Component {
   render() {
     return (
       <div className="main-menu">
+        <button className="league" onClick={this.handleLeague.bind(this)}> {appStore.league} </button>
         <button onClick={this.goToNewGame.bind(this)}> New Game </button>
         <button onClick={this.goToStatistics.bind(this)}> Statistics </button>
         <LatestGames loadGame={this.loadGame.bind(this)} numberOfGames={3} debug={false}/>
@@ -73,7 +80,7 @@ class LatestGames extends React.Component {
   }
 
   render () {
-    var games = this.state.latestGames.map((gameWithKey) => 
+    var games = this.state.latestGames.filter(matchLeague).map((gameWithKey) => 
       <GameSummary key={gameWithKey.key} gameWithKey={gameWithKey} resume={this.resume.bind(this)} />
     );
 
