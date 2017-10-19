@@ -281,6 +281,7 @@ class GamePlayers extends React.Component {
   }
 
   render() {
+    const { allPlayers } = this.props;
     const { players, sortOrder } = this.state;
     const startDate = this.state.startDate || moment("2017-01-01");
     const endDate = this.state.endDate || moment();
@@ -301,13 +302,15 @@ class GamePlayers extends React.Component {
 
     const playersStats = stats.map(player =>
       {
+        const activePlayer = allPlayers[player.name] && !allPlayers[player.name].inactive;
+
         if (!this.state.diff || !this.state.diff[player.name])
         {
           //waiting for doDiff to finish.
           return (<tr><td>"Loading...";</td></tr>)
         }
         var diffPlayer = this.state.diff[player.name];
-        return (<tr className={`tr-${player.name}`} key={player.name}>
+        return (<tr className={`name-${player.name} ${activePlayer && 'active'}`} key={player.name}>
           <td><div onClick={() => this.showProfile(player.name)}>{player.name}</div></td>
           <td>{player.winCount} {this.getDiffElement(diffPlayer.winCount)}</td>
           <td>{player.winPct.toFixed(1)} {this.getDiffElement(diffPlayer.winPct.toFixed(1))}</td>
@@ -422,6 +425,7 @@ export default class Statistics extends React.Component {
 
   componentWillMount() {
     this.getAllGames();
+    this.getAllPlayers();
   }
 
   getAllGames() {
@@ -441,13 +445,22 @@ export default class Statistics extends React.Component {
     }.bind(this));
   }
 
+  getAllPlayers() {
+    var dbRef = database.ref("players").orderByChild("dateCreated");
+    dbRef.once("value", function (data) {
+      this.setState({
+        allPlayers: data.val()
+      });
+    }.bind(this));
+  }
+
   render() {
-    const { allGames, currentTab } = this.state;
+    const { allGames, allPlayers, currentTab } = this.state;
 
     var games = currentTab === StatsTab.GAMES && this.state.allGames.map((gameWithKey) =>
       <GameSummary key={gameWithKey.key} gameWithKey={gameWithKey} resume={this.loadGame.bind(this)} showDelete={gameWithKey.state.inProgress} />
     );
-    var players = currentTab === StatsTab.PLAYERS && <GamePlayers allGames={allGames} />;
+    var players = currentTab === StatsTab.PLAYERS && <GamePlayers allGames={allGames} allPlayers={allPlayers} />;
 
     return (
       <div className="statistics">
