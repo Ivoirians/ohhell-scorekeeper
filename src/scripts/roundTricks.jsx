@@ -132,7 +132,8 @@ export default class RoundTricks extends React.Component {
           currentBid={gameState[player.playerName].bids[gameState.roundNumber-1]}
           currentTake={gameState[player.playerName].takes[gameState.roundNumber-1]}
           isFirstLeader={firstLeader === player.playerNumber}
-          isPerfect={player.isPerfect} />
+          isPerfect={player.isPerfect}
+          roundNumber={gameState.roundNumber} />
       </div>
     ));
     
@@ -179,8 +180,8 @@ class RecordTricks extends React.Component {
   }
 
   increaseTake(event) {
-    if (this.props.currentTake < 10)
-      this.props.updateTake(this.props.playerName, this.props.currentTake + 1)
+      if(this.props.currentTake < this.props.roundNumber)
+        this.props.updateTake(this.props.playerName, this.props.currentTake + 1)
   }
 
   decreaseTake(event) {
