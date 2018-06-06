@@ -292,7 +292,7 @@ export class GameSummaryModal extends React.Component {
           <table>
             <tbody>
               <tr>
-                <th></th>
+                <th>! {this.state.gameState.threshold42}</th>
                 {headerRow}
               </tr>
               {tableRows}
