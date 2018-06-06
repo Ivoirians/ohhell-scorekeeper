@@ -65,7 +65,6 @@ th.selected {
 }
 tr.name---- {
     font-weight: bold;
-    background-color: lightyellow;
 }
 tr.active {
   background-color: lightyellow;

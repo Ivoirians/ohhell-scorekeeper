@@ -18,7 +18,7 @@ class GamePlayers extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      shift:0,
+      shift: 0,
       sortOrder: 'wins',
       showModal: false
     };
@@ -32,7 +32,7 @@ class GamePlayers extends React.Component {
     let { allGames } = this.props;
     let { startDate, endDate } = this.state;
     allGames = allGames.filter(game => !game.state.inProgress && (!startDate || startDate <= moment(game.dateCreated)) && (!endDate || moment(game.dateCreated) <= endDate));
-    this.setState({players: this.playerStatsForGames(allGames)}, () => this.doDiff());
+    this.setState({ players: this.playerStatsForGames(allGames) }, () => this.doDiff());
   }
 
   doDiff() {
@@ -40,25 +40,25 @@ class GamePlayers extends React.Component {
     let { startDate } = this.state;
 
     const endDate = this.state.endDate || moment();
-    const diffDate = this.state.diffDate || moment(endDate).startOf('day').add(-1, 'second');    
+    const diffDate = this.state.diffDate || moment(endDate).startOf('day').add(-1, 'second');
 
     allGames = allGames.filter(game => !game.state.inProgress && (!startDate || startDate <= moment(game.dateCreated)) && moment(game.dateCreated) <= diffDate);
     const previous = this.playerStatsForGames(allGames)
 
     const diff = {};
-    for(let player of this.state.players) {
+    for (let player of this.state.players) {
       diff[player.name] =
-      {
-        winCount: player.winCount,
-        winPct: player.winPct,
-        winPctNo42: player.winPctNo42,
-        hitPct: player.hitPct,
-        above42HitPct: player.above42HitPct,
-        gameCount: player.gameCount
-      };
+        {
+          winCount: player.winCount,
+          winPct: player.winPct,
+          winPctNo42: player.winPctNo42,
+          hitPct: player.hitPct,
+          above42HitPct: player.above42HitPct,
+          gameCount: player.gameCount
+        };
     }
 
-    for(let player of previous) {
+    for (let player of previous) {
       const d = diff[player.name];
       d.winCount -= player.winCount;
       d.winPct -= player.winPct;
@@ -68,7 +68,7 @@ class GamePlayers extends React.Component {
       d.gameCount -= player.gameCount;
     }
 
-    this.setState({diff});
+    this.setState({ diff });
   }
 
   playerStatsForGames(games) {
@@ -78,7 +78,7 @@ class GamePlayers extends React.Component {
         //get mapping based on shift in positions
         const mapto = {}
         const playersCount = game.players.length;
-        for(let i = 0; i < playersCount; i++)
+        for (let i = 0; i < playersCount; i++)
           mapto[game.players[i].playerName] = game.players[((i - this.state.shift) % playersCount + playersCount) % playersCount].playerName;
 
         //winners
@@ -139,7 +139,7 @@ class GamePlayers extends React.Component {
       winCountNo42
     }
 
-    return Object.keys(players).map(name => { 
+    return Object.keys(players).map(name => {
       const player = players[name];
       return {
         name,
@@ -178,8 +178,7 @@ class GamePlayers extends React.Component {
     return stats;
   }
 
-  getDiffElement(num)
-  {
+  getDiffElement(num) {
     if (!this.state.diffShow)
       return "";
     if (num > 0) {
@@ -193,11 +192,10 @@ class GamePlayers extends React.Component {
     }
   }
 
-  showProfile(playerName)
-  {
-    var playerGames = this.props.allGames.filter(function(game) {
-        return game.players.some(function(player) { return player.playerName == playerName });
-      });
+  showProfile(playerName) {
+    var playerGames = this.props.allGames.filter(function (game) {
+      return game.players.some(function (player) { return player.playerName == playerName });
+    });
     this.setState({
       showModal: true,
       playerName: playerName,
@@ -210,10 +208,10 @@ class GamePlayers extends React.Component {
     //vote to delete the user-games table, which is like, 80% of the database's size and not used anywhere
     var numGames = playerGames.length;
     var playerStats = {
-      totalGames : numGames,
+      totalGames: numGames,
       bidHits: [],
       bidRounds: [],
-      bidsToTakes : [],
+      bidsToTakes: [],
       roundsToBids: [],
       roundsToTakes: [],
       roundsToBidHits: [],
@@ -222,7 +220,7 @@ class GamePlayers extends React.Component {
     playerGames.forEach(game => {
       var numPlayers = game.players.length;
       playerStats.totalPlayers = (playerStats.totalPlayers || 0) + numPlayers;
-      var playerNumber = game.players.filter(function(player) { return player.playerName == playerName})[0].playerNumber;
+      var playerNumber = game.players.filter(function (player) { return player.playerName == playerName })[0].playerNumber;
       if (playerNumber == 0) {
         //first round dealer
         playerStats.firstRoundDealer = (playerStats.firstRoundDealer || 0) + 1;
@@ -230,7 +228,7 @@ class GamePlayers extends React.Component {
 
       var playerState = game.state[playerName];
       for (var roundNumber = 0; roundNumber < playerState.bids.length; roundNumber++) {
-        
+
         var bid = playerState.bids[roundNumber];
         var take = playerState.takes[roundNumber];
         if (bid == '-') {
@@ -278,7 +276,7 @@ class GamePlayers extends React.Component {
   }
 
   hideModal() {
-    this.setState({showModal: false});
+    this.setState({ showModal: false });
   }
 
   render() {
@@ -301,28 +299,30 @@ class GamePlayers extends React.Component {
       case 'games': stats.sort((a, b) => b.gameCount - a.gameCount); break;
     }
 
-    const playersStats = stats.map(player =>
-      {
-        const activePlayer = allPlayers[player.name] 
-          && allPlayers[player.name].leagues
-          && allPlayers[player.name].leagues[appStore.league]
-          && allPlayers[player.name].leagues[appStore.league].active;
+    const playersStats = stats.map(player => {
+      const activePlayer = allPlayers[player.name]
+        && allPlayers[player.name].leagues
+        && allPlayers[player.name].leagues[appStore.league]
+        && allPlayers[player.name].leagues[appStore.league].active
+        || player.name === '---';
 
-        if (!this.state.diff || !this.state.diff[player.name])
-        {
-          //waiting for doDiff to finish.
-          return (<tr><td>"Loading...";</td></tr>)
-        }
-        var diffPlayer = this.state.diff[player.name];
-        return (<tr className={`name-${player.name} ${activePlayer && 'active'}`} key={player.name}>
-          <td><div onClick={() => this.showProfile(player.name)}>{player.name}</div></td>
-          <td>{player.winCount} {this.getDiffElement(diffPlayer.winCount)}</td>
-          <td>{player.winPct.toFixed(1)} {this.getDiffElement(diffPlayer.winPct.toFixed(1))}</td>
-          <td>{player.winPctNo42.toFixed(1)} {this.getDiffElement(diffPlayer.winPctNo42.toFixed(1))}</td>
-          <td>{player.hitPct.toFixed(1)} {this.getDiffElement(diffPlayer.hitPct.toFixed(1))}</td>
-          <td>{player.above42HitPct.toFixed(1)} {this.getDiffElement(diffPlayer.above42HitPct.toFixed(1))}</td>
-          <td>{player.gameCount} {this.getDiffElement(diffPlayer.gameCount)}</td>
-        </tr>);
+      if(this.state.activeFilter && !activePlayer)
+        return;
+
+      if (!this.state.diff || !this.state.diff[player.name]) {
+        //waiting for doDiff to finish.
+        return (<tr><td>"Loading...";</td></tr>)
+      }
+      var diffPlayer = this.state.diff[player.name];
+      return (<tr className={`name-${player.name} ${activePlayer && 'active'}`} key={player.name}>
+        <td><div onClick={() => this.showProfile(player.name)}>{player.name}</div></td>
+        <td>{player.winCount} {this.getDiffElement(diffPlayer.winCount)}</td>
+        <td>{player.winPct.toFixed(1)} {this.getDiffElement(diffPlayer.winPct.toFixed(1))}</td>
+        <td>{player.winPctNo42.toFixed(1)} {this.getDiffElement(diffPlayer.winPctNo42.toFixed(1))}</td>
+        <td>{player.hitPct.toFixed(1)} {this.getDiffElement(diffPlayer.hitPct.toFixed(1))}</td>
+        <td>{player.above42HitPct.toFixed(1)} {this.getDiffElement(diffPlayer.above42HitPct.toFixed(1))}</td>
+        <td>{player.gameCount} {this.getDiffElement(diffPlayer.gameCount)}</td>
+      </tr>);
     });
 
     const highlighted = this.props.allGames.map(g => moment(g.dateCreated).startOf('day'));
@@ -333,23 +333,7 @@ class GamePlayers extends React.Component {
           <div>
             <button onClick={() => this.setState({ shift: this.state.shift + 1 }, () => this.doStats())}>Left</button>
             <span className="shift">{this.state.shift}</span>
-            <button onClick={() => this.setState({ shift: this.state.shift - 1 }, () => this.doStats())}>Right</button>          
-          </div>
-          <div>
-            <button onClick={() => this.setState({ diffShow: !this.state.diffShow})}>{this.state.diffShow ? 'No Diff' : 'Diff'}</button>
-            <button onClick={() => this.setState({ diffDateOpen: !this.state.diffDateOpen })}>{diffDate.format("MM-DD-YY")}</button>            
-            {this.state.diffDateOpen &&
-              <DatePicker
-                calendarClassName="calendar"
-                highlightDates={highlightedDiff}
-                inline
-                maxDate={diffMaxDate}
-                minDate={startDate}
-                onChange={(date) => this.setState({ diffDate: moment(date).add(23, 'h'), diffDateOpen: !this.state.diffDateOpen }, () => this.doDiff())}
-                openToDate={diffDate}             
-                withPortal
-              />
-            }
+            <button onClick={() => this.setState({ shift: this.state.shift - 1 }, () => this.doStats())}>Right</button>
           </div>
           <div>
             <button onClick={() => this.setState({ startDateOpen: !this.state.startDateOpen })}>{this.state.startDate ? startDate.format("MM-DD-YY") : "Start"}</button>
@@ -373,13 +357,34 @@ class GamePlayers extends React.Component {
                 inline
                 maxDate={moment()}
                 minDate={moment("2017-01-01")}
-                onChange={(date) => { console.log(date); return this.setState({ endDate: moment(date).add(23, 'h'), endDateOpen: !this.state.endDateOpen, diffDate: null }, () => this.doStats())}}
+                onChange={(date) => { console.log(date); return this.setState({ endDate: moment(date).add(23, 'h'), endDateOpen: !this.state.endDateOpen, diffDate: null }, () => this.doStats()) }}
                 openToDate={this.state.startDate}
                 withPortal
               />
             }
             {(this.state.startDate || this.state.endDate) && <button onClick={() => this.setState({ startDate: null, endDate: null, diffDate: null }, () => this.doStats())}>Clear</button>}
           </div>
+        </div>
+        <div className="GamePlayers-filters">
+          <div>
+            <button onClick={() => this.setState({ activeFilter: !this.state.activeFilter }, () => this.doStats())}>{this.state.activeFilter ? "All" : "Active"}</button>
+          </div>
+          <div>
+            <button onClick={() => this.setState({ diffShow: !this.state.diffShow })}>{this.state.diffShow ? 'No Diff' : 'Diff'}</button>
+            <button onClick={() => this.setState({ diffDateOpen: !this.state.diffDateOpen })}>{diffDate.format("MM-DD-YY")}</button>
+            {this.state.diffDateOpen &&
+              <DatePicker
+                calendarClassName="calendar"
+                highlightDates={highlightedDiff}
+                inline
+                maxDate={diffMaxDate}
+                minDate={startDate}
+                onChange={(date) => this.setState({ diffDate: moment(date).add(23, 'h'), diffDateOpen: !this.state.diffDateOpen }, () => this.doDiff())}
+                openToDate={diffDate}
+                withPortal
+              />
+            }
+          </div>          
         </div>
         <div className="vertDivider" />
         <table className="GameWinners">
@@ -440,7 +445,7 @@ export default class Statistics extends React.Component {
       for (var key in games) {
         var game = games[key];
         game.key = key;
-        if(matchLeague(game))
+        if (matchLeague(game))
           allGames.push(game);
       }
       this.setState({
@@ -484,14 +489,13 @@ export default class Statistics extends React.Component {
 class ExtraPlayerStatistics extends React.Component {
   constructor(props) {
     super(props);
-    this.state={showHitRates: false};
+    this.state = { showHitRates: false };
   }
 
-  prepTable(inputArray, incrementRowHeader = false, cornerText="", defaultValue=0) {
+  prepTable(inputArray, incrementRowHeader = false, cornerText = "", defaultValue = 0) {
     var outputArray = [];
-    var numCols = /*voodoo*/ Math.max(...inputArray.map((x) => {x = x || []; return x.length}).filter(isFinite));
-    for (var i in inputArray)
-    {
+    var numCols = /*voodoo*/ Math.max(...inputArray.map((x) => { x = x || []; return x.length }).filter(isFinite));
+    for (var i in inputArray) {
       outputArray[i] = [];
       //fill sparse values
       for (var j = 0; j < numCols; j++) {
@@ -507,8 +511,8 @@ class ExtraPlayerStatistics extends React.Component {
 
     }
 
-    var headerRow = Array.apply(null, Array(numCols+1)).map((row, i) => {
-      return i-1;
+    var headerRow = Array.apply(null, Array(numCols + 1)).map((row, i) => {
+      return i - 1;
     });
     headerRow[0] = cornerText;
     outputArray.unshift(headerRow)
@@ -530,18 +534,15 @@ class ExtraPlayerStatistics extends React.Component {
 
     This function only exists to create the hit rates table. If we have. e/g/. 0/5 hits, we still want to display 0/5.
   */
-  combineTables(table1, table2, mapFunc, defaultFunc)
-  {
+  combineTables(table1, table2, mapFunc, defaultFunc) {
     var outputArray = [];
-    for (var row in table1){
-      outputArray [row] = [];
-      for (var col in table1[row]){
-        if (table2[row] != null && table2[row][col] != null)
-        {
+    for (var row in table1) {
+      outputArray[row] = [];
+      for (var col in table1[row]) {
+        if (table2[row] != null && table2[row][col] != null) {
           outputArray[row][col] = mapFunc(table1[row][col], table2[row][col]);
         }
-        else
-        {
+        else {
           outputArray[row][col] = defaultFunc(table1[row][col]);
         }
 
@@ -550,14 +551,13 @@ class ExtraPlayerStatistics extends React.Component {
     return outputArray;
   }
 
-  createHitRates(counts, hits)
-  {
-    return this.combineTables(counts, hits, function(x, y){
+  createHitRates(counts, hits) {
+    return this.combineTables(counts, hits, function (x, y) {
       if (x == 0) {
         return y + "/" + x + " (N/A)"
       }
-      return y + "/" + x + " (" + (100*y/x).toFixed(2) + ")";
-    }, function(x) {
+      return y + "/" + x + " (" + (100 * y / x).toFixed(2) + ")";
+    }, function (x) {
       if (x == 0) {
         return "0/0 (N/A)"
       }
@@ -567,7 +567,7 @@ class ExtraPlayerStatistics extends React.Component {
 
 
   toggleHitRates() {
-    this.setState({showHitRates:!this.state.showHitRates});
+    this.setState({ showHitRates: !this.state.showHitRates });
   }
 
   render() {
@@ -579,8 +579,7 @@ class ExtraPlayerStatistics extends React.Component {
 
     var tablesToDisplay = null;
 
-    if (!this.state.showHitRates)
-    {
+    if (!this.state.showHitRates) {
       tablesToDisplay = (
         <div>
           <h2>Takes vs. Bids</h2>
@@ -592,8 +591,7 @@ class ExtraPlayerStatistics extends React.Component {
         </div>
       );
     }
-    else
-    {
+    else {
       tablesToDisplay = (
         <div>
           <h2>Takes vs. Bids</h2>
@@ -611,7 +609,7 @@ class ExtraPlayerStatistics extends React.Component {
     //get per bid stats
     var perBids = [];
     for (var i in stats.bidRounds) {
-      perBids.push(<tr key={'hit-' + i}><td>{i}</td><td>{stats.bidHits[i] || 0}/{stats.bidRounds[i]} = {(100 * (stats.bidHits[i] || 0)/stats.bidRounds[i]).toFixed(2)}%</td></tr>);
+      perBids.push(<tr key={'hit-' + i}><td>{i}</td><td>{stats.bidHits[i] || 0}/{stats.bidRounds[i]} = {(100 * (stats.bidHits[i] || 0) / stats.bidRounds[i]).toFixed(2)}%</td></tr>);
     }
 
     var perTakes = [];
@@ -619,34 +617,34 @@ class ExtraPlayerStatistics extends React.Component {
       perTakes.push(<tr key={'take-' + i}><td>{i}</td><td>{stats.totalTakes[i] || 0}</td></tr>);
     }
     return (
-        <div className="backdrop" onClick={this.props.onClose}>
-          <div className="player-modal" onClick={(e) => e.stopPropagation() }>
-            <h2>{this.props.playerName}</h2>
-            <div>
-              <div>Total Games: {stats.totalGames}</div>
-              <div>Average First-Round-Dealer: 1/{stats.averageFirstDealer.toFixed(2)}</div>
-              <div>Average Players per Game: {stats.averagePlayersPerGame.toFixed(2)}</div>
-              <div className="extra-stats-table">
-                <div className="table-column">
-                  <table>
-                    <tbody>
-                      <tr><th>Bids</th><th>Hit Rate</th></tr>
-                      {perBids}
-                    </tbody>
-                  </table>
-                </div>
-                {tablesToDisplay}
+      <div className="backdrop" onClick={this.props.onClose}>
+        <div className="player-modal" onClick={(e) => e.stopPropagation()}>
+          <h2>{this.props.playerName}</h2>
+          <div>
+            <div>Total Games: {stats.totalGames}</div>
+            <div>Average First-Round-Dealer: 1/{stats.averageFirstDealer.toFixed(2)}</div>
+            <div>Average Players per Game: {stats.averagePlayersPerGame.toFixed(2)}</div>
+            <div className="extra-stats-table">
+              <div className="table-column">
+                <table>
+                  <tbody>
+                    <tr><th>Bids</th><th>Hit Rate</th></tr>
+                    {perBids}
+                  </tbody>
+                </table>
               </div>
-            </div>
-            <div className="footer">
-              <button onClick={this.toggleHitRates.bind(this)}>Toggle Hit Rates</button>
-              <button onClick={this.props.onClose}>
-                Close
-              </button>
+              {tablesToDisplay}
             </div>
           </div>
+          <div className="footer">
+            <button onClick={this.toggleHitRates.bind(this)}>Toggle Hit Rates</button>
+            <button onClick={this.props.onClose}>
+              Close
+              </button>
+          </div>
         </div>
-      );
+      </div>
+    );
   }
 }
 
@@ -677,7 +675,7 @@ class TwoDArrayToTable extends React.Component {
           {tableRows}
         </tbody>
       </table>
-      )
+    )
 
 
   }
