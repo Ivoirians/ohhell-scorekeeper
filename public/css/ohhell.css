@@ -125,7 +125,10 @@ input[type=number]{
   background-color: lightgreen;
 }
 .game-summary-miss {
-  background-color: lightcoral;
+  background-color:  lightcoral;
+}
+.game-summary-hardmiss {
+  background-color: darkred;
 }
 
 .resume-game, .resume-game:hover {
