@@ -3,6 +3,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import moment from 'moment';
 import DatePicker from 'react-datepicker';
+import { appStore } from './appStore.jsx';
 import { database } from './firebaseInterface.jsx'
 import { PageEnum } from './pageEnum.jsx';
 import { GameSummary, getWinnersAndMessage, countArrayPrefix, matchLeague } from './utils.jsx';
@@ -302,7 +303,10 @@ class GamePlayers extends React.Component {
 
     const playersStats = stats.map(player =>
       {
-        const activePlayer = allPlayers[player.name] && !allPlayers[player.name].inactive;
+        const activePlayer = allPlayers[player.name] 
+          && allPlayers[player.name].leagues
+          && allPlayers[player.name].leagues[appStore.league]
+          && allPlayers[player.name].leagues[appStore.league].active;
 
         if (!this.state.diff || !this.state.diff[player.name])
         {

@@ -1,21 +1,22 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {database} from './firebaseInterface.jsx'
-import {PageEnum} from './pageEnum.jsx';
-import {getNumberOfRounds, getGUID} from './utils.jsx';
+import { database } from './firebaseInterface.jsx'
+import { PageEnum } from './pageEnum.jsx';
+import { getNumberOfRounds, getGUID } from './utils.jsx';
 import { appStore } from './appStore.jsx';
 
 export default class CreateGame extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {scorekeeper: '',
-                  headerText: 'New Game',
-                  players: [],
-                  numPlayers: 0,
-                  isDebug: false,
-                  allPlayers: {}
-                };
+    this.state = {
+      scorekeeper: '',
+      headerText: 'New Game',
+      players: [],
+      numPlayers: 0,
+      isDebug: false,
+      allPlayers: {}
+    };
   };
 
   goToMainMenu() {
@@ -25,7 +26,7 @@ export default class CreateGame extends React.Component {
   goToRoundBids() {
     //todo: check for duplicate player names
     if (this.state.players.length == 0) {
-      this.setState({errorMessage: "No players."});
+      this.setState({ errorMessage: "No players." });
       return;
     }
     this.createGameKeyAndUpdateFirebase();
@@ -34,7 +35,7 @@ export default class CreateGame extends React.Component {
   }
 
   handleIsDebug(event) {
-    this.setState({isDebug: event.target.checked});
+    this.setState({ isDebug: event.target.checked });
   }
 
   handlePlayerButton(event) {
@@ -52,10 +53,11 @@ export default class CreateGame extends React.Component {
   //creates a gameState object out of the current set of players
   //then changes page to bids
   getNewGameState() {
-    var gameState = { roundNumber: 1,
-                      inProgress: true,
-                      isDebug: this.state.isDebug
-                    };
+    var gameState = {
+      roundNumber: 1,
+      inProgress: true,
+      isDebug: this.state.isDebug
+    };
     var numRounds = getNumberOfRounds(this.state.players.length);
     for (var playerIndex in this.state.players) {
       var player = this.state.players[playerIndex];
@@ -73,9 +75,10 @@ export default class CreateGame extends React.Component {
     The only concern would be the players table update, which should be transaction-ed.
   */
   createGameKeyAndUpdateFirebase() {
+    var league = appStore.league;
     var gameMetaData = {
       dateCreated: new Date(),
-      league: appStore.league,
+      league: league,
       players: this.state.players.map((player) => (/*some kind of toString?*/player))
     }
     var newKey = "test-game";
@@ -84,9 +87,10 @@ export default class CreateGame extends React.Component {
 
       var updates = {};
       updates[`/games/${newKey}`] = gameMetaData;
-      for (var p in this.state.players){
+      for (var p in this.state.players) {
         var playerName = this.state.players[p].playerName;
         updates[`/user-games/${playerName}/${newKey}`] = gameMetaData;
+        updates[`/players/${playerName}/leagues/${league}/active`] = true;
         //increment
         database.ref(`/players/${playerName}/count`).transaction(x => (x || 0) + 1);
       }
@@ -100,36 +104,32 @@ export default class CreateGame extends React.Component {
       database.ref().update(updates);
     }
     this.props.setCurrentGameKey(newKey);
-    this.setState({currentGameKey: newKey});
-    
+    this.setState({ currentGameKey: newKey });
+
   }
 
   updatePlayer(player) {
     //TODO: check for duplicates, if people are going to be malicious--necessary?
-    
+
     //if playerName is now blank, remove the row
     const newPlayers = this.state.players;
-    if (player.playerName == null || player.playerName.length < 1)
-    {
-      for (var oldPlayer of this.state.players)
-      {
-        if (oldPlayer.playerNumber > player.playerNumber)
-        {
+    if (player.playerName == null || player.playerName.length < 1) {
+      for (var oldPlayer of this.state.players) {
+        if (oldPlayer.playerNumber > player.playerNumber) {
           oldPlayer.playerNumber--;
         }
       }
 
       newPlayers.splice(player.playerNumber, 1);
-      this.setState({numPlayers: this.state.numPlayers-1, players:newPlayers});
+      this.setState({ numPlayers: this.state.numPlayers - 1, players: newPlayers });
     }
-    else
-    {
+    else {
       newPlayers[player.playerNumber] = player;
 
       //increase player count so another row appears
       //if this is the "newest" player
       if (player.playerNumber == this.state.numPlayers)
-        this.setState({numPlayers: this.state.numPlayers+1, players:newPlayers});
+        this.setState({ numPlayers: this.state.numPlayers + 1, players: newPlayers });
       this.forceUpdate();
 
     }
@@ -144,7 +144,7 @@ export default class CreateGame extends React.Component {
   componentWillMount() {
     var players = {};
     var dbRef = database.ref("players").orderByChild("count");
-    dbRef.once("value", function(data) {
+    dbRef.once("value", function (data) {
       this.setState({
         allPlayers: data.val()
       });
@@ -158,27 +158,24 @@ export default class CreateGame extends React.Component {
   */
   render() {
     console.log(this.state.allPlayers);
-    var playerButtons = Object.keys(this.state.allPlayers).map((playerName) =>
-    {
-      if (this.state.allPlayers[playerName].inactive)
-      {
-        return null;
-      }
-      //must be a better way to remove already clicked buttons...
-      for (var key in this.state.players) {
-        if (this.state.players[key].playerName == playerName)
-        {
-          return null;
+    var playerButtons = Object.keys(this.state.allPlayers).map((playerName) => {
+      var player = this.state.allPlayers[playerName];
+      if (player.leagues && player.leagues[appStore.league] && player.leagues[appStore.league].active) {
+        //must be a better way to remove already clicked buttons...
+        for (var key in this.state.players) {
+          if (this.state.players[key].playerName == playerName) {
+            return null;
+          }
         }
-      }
 
-      return (
-        <div className="add-player-button" key={playerName}>
-          <button className="add-player-button" type="button" value={playerName} onClick={this.handlePlayerButton.bind(this)}>
-            {playerName}
-          </button>
-        </div>
-      );
+        return (
+          <div className="add-player-button" key={playerName}>
+            <button className="add-player-button" type="button" value={playerName} onClick={this.handlePlayerButton.bind(this)}>
+              {playerName}
+            </button>
+          </div>
+        );
+      }
     });
 
     var playerRows = this.state.players.map((player) =>
@@ -193,20 +190,20 @@ export default class CreateGame extends React.Component {
     var newPlayerGUID = getGUID();
     playerRows.push(
       <div key={newPlayerGUID}>
-          <AddPlayerRow
-            playerNumber={this.state.numPlayers}
-            updatePlayer={this.updatePlayer.bind(this)}
-            uid={newPlayerGUID} />
+        <AddPlayerRow
+          playerNumber={this.state.numPlayers}
+          updatePlayer={this.updatePlayer.bind(this)}
+          uid={newPlayerGUID} />
       </div>
     );
 
     var errorMessage = "";
     if (this.state.errorMessage) {
       errorMessage = (
-          <div className="error-message">
-            {this.state.errorMessage}
-          </div>
-        );
+        <div className="error-message">
+          {this.state.errorMessage}
+        </div>
+      );
     }
     return (
       <div className="new-game">
@@ -233,11 +230,11 @@ export class AddPlayerRow extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {scorekeeper: false, playerName: this.props.playerName};
+    this.state = { scorekeeper: false, playerName: this.props.playerName };
   };
 
   handlePlayerNameChange(event) {
-    this.setState({playerName: event.target.value},
+    this.setState({ playerName: event.target.value },
       this.updateParent)
     /*this.setState(
     {
@@ -246,7 +243,7 @@ export class AddPlayerRow extends React.Component {
   }
 
   handlePlayerScorekeeperChange(event) {
-    this.setState({scorekeeper: event.target.checked},
+    this.setState({ scorekeeper: event.target.checked },
       this.updateParent)
   }
 
@@ -272,18 +269,16 @@ export class AddPlayerRow extends React.Component {
   }
 
   render() {
-    if (!this.props.playerName)
-    {
+    if (!this.props.playerName) {
       return (
-        <div className = {this.getClassName()}>
+        <div className={this.getClassName()}>
           <input type="text" placeholder="Player Name" onChange={this.handlePlayerNameChange.bind(this)} /> <input type="checkbox" value={this.state.scorekeeper} onChange={this.handlePlayerScorekeeperChange.bind(this)} />
         </div>
       );
     }
-    else
-    {
+    else {
       return (
-        <div className = {this.getClassName()}>
+        <div className={this.getClassName()}>
           <input value={this.props.playerName} type="text" onChange={this.handlePlayerNameChange.bind(this)} /> <input type="checkbox" value={this.state.scorekeeper} onChange={this.handlePlayerScorekeeperChange.bind(this)} />
         </div>
       );
