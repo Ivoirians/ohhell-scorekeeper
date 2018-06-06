@@ -1,15 +1,15 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {database} from './firebaseInterface.jsx'
-import {appStore} from './appStore.jsx'
+import { database } from './firebaseInterface.jsx'
+import { appStore } from './appStore.jsx'
 
 export function getCurrentScore(bids, takes, scores, roundNumber) {
-  return (roundNumber > 0 ? scores[roundNumber-1] : 0) + getRoundScore(bids[roundNumber], takes[roundNumber], roundNumber);
+  return (roundNumber > 0 ? scores[roundNumber - 1] : 0) + getRoundScore(bids[roundNumber], takes[roundNumber], roundNumber);
 }
 
 export function getGUID() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
     return v.toString(16);
   });
 }
@@ -29,17 +29,19 @@ export function getRoundScore(bid, take, roundNumber) {
 }
 
 export function getNumberOfRounds(numPlayers) {
-  return parseInt((52-1)/numPlayers);
+  return parseInt((52 - 1) / numPlayers);
 }
 
-export function countArrayPrefix(arr1, arr2, prefixSize) {
+export function countArrayPrefix(arr1, arr2, prefixSize, error = 0) {
   prefixSize = Math.min(prefixSize, arr1.length);
   prefixSize = Math.min(prefixSize, arr2.length);
 
   let count = 0;
   for (var i = 0; i < prefixSize; i++) {
     if (arr1[i] === arr2[i])
-      count++
+      count++;
+    else if (Math.abs(arr1[i] - arr2[i]) <= error)
+      count++;
   }
   return count;
 }
@@ -62,7 +64,7 @@ export function getWinnersAndMessage(players, gameState, no42 = false) {
   var highScore = 0;
   for (var playerIndex in players) {
     var player = players[playerIndex];
-    if (player.currentScore == 42) {
+    if (player.currentScore == 42 && !player.deny42) {
       fortyTwoers.push(player);
     }
     if (player.currentScore > highScore) {
@@ -75,7 +77,7 @@ export function getWinnersAndMessage(players, gameState, no42 = false) {
   }
   if (fortyTwoers.length == 0 || no42) {
     //high scorer
-    winners=highScorers;
+    winners = highScorers;
     if (highScorers.length == 1) {
       winReason = `${winners[0].playerName} got the highest score: ${highScore}`;
     }
@@ -124,13 +126,13 @@ export function getWinnersAndMessage(players, gameState, no42 = false) {
 }
 
 export function matchLeague(game) {
-  return (game.league || 'Zazzle') === appStore.league; 
+  return (game.league || 'Zazzle') === appStore.league;
 }
 
 export class GameSummary extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {isDeleted: false}
+    this.state = { isDeleted: false }
   }
 
   resumeGame() {
@@ -139,36 +141,33 @@ export class GameSummary extends React.Component {
 
 
   showGameSummaryModal() {
-    this.setState({showGameSummaryModal: true});
+    this.setState({ showGameSummaryModal: true });
   }
 
   hideGameSummaryModal() {
-    this.setState({showGameSummaryModal: false});
+    this.setState({ showGameSummaryModal: false });
   }
 
   deleteGame() {
     //delete the user-games for each player first, then the game
-    if(!confirm("Are you sure you want to delete this game?"))
+    if (!confirm("Are you sure you want to delete this game?"))
       return;
 
     var gameKey = this.props.gameWithKey.key;
     var updates = {};
-    if (this.props.gameWithKey.state.isDebug)
-    {
+    if (this.props.gameWithKey.state.isDebug) {
       updates[`/games-debug/${gameKey}`] = null;
     }
-    else
-    {
-      for (var player of this.props.gameWithKey.players)
-      {
-        updates[`/user-games/${player.playerName}/${gameKey}`] = null; 
+    else {
+      for (var player of this.props.gameWithKey.players) {
+        updates[`/user-games/${player.playerName}/${gameKey}`] = null;
         //transaction decrement
         database.ref(`/players/${player.playerName}/count`).transaction(x => x > 1 ? x - 1 : null);
       }
       updates[`/games/${gameKey}`] = null;
     }
     database.ref().update(updates);
-    this.setState({isDeleted: true});
+    this.setState({ isDeleted: true });
   }
 
   getStatus(game) {
@@ -176,12 +175,11 @@ export class GameSummary extends React.Component {
       return "Error";
     else if (game.inProgress)
       return "In Progress";
-    else 
-    {
+    else {
       var winners = getWinnersAndMessage(game.players, game.state);
       return winners[1];
     }
-  } 
+  }
 
   render() {
     if (this.state.isDeleted)
@@ -193,8 +191,7 @@ export class GameSummary extends React.Component {
       resumeButton = (<button className="resume-game" onClick={this.resumeGame.bind(this)}> Resume </button>);
     var spectateButton = (<button className="spectate-game" onClick={this.showGameSummaryModal.bind(this)}> Spectate </button>);
     var deleteButton = "";
-    if (this.props.showDelete)
-    {
+    if (this.props.showDelete) {
       deleteButton = (<button className="delete-game" onClick={this.deleteGame.bind(this)}> Delete </button>)
     }
 
@@ -209,12 +206,12 @@ export class GameSummary extends React.Component {
         {spectateButton}
         {deleteButton}
         <div>
-          <GameSummaryModal 
-          players = {game.players}
-          gameState={game.state}
-          currentGameKey={game.key}
-          show={this.state.showGameSummaryModal}
-          onClose={this.hideGameSummaryModal.bind(this)} />
+          <GameSummaryModal
+            players={game.players}
+            gameState={game.state}
+            currentGameKey={game.key}
+            show={this.state.showGameSummaryModal}
+            onClose={this.hideGameSummaryModal.bind(this)} />
         </div>
       </div>
     );
@@ -244,15 +241,14 @@ export class Scoreboard extends React.Component {
 export class GameSummaryModal extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {gameState: this.props.gameState};
+    this.state = { gameState: this.props.gameState };
     this.gameRef = database.ref((this.props.gameState.isDebug ? '/games-debug/' : '/games/') + this.props.currentGameKey + '/state')
   }
 
   componentWillMount() {
-    this.gameRef.on('value', function(dataSnapshot) {
-      if (dataSnapshot.val() != null)
-      {
-        this.setState({gameState: dataSnapshot.val()});
+    this.gameRef.on('value', function (dataSnapshot) {
+      if (dataSnapshot.val() != null) {
+        this.setState({ gameState: dataSnapshot.val() });
       }
     }.bind(this));
   }
@@ -264,49 +260,49 @@ export class GameSummaryModal extends React.Component {
     var numRounds = getNumberOfRounds(this.props.players.length);
     var tableRows = this.props.players.map((p) => {
       var playerGame = this.state.gameState[p.playerName];
-      var zipped = playerGame.bids.map(function(e, index) {
-        return {col: index, bid: e, take:playerGame.takes[index], score: playerGame.scores[index]};
+      var zipped = playerGame.bids.map(function (e, index) {
+        return { col: index, bid: e, take: playerGame.takes[index], score: playerGame.scores[index] };
       }).slice(0, numRounds); //mainly for when players join mid-game
       var rows = zipped.map((bidTakeScore) => {
         const state = bidTakeScore.bid !== '-' ? bidTakeScore.bid === bidTakeScore.take ? 'hit' : 'miss' : 'none';
-        return(
+        return (
           <td className={`game-summary-${state}`} key={"player-" + p.playerName + "-" + bidTakeScore.col}>{bidTakeScore.take} / {bidTakeScore.bid} [{bidTakeScore.score}]</td>
-          )
+        )
       });
       return (
         <tr key={"player-row-" + p.playerName}>
           <td className="game-summary-cell" key={"player-" + p.playerName}>{p.playerName} </td>
           {rows}
         </tr>
-        )
-      });
+      )
+    });
 
     var headerRow = Array.apply(null, Array(numRounds)).map((e, index) => {
       return (
         <th key={"game-summary-header-" + index}>
           {index + 1} : {this.props.players[index % this.props.players.length].playerName.charAt(0)}
         </th>
-        );
+      );
     });
     return (
       <div className="backdrop">
-          <div className="game-summary-modal">
-            <table>
-              <tbody>
-                <tr>
-                  <th></th>
-                  {headerRow}
-                </tr>
-                {tableRows}
-              </tbody>
-            </table>
-            <div className="footer">
-              <button onClick={this.props.onClose}>
-                Close
+        <div className="game-summary-modal">
+          <table>
+            <tbody>
+              <tr>
+                <th></th>
+                {headerRow}
+              </tr>
+              {tableRows}
+            </tbody>
+          </table>
+          <div className="footer">
+            <button onClick={this.props.onClose}>
+              Close
               </button>
-            </div>
           </div>
         </div>
-      );
+      </div>
+    );
   }
 }

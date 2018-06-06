@@ -51,12 +51,14 @@ export default class RoundTricks extends React.Component {
   computeRoundScores() {
     //the only score guaranteed to match the gameState (which may have changed) is the latest one
     const roundNumber = this.state.gameState.roundNumber;
+    const threshold42 = this.state.gameState.threshold42 || 999;
     for (var playerNumber in this.state.players) {
       var game = this.state.gameState[this.props.players[playerNumber].playerName];
       var score = getCurrentScore(game.bids, game.takes, game.scores, roundNumber-1);
       game.scores[roundNumber-1] = score;
       this.state.players[playerNumber].currentScore = score;
       this.state.players[playerNumber].isPerfect = countArrayPrefix(game.bids, game.takes, roundNumber) === roundNumber;
+      this.state.players[playerNumber].deny42 = countArrayPrefix(game.bids, game.takes, roundNumber, threshold42) !== roundNumber;
     }
   }
 
@@ -133,6 +135,7 @@ export default class RoundTricks extends React.Component {
           currentTake={gameState[player.playerName].takes[gameState.roundNumber-1]}
           isFirstLeader={firstLeader === player.playerNumber}
           isPerfect={player.isPerfect}
+          deny42={player.deny42}
           roundNumber={gameState.roundNumber} />
       </div>
     ));
@@ -190,13 +193,15 @@ class RecordTricks extends React.Component {
   }
 
   render() {
-    var perfectMark = "";
+    var mark = "";
     if (this.props.isPerfect)
-      perfectMark = "*";
+      mark = "*";
+    else if (this.props.deny42)
+      mark = "!";
 
     return (
       <div className={`player-row-bid ${this.props.isFirstLeader && 'currentTrick-firstLeader'}`}>
-      <h3 className='player-name'> {this.props.playerName}: {this.props.currentScore ? this.props.currentScore : 0} {perfectMark} </ h3>
+      <h3 className='player-name'> {this.props.playerName}: {this.props.currentScore ? this.props.currentScore : 0} {mark} </ h3>
         <div className="bid">
           <button onClick={this.decreaseTake.bind(this)}>-</button>
           <span className="current-bidtrick">{this.props.currentTake}/{this.props.currentBid} </span>

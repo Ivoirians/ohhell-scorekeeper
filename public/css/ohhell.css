@@ -184,6 +184,14 @@ button.change-round {
   width:80%;
 }
 
+.threshold42 button {
+  font-size: 22pt;
+}
+.threshold42 span {
+  font-size: 32pt;
+  margin: 0 5px;
+}
+
 .player-rows {
   clear:both;
 }

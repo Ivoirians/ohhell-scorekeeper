@@ -32,6 +32,7 @@ The current schema for a game looks like this (definitely subject to change/see 
 
 ####Player:
 * currentScore (int)
+* deny42 (bool)
 * isPerfect (bool)
 * joinedRound (int)
 * playerName (string)
@@ -40,7 +41,9 @@ The current schema for a game looks like this (definitely subject to change/see 
 
 ####GameState:
 * inProgress (bool)
+* isDebug (bool)
 * roundNumber (int)
+* threshold42 (int)
 * playerNames
  * bids (list)
  * scores (list)
@@ -48,6 +51,7 @@ The current schema for a game looks like this (definitely subject to change/see 
 
 ####Game:
 * dateCreated (string, ISO8601)
+* league
 * Players
 * GameState
 

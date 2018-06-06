@@ -1,20 +1,22 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {database} from './firebaseInterface.jsx'
-import {PageEnum} from './pageEnum.jsx';
-import {AddPlayerRow} from './createGame.jsx';
-import {getNumberOfRounds, getGUID, GameSummaryModal} from './utils.jsx';
+import { database } from './firebaseInterface.jsx'
+import { PageEnum } from './pageEnum.jsx';
+import { AddPlayerRow } from './createGame.jsx';
+import { getNumberOfRounds, getGUID, GameSummaryModal } from './utils.jsx';
 
 export default class RoundBids extends React.Component {
-  
+
   constructor(props) {
     super(props);
-    this.state= { roundNumber: this.props.roundNumber,
-                  players: this.props.players,
-                  gameState: this.props.gameState,
-                  newPlayerGUID: getGUID(),
-                  showAddPlayer: false,
-                  showGameSummaryModal: false};
+    this.state = {
+      roundNumber: this.props.roundNumber,
+      players: this.props.players,
+      gameState: this.props.gameState,
+      newPlayerGUID: getGUID(),
+      showAddPlayer: false,
+      showGameSummaryModal: false
+    };
     this.gameRef = database.ref((this.state.gameState.isDebug ? '/games-debug/' : '/games/') + this.props.currentGameKey + '/state')
   }
 
@@ -36,10 +38,9 @@ export default class RoundBids extends React.Component {
   }
 
   changeRoundNumber(roundNumber) {
-    if (roundNumber > 0 && roundNumber <= getNumberOfRounds(this.state.players.length))
-    {
+    if (roundNumber > 0 && roundNumber <= getNumberOfRounds(this.state.players.length)) {
       //not clear why both have to change...
-      this.setState({roundNumber: roundNumber});
+      this.setState({ roundNumber: roundNumber });
       this.state.gameState.roundNumber = roundNumber;
       this.forceUpdate();
     }
@@ -65,8 +66,7 @@ export default class RoundBids extends React.Component {
   /*** Untested function for adding a new player from this bid page. */
   addPlayer() {
     const playerName = this.state.newPlayerName;
-    if (!playerName)
-    {
+    if (!playerName) {
       //just return, maybe retoggle the button
       console.log("Error: Did not add player");
       this.toggleAddPlayer();
@@ -82,34 +82,34 @@ export default class RoundBids extends React.Component {
     const joinedRound = this.state.roundNumber;
 
     var newPlayer =
-    {
-      playerNumber: this.state.players.length,
-      playerName: playerName,
-      scorekeeper: false,
-      dealer: false,
-      currentScore: minScore,
-      isPerfect: joinedRound === 1, //judgment call here, late joiners aren't perfect (except if they are not actually late)
-      joinedRound
-    };
+      {
+        playerNumber: this.state.players.length,
+        playerName: playerName,
+        scorekeeper: false,
+        dealer: false,
+        currentScore: minScore,
+        isPerfect: joinedRound === 1, //judgment call here, late joiners aren't perfect (except if they are not actually late)
+        deny42: false,
+        joinedRound
+      };
 
     this.state.players.push(newPlayer);
 
     var numRounds = getNumberOfRounds(this.state.players.length);
-    
-    var newGameState = 
-    {
-      scores: Array(numRounds + 1).join('0').split('').map(parseFloat),
-      bids: Array(numRounds + 1).join('-').split(''),
-      takes: Array(numRounds + 1).join('0').split('').map(parseFloat)
-    };
+
+    var newGameState =
+      {
+        scores: Array(numRounds + 1).join('0').split('').map(parseFloat),
+        bids: Array(numRounds + 1).join('-').split(''),
+        takes: Array(numRounds + 1).join('0').split('').map(parseFloat)
+      };
     newGameState["scores"][this.state.roundNumber - 2] = minScore;
     this.state.gameState[playerName] = newGameState;
-    
-    //clear everything out
-    this.setState({showAddPlayer: false, newPlayerName: null});
 
-    if (!this.state.gameState.isDebug)
-    {
+    //clear everything out
+    this.setState({ showAddPlayer: false, newPlayerName: null });
+
+    if (!this.state.gameState.isDebug) {
       //increment player count and update firebase (for data consistency)
       database.ref(`/players/${playerName}/count`).transaction(x => (x || 0) + 1);
       this.updateFirebase();
@@ -118,24 +118,22 @@ export default class RoundBids extends React.Component {
 
   updatePlayer(player) {
     //all we want is the name
-    this.setState({newPlayerName: player.playerName});
+    this.setState({ newPlayerName: player.playerName });
   }
 
   updateFirebase() {
-    if (!this.state.gameState.isDebug)
-    {
+    if (!this.state.gameState.isDebug) {
       var updates = {};
       updates['/games/' + this.props.currentGameKey + '/state'] = this.state.gameState;
       updates['/games/' + this.props.currentGameKey + '/players'] = this.state.players;
-      for (var p in this.state.players){
+      for (var p in this.state.players) {
         var playerName = this.state.players[p].playerName;
-        updates['/user-games/' + playerName + "/" + this.props.currentGameKey + '/state'] = this.state.gameState; 
+        updates['/user-games/' + playerName + "/" + this.props.currentGameKey + '/state'] = this.state.gameState;
         updates['/user-games/' + playerName + "/" + this.props.currentGameKey + '/players'] = this.state.players;
       }
       database.ref().update(updates);
     }
-    else 
-    {
+    else {
       var updates = {};
       updates['/games-debug/' + this.props.currentGameKey + '/state'] = this.state.gameState;
       updates['/games-debug/' + this.props.currentGameKey + '/players'] = this.state.players;
@@ -156,14 +154,12 @@ export default class RoundBids extends React.Component {
 
     Should have learned Redux.
   */
-  getAddPlayerComponent()
-  {
-    if (!this.state.showAddPlayer)
-    {
+  getAddPlayerComponent() {
+    if (!this.state.showAddPlayer) {
       return (<button onClick={this.toggleAddPlayer.bind(this)}>Add New Player </button>);
     }
     else {
-      return(
+      return (
         <div className="add-player-from-bids-dialog-container">
           <button className="add-player-from-bids-dialog" onClick={this.toggleAddPlayer.bind(this)}> Cancel </button>
 
@@ -179,17 +175,16 @@ export default class RoundBids extends React.Component {
     }
   }
 
-  toggleAddPlayer()
-  {
-    this.setState({showAddPlayer:!this.state.showAddPlayer});
+  toggleAddPlayer() {
+    this.setState({ showAddPlayer: !this.state.showAddPlayer });
   }
 
   showGameSummaryModal() {
-    this.setState({showGameSummaryModal: true});
+    this.setState({ showGameSummaryModal: true });
   }
 
   hideGameSummaryModal() {
-    this.setState({showGameSummaryModal: false});
+    this.setState({ showGameSummaryModal: false });
   }
 
   /***
@@ -211,16 +206,16 @@ export default class RoundBids extends React.Component {
     const totalNumRounds = getNumberOfRounds(numPlayers);
     const dealerNumber = (roundNumber - 1) % numPlayers;
     let currentBidder = (dealerNumber + 1) % numPlayers;
-    while(gameState[players[currentBidder].playerName].bids[roundNumber-1] !== "-") {
+    while (gameState[players[currentBidder].playerName].bids[roundNumber - 1] !== "-") {
       currentBidder = (currentBidder + 1) % numPlayers;
-      if(currentBidder == (dealerNumber + 1) % numPlayers) {
+      if (currentBidder == (dealerNumber + 1) % numPlayers) {
         currentBidder = -1;
         break;
       }
     }
 
-    const totalBids = players.map(p => gameState[p.playerName].bids[roundNumber-1] || 0).reduce((a,b)=>(+a || 0)+(+b || 0), 0);
-    const roundBalance = totalBids - roundNumber; 
+    const totalBids = players.map(p => gameState[p.playerName].bids[roundNumber - 1] || 0).reduce((a, b) => (+a || 0) + (+b || 0), 0);
+    const roundBalance = totalBids - roundNumber;
 
     const canFinalize = currentBidder < 0 && roundBalance != 0;
     const pendingBids = players.map((player) => (
@@ -229,13 +224,14 @@ export default class RoundBids extends React.Component {
         <PendingBid
           roundNumber={roundNumber}
           playerName={player.playerName}
-          currentScore={this.state.gameState[player.playerName].scores[roundNumber-2]}
-          currentBid={this.state.gameState[player.playerName].bids[roundNumber-1]}
+          currentScore={this.state.gameState[player.playerName].scores[roundNumber - 2]}
+          currentBid={this.state.gameState[player.playerName].bids[roundNumber - 1]}
           updateBid={this.updateBid.bind(this)}
           maxBid={100}
           isPerfect={player.isPerfect}
-          isDealer={dealerNumber === player.playerNumber} 
-          isCurrentBidder = {currentBidder === player.playerNumber}/>
+          deny42={player.deny42}
+          isDealer={dealerNumber === player.playerNumber}
+          isCurrentBidder={currentBidder === player.playerNumber} />
       </div>
     ));
 
@@ -244,26 +240,26 @@ export default class RoundBids extends React.Component {
     return (
       <div>
         {roundBalance < 0 && <div className='roundBalance roundBalance-under'>{-roundBalance} under</div>}
-        {roundBalance > 0 && <div className='roundBalance roundBalance-over'>{roundBalance} over</div>} 
+        {roundBalance > 0 && <div className='roundBalance roundBalance-over'>{roundBalance} over</div>}
         <div>
           <button className="change-round" onClick={this.decrementRound.bind(this)}> &lt; </button>
           <div className="bids-round-number"> Round: {this.state.roundNumber}/{totalNumRounds} {debugMessage} </div>
           <button className="change-round" onClick={this.incrementRound.bind(this)}> &gt; </button>
         </div>
-        <div className="vertDivider"/>
+        <div className="vertDivider" />
         {pendingBids}
         <hr />
-        <div className="vertDivider"/>
-        { canFinalize && <button onClick={this.goToRoundTricks.bind(this)}> Finalize Bids </button>}
+        <div className="vertDivider" />
+        {canFinalize && <button onClick={this.goToRoundTricks.bind(this)}> Finalize Bids </button>}
         <button onClick={this.showGameSummaryModal.bind(this)}> Summary </button>
         <button onClick={this.goToMainMenu.bind(this)}> Back to Main Menu </button>
         {this.getAddPlayerComponent()}
         <div className="game-summary-modal">
           <GameSummaryModal
-          players = {this.state.players}
-          gameState={this.state.gameState}
-          show={this.state.showGameSummaryModal}
-          onClose={this.hideGameSummaryModal.bind(this)} />
+            players={this.state.players}
+            gameState={this.state.gameState}
+            show={this.state.showGameSummaryModal}
+            onClose={this.hideGameSummaryModal.bind(this)} />
         </div>
       </div>
     );
@@ -276,32 +272,34 @@ class PendingBid extends React.Component {
   }
 
   increaseBid(event) {
-    var newBid = 0;    
-    if(this.props.currentBid === "-")
+    var newBid = 0;
+    if (this.props.currentBid === "-")
       newBid = 1;
     else if (this.props.currentBid < this.props.maxBid)
-      newBid =  this.props.currentBid + 1;
+      newBid = this.props.currentBid + 1;
     this.props.updateBid(this.props.playerName, newBid);
   }
 
   decreaseBid(event) {
     var newBid = 0;
-    if(this.props.currentBid === "-")
-      newBid = 0;    
+    if (this.props.currentBid === "-")
+      newBid = 0;
     else if (this.props.currentBid > 0)
       newBid = this.props.currentBid - 1;
     this.props.updateBid(this.props.playerName, newBid);
   }
 
   render() {
-    var perfectMark = "";
+    var mark = "";
     if (this.props.isPerfect)
-      perfectMark = "*";
+      mark = "*";
+    else if (this.props.deny42)
+      mark = "!";
 
     return (
       <div className={`player-row-bid ${this.props.isDealer && 'pending-bid-dealer'}`}>
-        <h3 className="player-name"> {this.props.playerName}: {this.props.currentScore || 0} {perfectMark} </h3>
-        
+        <h3 className="player-name"> {this.props.playerName}: {this.props.currentScore || 0} {mark} </h3>
+
         <div className={`bid${this.props.isCurrentBidder ? " current-bidder" : ""}`}>
           <button onClick={this.decreaseBid.bind(this)}>{this.props.currentBid === "-" ? "0" : "-"}</button>
           <span className="current-bidtrick"> {this.props.currentBid} </span>

@@ -15,7 +15,8 @@ export default class CreateGame extends React.Component {
       players: [],
       numPlayers: 0,
       isDebug: false,
-      allPlayers: {}
+      allPlayers: {},
+      threshold42: 19
     };
   };
 
@@ -45,6 +46,7 @@ export default class CreateGame extends React.Component {
       scorekeeper: false,
       currentScore: 0,
       isPerfect: true,
+      deny42: false,
       joinedRound: 1,
       uid: getGUID()
     });
@@ -56,7 +58,8 @@ export default class CreateGame extends React.Component {
     var gameState = {
       roundNumber: 1,
       inProgress: true,
-      isDebug: this.state.isDebug
+      isDebug: this.state.isDebug,
+      threshold42: this.state.threshold42
     };
     var numRounds = getNumberOfRounds(this.state.players.length);
     for (var playerIndex in this.state.players) {
@@ -207,6 +210,12 @@ export default class CreateGame extends React.Component {
     }
     return (
       <div className="new-game">
+        <h2>42 Max Error:</h2>
+        <div className="player-buttons threshold42">
+          <button onClick={() => this.setState(s => { return { threshold42: (s.threshold42 + 19) % 20 } })}>-</button>
+          <span>{this.state.threshold42}</span>
+          <button onClick={() => this.setState(s => { return { threshold42: (s.threshold42 + 1  ) % 20 } })}>+</button>
+        </div>
         <h2>Players:</h2>
         <form>
           <div className="player-buttons">
@@ -221,7 +230,7 @@ export default class CreateGame extends React.Component {
         <button onClick={this.goToRoundBids.bind(this)}> Start Round {this.props.roundNumber} </button>
         <button onClick={this.goToMainMenu.bind(this)}> Return to Main Menu </button>
         <button onClick={this.logStateDebug.bind(this)}> Debug </button>
-      </div>
+      </div >
     );
   }
 }
@@ -254,6 +263,7 @@ export class AddPlayerRow extends React.Component {
       scorekeeper: this.state.scorekeeper,
       currentScore: 0,
       isPerfect: true,
+      deny42: false,
       joinedRound: 1,
       uid: this.props.uid
     });
