@@ -38,8 +38,10 @@ export function countArrayPrefix(arr1, arr2, prefixSize, error = 0) {
 
   let count = 0;
   for (var i = 0; i < prefixSize; i++) {
-    if (arr1[i] === arr2[i])
-      count++;
+    if(arr1[i] === '-' || arr2[i] === '-') {
+      if(error > 0)
+        count++;
+    }
     else if (Math.abs(arr1[i] - arr2[i]) <= error)
       count++;
   }

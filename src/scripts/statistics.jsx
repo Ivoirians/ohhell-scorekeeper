@@ -6,7 +6,7 @@ import DatePicker from 'react-datepicker';
 import { appStore } from './appStore.jsx';
 import { database } from './firebaseInterface.jsx'
 import { PageEnum } from './pageEnum.jsx';
-import { GameSummary, getWinnersAndMessage, countArrayPrefix, matchLeague } from './utils.jsx';
+import { GameSummary, getWinnersAndMessage, matchLeague } from './utils.jsx';
 
 var StatsTab = new Enum([
   "NONE",
@@ -52,6 +52,7 @@ class GamePlayers extends React.Component {
           winCount: player.winCount,
           winPct: player.winPct,
           winPctNo42: player.winPctNo42,
+          perfPml: player.perfPml,
           hitPct: player.hitPct,
           above42HitPct: player.above42HitPct,
           gameCount: player.gameCount
@@ -63,6 +64,7 @@ class GamePlayers extends React.Component {
       d.winCount -= player.winCount;
       d.winPct -= player.winPct;
       d.winPctNo42 -= player.winPctNo42;
+      d.perfPml -= player.perfPml;
       d.hitPct -= player.hitPct;
       d.above42HitPct -= player.above42HitPct;
       d.gameCount -= player.gameCount;
@@ -102,6 +104,7 @@ class GamePlayers extends React.Component {
           players[name].gameCount = (players[name].gameCount || 0) + 1;
           players[name].roundCount = (players[name].roundCount || 0) + stats.roundCount;
           players[name].hitCount = (players[name].hitCount || 0) + stats.hitCount;
+          players[name].perfectCount = (players[name].perfectCount || 0) + (stats.hitCount === game.state.roundNumber ? 1 : 0);
           players[name].above42RoundCount = (players[name].above42RoundCount || 0) + stats.above42RoundCount;
           players[name].above42HitCount = (players[name].above42HitCount || 0) + stats.above42HitCount;
           //players[name].totalScore = (players[name].totalScore || 0) + player.currentScore;
@@ -112,6 +115,7 @@ class GamePlayers extends React.Component {
     let above42RoundCount = 0;
     let gameCount = 0;
     let hitCount = 0;
+    let perfectCount = 0;
     let roundCount = 0;
     let winCount = 0;
     let winCountNo42 = 0;
@@ -124,6 +128,7 @@ class GamePlayers extends React.Component {
       above42RoundCount += players[playerName].above42RoundCount;
       gameCount += players[playerName].gameCount;
       hitCount += players[playerName].hitCount;
+      perfectCount += players[playerName].perfectCount;
       roundCount += players[playerName].roundCount;
       winCount += players[playerName].winCount;
       winCountNo42 += players[playerName].winCountNo42;
@@ -134,6 +139,7 @@ class GamePlayers extends React.Component {
       above42RoundCount,
       gameCount: games.length,
       hitCount,
+      perfectCount,
       roundCount,
       winCount,
       winCountNo42
@@ -146,6 +152,7 @@ class GamePlayers extends React.Component {
         winCount: player.winCount,
         winPct: 100 * player.winCount / player.gameCount,
         winPctNo42: 100 * player.winCountNo42 / player.gameCount,
+        perfPml: 1000 * player.perfectCount / player.gameCount,
         hitPct: 100 * player.hitCount / player.roundCount,
         above42HitPct: 100 * player.above42HitCount / (player.above42RoundCount || 1),
         gameCount: player.gameCount
@@ -294,6 +301,7 @@ class GamePlayers extends React.Component {
       case 'wins': stats.sort((a, b) => b.winCount - a.winCount); break;
       case 'winpct': stats.sort((a, b) => b.winPct - a.winPct); break;
       case 'winpctno42': stats.sort((a, b) => b.winPctNo42 - a.winPctNo42); break;
+      case 'perfpml': stats.sort((a,b) => b.perfPml - a.perfPml); break;
       case 'hitpct': stats.sort((a, b) => b.hitPct - a.hitPct); break;
       case 'above42hitpct': stats.sort((a, b) => b.above42HitPct - a.above42HitPct); break;
       case 'games': stats.sort((a, b) => b.gameCount - a.gameCount); break;
@@ -319,6 +327,7 @@ class GamePlayers extends React.Component {
         <td>{player.winCount} {this.getDiffElement(diffPlayer.winCount)}</td>
         <td>{player.winPct.toFixed(1)} {this.getDiffElement(diffPlayer.winPct.toFixed(1))}</td>
         <td>{player.winPctNo42.toFixed(1)} {this.getDiffElement(diffPlayer.winPctNo42.toFixed(1))}</td>
+        <td>{player.perfPml.toFixed(1)} {this.getDiffElement(diffPlayer.perfPml.toFixed(1))}</td>
         <td>{player.hitPct.toFixed(1)} {this.getDiffElement(diffPlayer.hitPct.toFixed(1))}</td>
         <td>{player.above42HitPct.toFixed(1)} {this.getDiffElement(diffPlayer.above42HitPct.toFixed(1))}</td>
         <td>{player.gameCount} {this.getDiffElement(diffPlayer.gameCount)}</td>
@@ -393,7 +402,8 @@ class GamePlayers extends React.Component {
               <th className={sortOrder == 'name' && 'selected'} onClick={() => this.setState({ sortOrder: 'name' })}>Name</th>
               <th className={sortOrder == 'wins' && 'selected'} onClick={() => this.setState({ sortOrder: 'wins' })}>Wins</th>
               <th className={sortOrder == 'winpct' && 'selected'} onClick={() => this.setState({ sortOrder: 'winpct' })}>Win %</th>
-              <th className={sortOrder == 'winpctno42' && 'selected'} onClick={() => this.setState({ sortOrder: 'winpctno42' })}>No 42 Win %</th>
+              <th className={sortOrder == 'winpctno42' && 'selected'} onClick={() => this.setState({ sortOrder: 'winpctno42' })}>!42 Win %</th>
+              <th className={sortOrder == 'perfpml' && 'selected'} onClick={() => this.setState({ sortOrder: 'perfpml' })}>* ‰</th>
               <th className={sortOrder == 'hitpct' && 'selected'} onClick={() => this.setState({ sortOrder: 'hitpct' })}>Hit %</th>
               <th className={sortOrder == 'above42hitpct' && 'selected'} onClick={() => this.setState({ sortOrder: 'above42hitpct' })}>> 42 Hit %</th>
               <th className={sortOrder == 'games' && 'selected'} onClick={() => this.setState({ sortOrder: 'games' })}>Games</th>
