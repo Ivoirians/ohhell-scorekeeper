@@ -16,7 +16,7 @@ export default class CreateGame extends React.Component {
       numPlayers: 0,
       isDebug: false,
       allPlayers: {},
-      threshold42: 19
+      threshold42: 2
     };
   };
 
