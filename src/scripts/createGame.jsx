@@ -92,7 +92,6 @@ export default class CreateGame extends React.Component {
       updates[`/games/${newKey}`] = gameMetaData;
       for (var p in this.state.players) {
         var playerName = this.state.players[p].playerName;
-        updates[`/user-games/${playerName}/${newKey}`] = gameMetaData;
         updates[`/players/${playerName}/leagues/${league}/active`] = true;
         //increment
         database.ref(`/players/${playerName}/count`).transaction(x => (x || 0) + 1);

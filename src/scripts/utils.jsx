@@ -151,7 +151,6 @@ export class GameSummary extends React.Component {
   }
 
   deleteGame() {
-    //delete the user-games for each player first, then the game
     if (!confirm("Are you sure you want to delete this game?"))
       return;
 
@@ -162,7 +161,6 @@ export class GameSummary extends React.Component {
     }
     else {
       for (var player of this.props.gameWithKey.players) {
-        updates[`/user-games/${player.playerName}/${gameKey}`] = null;
         //transaction decrement
         database.ref(`/players/${player.playerName}/count`).transaction(x => x > 1 ? x - 1 : null);
       }

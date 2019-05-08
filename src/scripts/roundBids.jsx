@@ -126,11 +126,6 @@ export default class RoundBids extends React.Component {
       var updates = {};
       updates['/games/' + this.props.currentGameKey + '/state'] = this.state.gameState;
       updates['/games/' + this.props.currentGameKey + '/players'] = this.state.players;
-      for (var p in this.state.players) {
-        var playerName = this.state.players[p].playerName;
-        updates['/user-games/' + playerName + "/" + this.props.currentGameKey + '/state'] = this.state.gameState;
-        updates['/user-games/' + playerName + "/" + this.props.currentGameKey + '/players'] = this.state.players;
-      }
       database.ref().update(updates);
     }
     else {

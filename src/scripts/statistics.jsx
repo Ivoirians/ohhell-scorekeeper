@@ -213,6 +213,7 @@ class GamePlayers extends React.Component {
   processGames(playerGames, playerName) {
     //i just realized this is the only reason we have the user-games tables and we aren't even using it
     //vote to delete the user-games table, which is like, 80% of the database's size and not used anywhere
+    //done!
     var numGames = playerGames.length;
     var playerStats = {
       totalGames: numGames,
