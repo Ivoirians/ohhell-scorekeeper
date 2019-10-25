@@ -1,11 +1,12 @@
+import CreateGame from './createGame.jsx';
+import MainMenu from './mainMenu.jsx';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import MainMenu from './mainMenu.jsx';
-import CreateGame from './createGame.jsx';
 import RoundBids from './roundBids.jsx';
 import RoundTricks from './roundTricks.jsx';
 import Statistics from './statistics.jsx';
 import WinScreen from './winScreen.jsx';
+import { database } from './firebaseInterface.jsx'
 import {PageEnum} from './pageEnum.jsx';
 
 
@@ -37,6 +38,21 @@ class OhHell extends React.Component {
     this.setState({
       currentPage: newPage
     });
+  }
+
+  updateFirebase(currentGameKey, gameState, players) {
+    if (!gameState.isDebug) {
+      var updates = {};
+      updates['/games/' + currentGameKey + '/state'] = gameState;
+      updates['/games/' + currentGameKey + '/players'] = players;
+      database.ref().update(updates);
+    }
+    else {
+      var updates = {};
+      updates['/games-debug/' + currentGameKey + '/state'] = gameState;
+      updates['/games-debug/' + currentGameKey + '/players'] = players;
+      database.ref().update(updates);
+    }
   }
 
   updateGameState(players, gameState) {
@@ -93,30 +109,39 @@ class OhHell extends React.Component {
     var partial;
     switch(this.state.currentPage) {
       case PageEnum.MAIN_MENU:
-        partial = <MainMenu changePage={this.changePage.bind(this)}
-                            updateGameState={this.updateGameState.bind(this)}
-                            setCurrentGameKey={this.setCurrentGameKey.bind(this)} />;
+        partial = <MainMenu 
+                    changePage={this.changePage.bind(this)}
+                    setCurrentGameKey={this.setCurrentGameKey.bind(this)} 
+                    updateGameState={this.updateGameState.bind(this)}
+                  />;
         break;
       case PageEnum.CREATE_GAME:
-        partial = <CreateGame changePage={this.changePage.bind(this)}
-                    updateGameState={this.updateGameState.bind(this)}
-                    setCurrentGameKey={this.setCurrentGameKey.bind(this)} />;
+        partial = <CreateGame 
+                    changePage={this.changePage.bind(this)}
+                    updateFirebase={this.updateFirebase.bind(this)}
+                  />;
         break;
       case PageEnum.ROUND_BIDS:
-        partial = <RoundBids changePage={this.changePage.bind(this)}
-                    roundNumber={this.state.gameState.roundNumber}
+        partial = <RoundBids 
+                    changePage={this.changePage.bind(this)}
+                    currentGameKey={this.state.currentGameKey} 
                     gameState={this.state.gameState}
                     players={this.state.currentPlayers}
+                    roundNumber={this.state.gameState.roundNumber}
+                    updateFirebase={this.updateFirebase.bind(this)}
                     updateGameState={this.updateGameState.bind(this)}
-                    currentGameKey={this.state.currentGameKey} />;
+                  />;
         break;
       case PageEnum.ROUND_TRICKS:
-        partial = <RoundTricks changePage={this.changePage.bind(this)}
-                    roundNumber = {this.state.gameState.roundNumber}
+        partial = <RoundTricks 
+                    changePage={this.changePage.bind(this)}
+                    currentGameKey={this.state.currentGameKey} 
                     gameState={this.state.gameState}
                     players={this.state.currentPlayers}
+                    roundNumber = {this.state.gameState.roundNumber}
+                    updateFirebase={this.updateFirebase.bind(this)}
                     updateGameState={this.updateGameState.bind(this)}
-                    currentGameKey={this.state.currentGameKey} />;
+                  />;
         break;
       case PageEnum.WIN_SCREEN:
         partial = <WinScreen  changePage={this.changePage.bind(this)}

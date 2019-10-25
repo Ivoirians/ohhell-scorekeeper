@@ -10,7 +10,6 @@ export default class CreateGame extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      scorekeeper: '',
       headerText: 'New Game',
       players: [],
       numPlayers: 0,
@@ -20,19 +19,18 @@ export default class CreateGame extends React.Component {
     };
   };
 
-  goToMainMenu() {
-    this.props.changePage(PageEnum.MAIN_MENU);
-  }
-
-  goToRoundBids() {
+  startGames() {
     //todo: check for duplicate player names
     if (this.state.players.length == 0) {
       this.setState({ errorMessage: "No players." });
       return;
     }
-    this.createGameKeyAndUpdateFirebase();
-    this.props.updateGameState(this.state.players, this.getNewGameState());
-    this.props.changePage(PageEnum.ROUND_BIDS);
+    this.createGamesAndUpdateFirebase();
+    this.goToMainMenu();
+  }
+
+  goToMainMenu() {
+    this.props.changePage(PageEnum.MAIN_MENU);
   }
 
   handleIsDebug(event) {
@@ -43,7 +41,6 @@ export default class CreateGame extends React.Component {
     this.updatePlayer({
       playerNumber: this.state.numPlayers,
       playerName: event.target.value,
-      scorekeeper: false,
       currentScore: 0,
       isPerfect: true,
       deny42: false,
@@ -54,16 +51,17 @@ export default class CreateGame extends React.Component {
 
   //creates a gameState object out of the current set of players
   //then changes page to bids
-  getNewGameState() {
+  getNewGameState(players) {
+    const numPlayers = players.length;
     var gameState = {
       roundNumber: 1,
       inProgress: true,
       isDebug: this.state.isDebug,
-      threshold42: this.state.threshold42
+      threshold42: numPlayers > 5 ? 1 : 2
     };
-    var numRounds = getNumberOfRounds(this.state.players.length);
-    for (var playerIndex in this.state.players) {
-      var player = this.state.players[playerIndex];
+    var numRounds = getNumberOfRounds(numPlayers);
+    for (var playerIndex in players) {
+      var player = players[playerIndex];
       gameState[player.playerName] = ({
         scores: Array(numRounds + 1).join('0').split('').map(parseFloat),
         bids: Array(numRounds + 1).join('-').split(''),
@@ -77,7 +75,7 @@ export default class CreateGame extends React.Component {
     Most of this is concurrency-safe because it's a new key.
     The only concern would be the players table update, which should be transaction-ed.
   */
-  createGameKeyAndUpdateFirebase() {
+  createGamesAndUpdateFirebase() {
     var league = appStore.league;
     var gameMetaData = {
       dateCreated: new Date(),
@@ -105,9 +103,8 @@ export default class CreateGame extends React.Component {
       updates[`/games-debug/${newKey}`] = gameMetaData;
       database.ref().update(updates);
     }
-    this.props.setCurrentGameKey(newKey);
     this.setState({ currentGameKey: newKey });
-
+    this.props.updateFirebase(newKey, this.getNewGameState(this.state.players), this.state.players);
   }
 
   updatePlayer(player) {
@@ -135,22 +132,19 @@ export default class CreateGame extends React.Component {
       this.forceUpdate();
 
     }
-
-
-  }
-
-  logStateDebug() {
-    console.log(JSON.stringify(this.state));
   }
 
   componentWillMount() {
-    var players = {};
-    var dbRef = database.ref("players").orderByChild("count");
-    dbRef.once("value", function (data) {
+    var league = appStore.league;
+    database.ref("players").orderByChild("count").once("value",  data => {
       this.setState({
         allPlayers: data.val()
       });
-    }.bind(this));
+    }).then(() =>{
+      database.ref(`pendingPlayers/${league}`).once("value", data => {
+        console.log(data.val());
+      });
+    });
   }
 
   /***
@@ -159,7 +153,6 @@ export default class CreateGame extends React.Component {
     If the last row is modified, increase the count.
   */
   render() {
-    console.log(this.state.allPlayers);
     var playerButtons = Object.keys(this.state.allPlayers).map((playerName) => {
       var player = this.state.allPlayers[playerName];
       if (player.leagues && player.leagues[appStore.league] && player.leagues[appStore.league].active) {
@@ -209,12 +202,6 @@ export default class CreateGame extends React.Component {
     }
     return (
       <div className="new-game">
-        <h2>42 Max Error:</h2>
-        <div className="player-buttons threshold42">
-          <button onClick={() => this.setState(s => { return { threshold42: (s.threshold42 + 19) % 20 } })}>-</button>
-          <span>{this.state.threshold42}</span>
-          <button onClick={() => this.setState(s => { return { threshold42: (s.threshold42 + 1  ) % 20 } })}>+</button>
-        </div>
         <h2>Players:</h2>
         <form>
           <div className="player-buttons">
@@ -226,9 +213,8 @@ export default class CreateGame extends React.Component {
           Debug: <input type="checkbox" onChange={this.handleIsDebug.bind(this)} label="Debug"></input>
         </form>
         {errorMessage}
-        <button onClick={this.goToRoundBids.bind(this)}> Start Round {this.props.roundNumber} </button>
+        <button onClick={this.startGames.bind(this)}> Start Game(s) </button>
         <button onClick={this.goToMainMenu.bind(this)}> Return to Main Menu </button>
-        <button onClick={this.logStateDebug.bind(this)}> Debug </button>
       </div >
     );
   }
@@ -238,7 +224,7 @@ export class AddPlayerRow extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = { scorekeeper: false, playerName: this.props.playerName };
+    this.state = { playerName: this.props.playerName };
   };
 
   handlePlayerNameChange(event) {
@@ -250,16 +236,10 @@ export class AddPlayerRow extends React.Component {
     })*/
   }
 
-  handlePlayerScorekeeperChange(event) {
-    this.setState({ scorekeeper: event.target.checked },
-      this.updateParent)
-  }
-
   updateParent() {
     this.props.updatePlayer({
       playerNumber: this.props.playerNumber,
       playerName: this.state.playerName,
-      scorekeeper: this.state.scorekeeper,
       currentScore: 0,
       isPerfect: true,
       deny42: false,
@@ -268,27 +248,18 @@ export class AddPlayerRow extends React.Component {
     });
   }
 
-  getClassName() {
-    if (this.state.scorekeeper) {
-      return "player-row-scorekeeper";
-    }
-    else {
-      return "player-row";
-    }
-  }
-
   render() {
     if (!this.props.playerName) {
       return (
-        <div className={this.getClassName()}>
-          <input type="text" placeholder="Player Name" onChange={this.handlePlayerNameChange.bind(this)} /> <input type="checkbox" value={this.state.scorekeeper} onChange={this.handlePlayerScorekeeperChange.bind(this)} />
+        <div className="player-row">
+          <input type="text" placeholder="Player Name" onChange={this.handlePlayerNameChange.bind(this)} />
         </div>
       );
     }
     else {
       return (
-        <div className={this.getClassName()}>
-          <input value={this.props.playerName} type="text" onChange={this.handlePlayerNameChange.bind(this)} /> <input type="checkbox" value={this.state.scorekeeper} onChange={this.handlePlayerScorekeeperChange.bind(this)} />
+        <div className="player-row">
+          <input value={this.props.playerName} type="text" onChange={this.handlePlayerNameChange.bind(this)} />
         </div>
       );
     }

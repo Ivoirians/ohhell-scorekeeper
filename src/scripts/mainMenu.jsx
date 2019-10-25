@@ -36,11 +36,11 @@ export default class MainMenu extends React.Component {
         <button className="league" onClick={this.handleLeague.bind(this)}> {appStore.league} </button>
         <button onClick={this.goToNewGame.bind(this)}> New Game </button>
         <button onClick={this.goToStatistics.bind(this)}> Statistics </button>
-        <LatestGames loadGame={this.loadGame.bind(this)} numberOfGames={3} debug={false}/>
+        <LatestGames loadGame={this.loadGame.bind(this)} numberOfGames={5} debug={false}/>
         {/*
         <div>
           <h3> Debug Games </h3>
-          <LatestGames loadGame={this.loadGame.bind(this)} numberOfGames={3} debug={true}/>
+          <LatestGames loadGame={this.loadGame.bind(this)} numberOfGames={5} debug={true}/>
         </div>
         */}
       </div>
@@ -59,6 +59,7 @@ class LatestGames extends React.Component {
   };
 
   componentDidMount() {
+    console.log('PEtar: did mount');
     var latestGames = [];
     var dbRef = database.ref(this.state.dbRefName).orderByChild("dateCreated").limitToLast(this.props.numberOfGames);
     dbRef.once("value", function(data) {

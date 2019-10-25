@@ -19,18 +19,18 @@ export default class RoundTricks extends React.Component {
   }
 
   goToRoundBids() {
-    this.updateFirebase();
+    this.props.updateFirebase(this.props.currentGameKey, this.state.gameState, this.state.players);
     this.props.changePage(PageEnum.ROUND_BIDS);
   }
 
   goToWinScreen() {
-    this.updateFirebase();
+    this.props.updateFirebase(this.props.currentGameKey, this.state.gameState, this.state.players);
     this.props.changePage(PageEnum.WIN_SCREEN);
   }
 
   updateTake(playerName, newBid) {
     this.state.gameState[playerName].takes[this.state.gameState.roundNumber - 1] = parseInt(newBid);
-    this.updateFirebase();
+    this.props.updateFirebase(this.props.currentGameKey, this.state.gameState, this.state.players);
     this.forceUpdate();
   }
 
@@ -74,22 +74,6 @@ export default class RoundTricks extends React.Component {
     this.state.gameState.inProgress = false;
     this.props.updateGameState(this.state.players, this.state.gameState);
     this.goToWinScreen();
-  }
-
-  updateFirebase() {
-    if (!this.state.gameState.isDebug)
-    {
-      var updates = {};
-      updates['/games/' + this.props.currentGameKey + '/state'] = this.state.gameState;
-      updates['/games/' + this.props.currentGameKey + '/players'] = this.state.players;
-      database.ref().update(updates);
-    }
-    else {
-      var updates = {};
-      updates['/games-debug/' + this.props.currentGameKey + '/state'] = this.state.gameState;
-      updates['/games-debug/' + this.props.currentGameKey + '/players'] = this.state.players;
-      database.ref().update(updates);
-    }
   }
 
   /***

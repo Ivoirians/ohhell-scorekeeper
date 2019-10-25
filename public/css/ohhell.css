@@ -106,10 +106,6 @@ input[type=number]{
     align-items: center;
 }
 
-.player-row-scorekeeper {
-  background-color: blue;
-}
-
 .latest-games {
   font-size:20pt;
   border: 1pt solid #000;

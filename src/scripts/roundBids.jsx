@@ -22,7 +22,7 @@ export default class RoundBids extends React.Component {
 
   componentWillMount() {
     //update firebase on mount - this allows to later resume the game even if no bids were ever finalized
-    this.updateFirebase();
+    this.props.updateFirebase(this.props.currentGameKey, this.state.gameState, this.state.players);
   }
 
   componentWillUnmount() {
@@ -47,19 +47,19 @@ export default class RoundBids extends React.Component {
   }
 
   goToMainMenu() {
-    this.updateFirebase();
+    this.props.updateFirebase(this.props.currentGameKey, this.state.gameState, this.state.players);
     this.props.changePage(PageEnum.MAIN_MENU);
   }
 
   goToRoundTricks() {
-    this.updateFirebase();
+    this.props.updateFirebase(this.props.currentGameKey, this.state.gameState, this.state.players);
     this.props.updateGameState(this.state.players, this.state.gameState);
     this.props.changePage(PageEnum.ROUND_TRICKS);
   }
 
   updateBid(playerName, newBid) {
     this.state.gameState[playerName].bids[this.state.roundNumber - 1] = parseInt(newBid);
-    this.updateFirebase();
+    this.props.updateFirebase(this.props.currentGameKey, this.state.gameState, this.state.players);;
     this.forceUpdate();
   }
 
@@ -112,28 +112,13 @@ export default class RoundBids extends React.Component {
     if (!this.state.gameState.isDebug) {
       //increment player count and update firebase (for data consistency)
       database.ref(`/players/${playerName}/count`).transaction(x => (x || 0) + 1);
-      this.updateFirebase();
+      this.props.updateFirebase(this.props.currentGameKey, this.state.gameState, this.state.players);
     }
   }
 
   updatePlayer(player) {
     //all we want is the name
     this.setState({ newPlayerName: player.playerName });
-  }
-
-  updateFirebase() {
-    if (!this.state.gameState.isDebug) {
-      var updates = {};
-      updates['/games/' + this.props.currentGameKey + '/state'] = this.state.gameState;
-      updates['/games/' + this.props.currentGameKey + '/players'] = this.state.players;
-      database.ref().update(updates);
-    }
-    else {
-      var updates = {};
-      updates['/games-debug/' + this.props.currentGameKey + '/state'] = this.state.gameState;
-      updates['/games-debug/' + this.props.currentGameKey + '/players'] = this.state.players;
-      database.ref().update(updates);
-    }
   }
 
   logStateDebug() {
