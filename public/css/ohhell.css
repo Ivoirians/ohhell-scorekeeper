@@ -128,7 +128,7 @@ input[type=number]{
   background-color:  lightcoral;
 }
 .game-summary-hardmiss {
-  background-color: darkred;
+  background-color: red;
 }
 
 .resume-game, .resume-game:hover {
