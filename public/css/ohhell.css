@@ -100,7 +100,7 @@ input[type=number]{
 }
 
 .player-row-bid {
-    display: flex;a
+    display: flex;
     padding: 0 40px;
     justify-content: space-between;
     align-items: center;

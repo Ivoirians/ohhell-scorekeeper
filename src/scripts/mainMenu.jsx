@@ -59,7 +59,6 @@ class LatestGames extends React.Component {
   };
 
   componentDidMount() {
-    console.log('PEtar: did mount');
     var latestGames = [];
     var dbRef = database.ref(this.state.dbRefName).orderByChild("dateCreated").limitToLast(this.props.numberOfGames);
     dbRef.once("value", function(data) {
