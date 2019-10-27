@@ -3,6 +3,16 @@ import ReactDOM from 'react-dom';
 import { database } from './firebaseInterface.jsx'
 import { appStore } from './appStore.jsx'
 
+export function callApi(method) {
+  return new Promise((resolve, reject) => {
+    fetch(`https://us-central1-ohhellscorekeeper.cloudfunctions.net/${method}`).then(resp => {
+      resp.json().then(json => {
+        resolve(json);
+      }).catch(reason => reject(reason));
+    }).catch(reason => reject(reason));;
+  });
+}
+
 export function getCurrentScore(bids, takes, scores, roundNumber) {
   return (roundNumber > 0 ? scores[roundNumber - 1] : 0) + getRoundScore(bids[roundNumber], takes[roundNumber], roundNumber);
 }
@@ -38,8 +48,8 @@ export function countArrayPrefix(arr1, arr2, prefixSize, error = 0) {
 
   let count = 0;
   for (var i = 0; i < prefixSize; i++) {
-    if(arr1[i] === '-' || arr2[i] === '-') {
-      if(error > 0)
+    if (arr1[i] === '-' || arr2[i] === '-') {
+      if (error > 0)
         count++;
     }
     else if (Math.abs(arr1[i] - arr2[i]) <= error)
