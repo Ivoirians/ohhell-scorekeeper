@@ -31,6 +31,14 @@ button:hover {
   font-size: 40pt;
 }
 
+button.selected {
+  background: #db9834;  ;
+}
+
+button.selected:hover {
+  background: #fdb03c;  ;
+}
+
 h1 {
   text-align: center;
   font-size: 60pt;

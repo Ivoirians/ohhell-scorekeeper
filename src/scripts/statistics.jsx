@@ -18,7 +18,7 @@ class GamePlayers extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      shift: 0,
+      playerCountFilter: [true, true, true, true, true],
       sortOrder: 'wins',
       showModal: false
     };
@@ -31,7 +31,12 @@ class GamePlayers extends React.Component {
   doStats() {
     let { allGames } = this.props;
     let { startDate, endDate } = this.state;
-    allGames = allGames.filter(game => !game.state.inProgress && (!startDate || startDate <= moment(game.dateCreated)) && (!endDate || moment(game.dateCreated) <= endDate));
+    allGames = allGames.filter(game => 
+      !game.state.inProgress 
+      && (!startDate || startDate <= moment(game.dateCreated)) 
+      && (!endDate || moment(game.dateCreated) <= endDate)
+      && this.getPlayerCountFilter(game.players.length)
+    );
     this.setState({ players: this.playerStatsForGames(allGames) }, () => this.doDiff());
   }
 
@@ -42,7 +47,12 @@ class GamePlayers extends React.Component {
     const endDate = this.state.endDate || moment();
     const diffDate = this.state.diffDate || moment(endDate).startOf('day').add(-1, 'second');
 
-    allGames = allGames.filter(game => !game.state.inProgress && (!startDate || startDate <= moment(game.dateCreated)) && moment(game.dateCreated) <= diffDate);
+    allGames = allGames.filter(game => 
+      !game.state.inProgress 
+      && (!startDate || startDate <= moment(game.dateCreated)) 
+      && moment(game.dateCreated) <= diffDate
+      && this.getPlayerCountFilter(game.players.length)
+    );
     const previous = this.playerStatsForGames(allGames)
 
     const diff = {};
@@ -77,21 +87,15 @@ class GamePlayers extends React.Component {
     let players = {};
     games
       .forEach(game => {
-        //get mapping based on shift in positions
-        const mapto = {}
-        const playersCount = game.players.length;
-        for (let i = 0; i < playersCount; i++)
-          mapto[game.players[i].playerName] = game.players[((i - this.state.shift) % playersCount + playersCount) % playersCount].playerName;
-
         //winners
         getWinnersAndMessage(game.players, game.state)[0].forEach(winner => {
-          const name = mapto[winner.playerName];
+          const name = winner.playerName;
           players[name] = players[name] || {};
           players[name].winCount = (players[name].winCount || 0) + 1;
         });
         //winners no 42
         getWinnersAndMessage(game.players, game.state, true)[0].forEach(winner => {
-          const name = mapto[winner.playerName];
+          const name = winner.playerName;
           players[name] = players[name] || {};
           players[name].winCountNo42 = (players[name].winCountNo42 || 0) + 1;
         });
@@ -99,7 +103,6 @@ class GamePlayers extends React.Component {
         game.players.forEach(player => {
           let name = player.playerName;
           const stats = this.playerStatsForGame(game.state[name].bids, game.state[name].takes, game.state[name].scores, game.state.roundNumber);
-          name = mapto[name];
           players[name] = players[name] || {};
           players[name].gameCount = (players[name].gameCount || 0) + 1;
           players[name].roundCount = (players[name].roundCount || 0) + stats.roundCount;
@@ -287,6 +290,18 @@ class GamePlayers extends React.Component {
     this.setState({ showModal: false });
   }
 
+  togglePlayerCountFilter(playerCount) {
+    let plf = this.state.playerCountFilter;
+    if(playerCount)
+      plf[playerCount-3] = !plf[playerCount-3];
+    else
+      plf = plf.map(x => true);
+    this.setState({ playerCountFilter: plf }, () => this.doStats());
+  }
+  getPlayerCountFilter(playerCount) {
+    return this.state.playerCountFilter[playerCount-3];
+  }
+
   render() {
     const { allPlayers } = this.props;
     const { players, sortOrder } = this.state;
@@ -341,9 +356,13 @@ class GamePlayers extends React.Component {
       <div>
         <div className="GamePlayers-filters">
           <div>
-            <button onClick={() => this.setState({ shift: this.state.shift + 1 }, () => this.doStats())}>Left</button>
-            <span className="shift">{this.state.shift}</span>
-            <button onClick={() => this.setState({ shift: this.state.shift - 1 }, () => this.doStats())}>Right</button>
+            <button onClick={() => this.togglePlayerCountFilter()}>Any</button>
+            <button className={this.getPlayerCountFilter(3) && 'selected'}  onClick={() => this.togglePlayerCountFilter(3)}>3</button>
+            <button className={this.getPlayerCountFilter(4) && 'selected'} onClick={() => this.togglePlayerCountFilter(4)}>4</button>
+            <button className={this.getPlayerCountFilter(5) && 'selected'} onClick={() => this.togglePlayerCountFilter(5)}>5</button>
+            <button className={this.getPlayerCountFilter(6) && 'selected'} onClick={() => this.togglePlayerCountFilter(6)}>6</button>
+            <button className={this.getPlayerCountFilter(7) && 'selected'} onClick={() => this.togglePlayerCountFilter(7)}>7</button>
+            <span>players</span>
           </div>
           <div>
             <button onClick={() => this.setState({ startDateOpen: !this.state.startDateOpen })}>{this.state.startDate ? startDate.format("MM-DD-YY") : "Start"}</button>
