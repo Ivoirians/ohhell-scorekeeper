@@ -16,11 +16,12 @@ body {
 }
 
 button {
-  margin: 5pt;
+  background: #3498db;
   border: 2pt black solid;
   color: #ffffff;
   font-size: 40pt;
-  background: #3498db;
+  margin: 5pt;
+  min-width: 50pt;
   padding: 10pt 20pt 10pt 20pt;
   text-decoration: none;
 }
